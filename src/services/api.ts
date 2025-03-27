@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { ApiResponse, PowerBank, Station, Rental, User } from '@/types/api';
+import { ApiResponse, PowerBank, Station, Rental, User, Subscription, Payment } from '@/types/api';
 
 const API_BASE_URL = 'https://apifox.com/apidoc/shared/4855b8fe-4c43-48f6-8bd6-37cc29b98fe5';
 
@@ -53,6 +53,18 @@ export const getStationById = async (id: string): Promise<ApiResponse<Station>> 
   }
 };
 
+export const getStationsByLocation = async (latitude: number, longitude: number, radius: number): Promise<ApiResponse<Station[]>> => {
+  try {
+    const response = await api.get('/stations/nearby', {
+      params: { latitude, longitude, radius }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching nearby stations:', error);
+    return { success: false, error: 'Failed to fetch nearby stations' };
+  }
+};
+
 // Rental endpoints
 export const getUserRentals = async (userId: string): Promise<ApiResponse<Rental[]>> => {
   try {
@@ -61,6 +73,16 @@ export const getUserRentals = async (userId: string): Promise<ApiResponse<Rental
   } catch (error) {
     console.error(`Error fetching rentals for user ${userId}:`, error);
     return { success: false, error: 'Failed to fetch rental history' };
+  }
+};
+
+export const getRentalById = async (rentalId: string): Promise<ApiResponse<Rental>> => {
+  try {
+    const response = await api.get(`/rentals/${rentalId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching rental with ID ${rentalId}:`, error);
+    return { success: false, error: 'Failed to fetch rental details' };
   }
 };
 
@@ -104,3 +126,84 @@ export const updateUserProfile = async (userId: string, userData: Partial<User>)
     return { success: false, error: 'Failed to update user profile' };
   }
 };
+
+export const registerUser = async (userData: Partial<User>): Promise<ApiResponse<User>> => {
+  try {
+    const response = await api.post('/users/register', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return { success: false, error: 'Failed to register user' };
+  }
+};
+
+export const loginUser = async (email: string, password: string): Promise<ApiResponse<User>> => {
+  try {
+    const response = await api.post('/users/login', { email, password });
+    return response.data;
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return { success: false, error: 'Failed to login' };
+  }
+};
+
+// Subscription endpoints
+export const getSubscriptions = async (): Promise<ApiResponse<Subscription[]>> => {
+  try {
+    const response = await api.get('/subscriptions');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching subscriptions:', error);
+    return { success: false, error: 'Failed to fetch subscriptions' };
+  }
+};
+
+export const subscribeUser = async (userId: string, subscriptionId: string): Promise<ApiResponse<User>> => {
+  try {
+    const response = await api.post(`/users/${userId}/subscribe`, { subscriptionId });
+    return response.data;
+  } catch (error) {
+    console.error(`Error subscribing user ${userId}:`, error);
+    return { success: false, error: 'Failed to subscribe user' };
+  }
+};
+
+// Payment endpoints
+export const getUserPayments = async (userId: string): Promise<ApiResponse<Payment[]>> => {
+  try {
+    const response = await api.get(`/users/${userId}/payments`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching payments for user ${userId}:`, error);
+    return { success: false, error: 'Failed to fetch payment history' };
+  }
+};
+
+export const addPaymentMethod = async (userId: string, paymentMethod: any): Promise<ApiResponse<User>> => {
+  try {
+    const response = await api.post(`/users/${userId}/payment-methods`, paymentMethod);
+    return response.data;
+  } catch (error) {
+    console.error(`Error adding payment method for user ${userId}:`, error);
+    return { success: false, error: 'Failed to add payment method' };
+  }
+};
+
+export const removePaymentMethod = async (userId: string, paymentMethodId: string): Promise<ApiResponse<User>> => {
+  try {
+    const response = await api.delete(`/users/${userId}/payment-methods/${paymentMethodId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error removing payment method for user ${userId}:`, error);
+    return { success: false, error: 'Failed to remove payment method' };
+  }
+};
+
+// Generic error handler for API requests
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Request Failed:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);

@@ -9,6 +9,10 @@ import Features from "./pages/Features";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Account from "./pages/Account";
+import Rentals from "./pages/Rentals";
+import Subscriptions from "./pages/Subscriptions";
+import Profile from "./pages/Profile";
+import StationsMap from "./pages/StationsMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +29,10 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/rentals" element={<Rentals />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/stations" element={<StationsMap />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

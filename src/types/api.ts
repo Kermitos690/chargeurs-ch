@@ -39,6 +39,18 @@ export interface User {
   phone: string;
   activeRental?: Rental;
   rentalHistory?: Rental[];
+  subscriptionType?: 'basic' | 'premium' | 'enterprise';
+  paymentMethod?: {
+    type: string;
+    lastFour?: string;
+    expiryDate?: string;
+  };
+  address?: {
+    street?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+  };
 }
 
 export interface ApiResponse<T> {
@@ -46,4 +58,23 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+export interface Subscription {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  features: string[];
+  duration: 'monthly' | 'yearly';
+}
+
+export interface Payment {
+  id: string;
+  userId: string;
+  amount: number;
+  status: 'pending' | 'completed' | 'failed';
+  date: string;
+  method: string;
+  description: string;
 }
