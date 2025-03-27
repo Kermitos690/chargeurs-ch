@@ -2,7 +2,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const circleRef = useRef<HTMLDivElement>(null);
@@ -41,23 +40,19 @@ const Hero = () => {
           <div className="order-2 lg:order-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
-                Location de Powerbanks à Portée de Main
+                Solutions de recharge pour véhicules électriques
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-                Ne laissez plus jamais votre batterie vous lâcher. Trouvez une borne et empruntez une powerbank en quelques secondes.
+                Des solutions de recharge innovantes, fiables et accessibles pour les particuliers et les entreprises.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link to="/stations">
-                  <Button size="lg" className="rounded-full">
-                    Trouver une borne
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/subscriptions">
-                  <Button size="lg" variant="outline" className="rounded-full">
-                    Nos abonnements
-                  </Button>
-                </Link>
+                <Button size="lg" className="rounded-full">
+                  Découvrir nos solutions
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button size="lg" variant="outline" className="rounded-full">
+                  Contactez-nous
+                </Button>
               </div>
             </div>
           </div>
@@ -67,8 +62,8 @@ const Hero = () => {
               <div className="glass-panel rounded-3xl overflow-hidden p-1 shadow-elevation">
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80" 
-                    alt="Location de powerbank portable" 
+                    src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=900&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY0MDM1OTcyOA&ixlib=rb-1.2.1&q=80&w=1600" 
+                    alt="Recharge de véhicule électrique" 
                     className="w-full h-full object-cover"
                     loading="eager"
                   />
@@ -77,13 +72,13 @@ const Hero = () => {
               
               {/* Floating elements */}
               <div className="absolute -bottom-6 -left-6 glass-panel rounded-2xl p-4 backdrop-blur-md animate-fade-in shadow-elevation" style={{ animationDelay: '0.8s' }}>
-                <p className="font-medium">100+ Bornes</p>
-                <p className="text-sm text-muted-foreground">Partout en Suisse</p>
+                <p className="font-medium">100% Renouvelable</p>
+                <p className="text-sm text-muted-foreground">Énergie verte</p>
               </div>
               
               <div className="absolute -top-6 -right-6 glass-panel rounded-2xl p-4 backdrop-blur-md animate-fade-in shadow-elevation" style={{ animationDelay: '1s' }}>
-                <p className="font-medium">24/7 Disponible</p>
-                <p className="text-sm text-muted-foreground">À tout moment</p>
+                <p className="font-medium">Certifié Suisse</p>
+                <p className="text-sm text-muted-foreground">Qualité garantie</p>
               </div>
             </div>
           </div>

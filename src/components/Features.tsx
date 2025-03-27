@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { Battery, MapPin, Clock, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Zap, Shield, Clock, Wifi } from 'lucide-react';
 
 interface FeatureCardProps {
   title: string;
@@ -27,27 +26,27 @@ const FeatureCard = ({ title, description, icon, delay }: FeatureCardProps) => (
 const Features = () => {
   const features = [
     {
-      title: "Batterie toujours chargée",
-      description: "Plus jamais à court de batterie avec nos powerbanks de haute capacité toujours prêtes à l'emploi.",
-      icon: <Battery className="w-6 h-6" />,
+      title: "Recharge rapide",
+      description: "Jusqu'à 80% de batterie en moins de 30 minutes avec nos bornes de recharge rapide.",
+      icon: <Zap className="w-6 h-6" />,
       delay: 100
     },
     {
-      title: "Bornes partout",
-      description: "Un réseau de bornes en constante expansion pour que vous puissiez emprunter et rendre une powerbank où vous voulez.",
-      icon: <MapPin className="w-6 h-6" />,
+      title: "Sécurité avancée",
+      description: "Systèmes de sécurité intégrés pour protéger votre véhicule et vos données pendant la recharge.",
+      icon: <Shield className="w-6 h-6" />,
       delay: 200
     },
     {
-      title: "Location flexible",
-      description: "Louez pour une heure ou une journée entière, la powerbank est à vous aussi longtemps que vous en avez besoin.",
+      title: "Disponibilité 24/7",
+      description: "Accédez à nos stations de recharge à tout moment, jour et nuit, pour une flexibilité maximale.",
       icon: <Clock className="w-6 h-6" />,
       delay: 300
     },
     {
-      title: "Paiement simple",
-      description: "Payez uniquement pour le temps d'utilisation réel de la powerbank, sans frais cachés ni engagement.",
-      icon: <CreditCard className="w-6 h-6" />,
+      title: "Connectivité intelligente",
+      description: "Pilotez et surveillez vos sessions de recharge à distance via notre application mobile.",
+      icon: <Wifi className="w-6 h-6" />,
       delay: 400
     }
   ];
@@ -61,9 +60,9 @@ const Features = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h6 className="text-sm uppercase tracking-wider text-primary font-medium mb-2">Nos services</h6>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Location de Powerbanks Simplifiée</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Solutions de recharge innovantes</h2>
           <p className="text-lg text-muted-foreground">
-            Découvrez notre réseau de bornes de location de powerbanks, disponibles dans toute la Suisse.
+            Découvrez nos technologies de pointe qui révolutionnent la recharge des véhicules électriques.
           </p>
         </div>
         
@@ -82,16 +81,16 @@ const Features = () => {
         <div className="mt-20 bg-white rounded-2xl shadow-elevation p-8 border border-border/40 animate-fade-in" style={{ animationDelay: '500ms' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-2xl font-semibold mb-4">Pour tous vos besoins</h3>
+              <h3 className="text-2xl font-semibold mb-4">Des solutions pour tous</h3>
               <p className="text-muted-foreground mb-6">
-                Que vous soyez en déplacement, en voyage ou simplement dans une journée chargée, nos powerbanks vous accompagnent partout pour garder vos appareils chargés.
+                Que vous soyez un particulier cherchant à installer une borne de recharge à domicile ou une entreprise souhaitant équiper son parking, nous avons la solution adaptée à vos besoins.
               </p>
               <ul className="space-y-2">
                 {[
-                  "Powerbanks haute capacité",
-                  "Compatibles avec tous les appareils",
-                  "Prêt et retour rapides",
-                  "Support client 24/7"
+                  "Installation résidentielle",
+                  "Solutions pour entreprises",
+                  "Réseaux de recharge publics",
+                  "Maintenance et support technique"
                 ].map((item, i) => (
                   <li key={i} className="flex items-center">
                     <span className="w-2 h-2 rounded-full bg-primary mr-3"></span>
@@ -99,25 +98,18 @@ const Features = () => {
                   </li>
                 ))}
               </ul>
-              <div className="mt-6">
-                <Link to="/features">
-                  <button className="text-primary font-medium hover:underline transition-all">
-                    En savoir plus →
-                  </button>
-                </Link>
-              </div>
             </div>
             <div className="relative">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-primary/5 to-primary/20 p-6">
                 <img 
-                  src="https://images.unsplash.com/photo-1609692814858-f7cd2f0afa4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=900&h=600&q=80"
-                  alt="Application de location de powerbank" 
+                  src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY0MDM1OTcyOA&ixlib=rb-1.2.1&q=80&w=900"
+                  alt="Interface de gestion de recharge" 
                   className="rounded-xl shadow-subtle w-full h-auto transform transition-transform duration-500 hover:scale-[1.02]"
                 />
               </div>
               <div className="absolute -bottom-5 -right-5 bg-primary text-white p-3 rounded-xl shadow-elevation">
                 <div className="text-sm font-medium">Application mobile</div>
-                <div className="text-xs text-white/80">Localisation de bornes</div>
+                <div className="text-xs text-white/80">Contrôle en temps réel</div>
               </div>
             </div>
           </div>
