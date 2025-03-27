@@ -43,7 +43,7 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-xl font-semibold tracking-tight">chargeurs.ch</span>
+          <span className="text-xl font-semibold tracking-tight">PowerBank.ch</span>
         </Link>
 
         {/* Desktop Menu */}

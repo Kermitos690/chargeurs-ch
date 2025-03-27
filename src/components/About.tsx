@@ -5,12 +5,12 @@ import { Check } from 'lucide-react';
 
 const About = () => {
   const benefits = [
-    "Installation professionnelle par des experts certifiés",
-    "Support technique 7j/7",
-    "Garantie de 5 ans sur tout notre matériel",
-    "Solutions personnalisées pour chaque besoin",
-    "Mises à jour logicielles automatiques",
-    "Compatibilité avec tous les véhicules électriques",
+    "Réseau de plus de 100 bornes dans toute la Suisse",
+    "Powerbanks compatibles avec tous les smartphones et tablettes",
+    "Service client disponible 7j/7",
+    "Tarifs transparents sans frais cachés",
+    "Application mobile intuitive",
+    "Système de réservation de powerbank",
   ];
 
   return (
@@ -24,11 +24,11 @@ const About = () => {
           <div className="order-2 lg:order-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-6">
               <h6 className="text-sm uppercase tracking-wider text-primary font-medium">À propos de nous</h6>
-              <h2 className="text-3xl md:text-4xl font-bold">Experts en solutions de recharge</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">Experts en location de powerbanks</h2>
               <p className="text-muted-foreground text-lg">
-                Chez chargeurs.ch, nous proposons des solutions de recharge innovantes et fiables pour véhicules électriques. 
-                Notre mission est de faciliter la transition vers la mobilité électrique en fournissant des infrastructures 
-                de recharge accessibles et performantes.
+                Chez chargeurs.ch, nous révolutionnons la façon dont vous gardez vos appareils chargés en déplacement. 
+                Notre réseau de bornes de powerbanks vous permet d'emprunter une batterie externe quand vous en avez besoin 
+                et de la rendre quand vous avez terminé, dans n'importe quelle borne de notre réseau.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -54,8 +54,8 @@ const About = () => {
                 <div className="relative">
                   <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-border/80">
                     <img 
-                      src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY0MDM1OTcyOA&ixlib=rb-1.2.1&q=80&w=1200" 
-                      alt="Notre engagement pour l'environnement" 
+                      src="https://images.unsplash.com/photo-1553434103-a7894caf8f7d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=800&q=80" 
+                      alt="Notre réseau de bornes de powerbanks" 
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -69,7 +69,7 @@ const About = () => {
                       </div>
                       <div className="h-10 w-px bg-border/60"></div>
                       <div>
-                        <div className="text-3xl font-bold text-primary">10+</div>
+                        <div className="text-3xl font-bold text-primary">5+</div>
                         <div className="text-xs text-muted-foreground">Années d'expérience</div>
                       </div>
                     </div>
@@ -78,10 +78,10 @@ const About = () => {
                 
                 {/* Info block */}
                 <div className="mt-10 space-y-4">
-                  <h3 className="text-xl font-semibold">Notre engagement</h3>
+                  <h3 className="text-xl font-semibold">Notre mission</h3>
                   <p className="text-muted-foreground">
-                    Nous nous engageons à fournir des solutions de recharge durables et respectueuses de l'environnement, 
-                    en utilisant les dernières technologies pour optimiser l'efficacité énergétique.
+                    Nous voulons mettre fin à l'angoisse de la batterie faible. Notre réseau de bornes de powerbanks vous permet 
+                    de rester connecté sans vous soucier de votre niveau de batterie, où que vous soyez en Suisse.
                   </p>
                 </div>
               </div>
