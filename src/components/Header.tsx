@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
@@ -25,27 +26,30 @@ const Header = () => {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <a href="/" className="flex items-center">
+        <Link to="/" className="flex items-center">
           <span className="text-xl font-semibold tracking-tight">chargeurs.ch</span>
-        </a>
+        </Link>
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-10">
-          <a href="#features" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
+          <Link to="/features" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
             Caractéristiques
-          </a>
-          <a href="#about" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
+          </Link>
+          <Link to="/about" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
             À propos
-          </a>
-          <a href="#contact" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
+          </Link>
+          <Link to="/contact" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
             Contact
-          </a>
-          <Button 
-            className="bg-primary hover:bg-primary/90 text-white rounded-full"
-            size="sm"
-          >
-            Commencer
-          </Button>
+          </Link>
+          <Link to="/account">
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white rounded-full"
+              size="sm"
+            >
+              <User className="w-4 h-4 mr-2" />
+              Mon Compte
+            </Button>
+          </Link>
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -70,33 +74,38 @@ const Header = () => {
         )}
       >
         <nav className="flex flex-col items-center space-y-8">
-          <a 
-            href="#features" 
+          <Link 
+            to="/features" 
             className="text-lg font-medium"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Caractéristiques
-          </a>
-          <a 
-            href="#about" 
+          </Link>
+          <Link 
+            to="/about" 
             className="text-lg font-medium"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             À propos
-          </a>
-          <a 
-            href="#contact" 
+          </Link>
+          <Link 
+            to="/contact" 
             className="text-lg font-medium"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Contact
-          </a>
-          <Button 
-            className="bg-primary hover:bg-primary/90 text-white rounded-full w-full mt-4"
+          </Link>
+          <Link 
+            to="/account"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Commencer
-          </Button>
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white rounded-full w-full mt-4"
+            >
+              <User className="w-4 h-4 mr-2" />
+              Mon Compte
+            </Button>
+          </Link>
         </nav>
       </div>
     </header>
