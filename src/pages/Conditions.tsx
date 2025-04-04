@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -131,8 +130,7 @@ const Conditions = () => {
               Nos produits bénéficient des garanties suivantes:
             </p>
             <ul>
-              <li>Bornes de recharge: garantie de 24 mois à compter de la date d'achat</li>
-              <li>Powerbanks: garantie de 12 mois à compter de la date d'achat</li>
+              <li>Garantie de 24 mois sur tout notre matériel à compter de la date d'achat</li>
             </ul>
             <p>
               Ces garanties s'appliquent uniquement sous réserve d'une utilisation appropriée des produits, et ne couvrent pas les dommages résultant d'une utilisation inappropriée, d'accidents, ou de modifications non autorisées.
