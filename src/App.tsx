@@ -28,6 +28,24 @@ import AdminUsers from "./pages/admin/Users";
 import AdminPowerBanks from "./pages/admin/PowerBanks";
 import AdminLayout from "./components/AdminLayout";
 
+// Produits
+import ProduitsResidentiels from "./pages/produits/Residentiels";
+import ProduitsEntreprises from "./pages/produits/Entreprises";
+import ProduitsPubliques from "./pages/produits/Publiques";
+import ProduitsAccessoires from "./pages/produits/Accessoires";
+
+// Services
+import ServicesInstallation from "./pages/services/Installation";
+
+// Pages supplémentaires
+import FAQ from "./pages/FAQ";
+import Maintenance from "./pages/Maintenance";
+import Carrieres from "./pages/Carrieres";
+import Conditions from "./pages/Conditions";
+import Confidentialite from "./pages/Confidentialite";
+import Cookies from "./pages/Cookies";
+import Sitemap from "./pages/Sitemap";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -55,6 +73,24 @@ const App = () => (
             <Route path="/profile" element={<RouteGuard><Profile /></RouteGuard>} />
             <Route path="/stations" element={<RouteGuard><StationsMap /></RouteGuard>} />
             <Route path="/appointment" element={<RouteGuard><Appointment /></RouteGuard>} />
+            
+            {/* Routes de produits */}
+            <Route path="/produits/residentiels" element={<ProduitsResidentiels />} />
+            <Route path="/produits/entreprises" element={<ProduitsEntreprises />} />
+            <Route path="/produits/publiques" element={<ProduitsPubliques />} />
+            <Route path="/produits/accessoires" element={<ProduitsAccessoires />} />
+            
+            {/* Routes de services */}
+            <Route path="/services/installation" element={<ServicesInstallation />} />
+            
+            {/* Pages supplémentaires */}
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/carrieres" element={<Carrieres />} />
+            <Route path="/conditions" element={<Conditions />} />
+            <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route path="/cookies" element={<Cookies />} />
+            <Route path="/sitemap" element={<Sitemap />} />
             
             {/* Routes d'administration */}
             <Route path="/admin/login" element={<AdminLogin />} />
