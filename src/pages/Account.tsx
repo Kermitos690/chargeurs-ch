@@ -1,41 +1,75 @@
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getUserProfile, getUserRentals } from '@/services/api';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, CreditCard, Clock, BatteryFull, MapPin } from 'lucide-react';
-
-// Mocking user ID (in a real app, this would come from authentication)
-const MOCK_USER_ID = '123';
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-CH', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+import { UserCircle, CreditCard, Clock, Settings, BatteryMedium, Package } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
+import { getUserProfile, getUserPayments } from '@/services/api';
 
 const Account = () => {
-  const { data: userData, isLoading: isLoadingUser } = useQuery({
-    queryKey: ['user', MOCK_USER_ID],
-    queryFn: () => getUserProfile(MOCK_USER_ID),
+  // Mock user ID for demo - would come from auth in a real app
+  const userId = "user123";
+
+  const { data: userData, isLoading: userLoading } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => getUserProfile(userId),
   });
 
-  const { data: rentalsData, isLoading: isLoadingRentals } = useQuery({
-    queryKey: ['rentals', MOCK_USER_ID],
-    queryFn: () => getUserRentals(MOCK_USER_ID),
+  const { data: paymentsData, isLoading: paymentsLoading } = useQuery({
+    queryKey: ['payments', userId],
+    queryFn: () => getUserPayments(userId),
   });
 
-  const isLoading = isLoadingUser || isLoadingRentals;
-  const user = userData?.data;
-  const rentals = rentalsData?.data || [];
-  const activeRental = rentals.find(rental => rental.status === 'active');
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const accountMenuItems = [
+    {
+      icon: <UserCircle className="h-5 w-5" />,
+      title: "Mon Profil",
+      description: "Gérer vos informations personnelles",
+      link: "/profile"
+    },
+    {
+      icon: <BatteryMedium className="h-5 w-5" />,
+      title: "Mes Locations",
+      description: "Consulter vos locations actives et historiques",
+      link: "/rentals"
+    },
+    {
+      icon: <Package className="h-5 w-5" />,
+      title: "Mes Abonnements",
+      description: "Gérer vos abonnements",
+      link: "/subscriptions"
+    },
+    {
+      icon: <CreditCard className="h-5 w-5" />,
+      title: "Méthodes de paiement",
+      description: "Gérer vos cartes et méthodes de paiement",
+      link: "#payment-methods"
+    },
+    {
+      icon: <Clock className="h-5 w-5" />,
+      title: "Historique de facturation",
+      description: "Consulter vos factures et paiements",
+      link: "#billing-history"
+    },
+    {
+      icon: <Settings className="h-5 w-5" />,
+      title: "Paramètres",
+      description: "Modifier les paramètres de votre compte",
+      link: "#settings"
+    }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -43,205 +77,238 @@ const Account = () => {
       <main className="flex-grow pt-24 pb-16">
         <section className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Mon Compte</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Mon Compte</h1>
             <p className="text-lg text-muted-foreground">
-              Gérez vos informations personnelles et suivez vos locations de powerbanks.
+              Gérez vos informations, abonnements et locations
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center py-12">
+          {userLoading ? (
+            <div className="text-center py-10">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-              <span className="ml-4">Chargement de votre profil...</span>
-            </div>
-          ) : !user ? (
-            <div className="text-center py-12">
-              <h2 className="text-xl font-semibold mb-4">Vous n'êtes pas connecté</h2>
-              <p className="text-muted-foreground mb-6">Connectez-vous pour accéder à votre compte.</p>
-              <Button size="lg">Se connecter</Button>
+              <p className="mt-4">Chargement de vos informations...</p>
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <div className="bg-card p-8 rounded-xl shadow-sm border border-border col-span-1">
-                  <div className="flex flex-col items-center text-center mb-6">
-                    <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                      <User className="h-12 w-12 text-primary" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-1">
+                <Card>
+                  <CardHeader className="text-center">
+                    <div className="mx-auto bg-primary/10 w-24 h-24 rounded-full flex items-center justify-center mb-4">
+                      <UserCircle className="h-12 w-12 text-primary" />
                     </div>
-                    <h2 className="text-2xl font-bold">{user.name}</h2>
-                    <p className="text-muted-foreground">{user.email}</p>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Téléphone</span>
-                      <span className="font-medium">{user.phone}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Locations totales</span>
-                      <span className="font-medium">{user.rentalHistory?.length || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Membre depuis</span>
-                      <span className="font-medium">Janvier 2023</span>
-                    </div>
-                  </div>
-                  <div className="mt-8 space-y-4">
-                    <Button variant="outline" className="w-full">
-                      Modifier mon profil
-                    </Button>
-                    <Button variant="outline" className="w-full">
-                      Changer mon mot de passe
-                    </Button>
-                  </div>
-                </div>
+                    <CardTitle>
+                      {userData?.data?.firstName} {userData?.data?.lastName}
+                    </CardTitle>
+                    <CardDescription>
+                      {userData?.data?.email}
+                      <p className="mt-1">Membre depuis {userData?.data?.createdAt ? formatDate(userData.data.createdAt) : 'N/A'}</p>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Link to="/profile" className="w-full">
+                      <Button variant="outline" className="w-full">
+                        Modifier mon profil
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
 
-                <div className="lg:col-span-2 space-y-8">
-                  {activeRental && (
-                    <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-                      <h2 className="text-xl font-bold mb-4 flex items-center">
-                        <BatteryFull className="mr-2 h-5 w-5 text-primary" />
-                        Location en cours
-                      </h2>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center pb-2 border-b">
-                          <div className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">Début:</span>
-                          </div>
-                          <span>{formatDate(activeRental.startTime)}</span>
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Mon abonnement</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {userData?.data?.subscription ? (
+                      <div>
+                        <div className="bg-primary/10 px-3 py-1 rounded-full text-sm inline-block text-primary font-medium mb-2">
+                          {userData.data.subscription.name}
                         </div>
-                        <div className="flex justify-between items-center pb-2 border-b">
-                          <div className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">Station de départ:</span>
-                          </div>
-                          <span>Station #{activeRental.startStationId}</span>
-                        </div>
-                        <div className="flex justify-between items-center pb-2 border-b">
-                          <div className="flex items-center">
-                            <BatteryFull className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">Powerbank ID:</span>
-                          </div>
-                          <span>{activeRental.powerBankId}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center">
-                            <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">Coût actuel:</span>
-                          </div>
-                          <span className="text-lg font-semibold">5.50 CHF</span>
-                        </div>
-                      </div>
-                      <div className="mt-6">
-                        <Button className="w-full">Terminer la location</Button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-                    <h2 className="text-xl font-bold mb-4">Dernières locations</h2>
-                    {rentals.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">Vous n'avez pas encore effectué de location.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {rentals
-                          .filter(rental => rental.status !== 'active')
-                          .slice(0, 5)
-                          .map((rental) => (
-                            <div key={rental.id} className="flex justify-between items-center p-4 bg-accent rounded-lg">
-                              <div>
-                                <p className="font-medium">Location #{rental.id.substring(0, 8)}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  {formatDate(rental.startTime)} - {rental.endTime ? formatDate(rental.endTime) : 'En cours'}
-                                </p>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          Renouvellement le {userData.data.subscription.nextRenewal ? formatDate(userData.data.subscription.nextRenewal) : 'N/A'}
+                        </p>
+                        <ul className="space-y-2 text-sm">
+                          {userData.data.subscription.features?.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <div className="rounded-full bg-primary/20 p-0.5 mt-0.5">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
+                                  <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
                               </div>
-                              <div className="text-right">
-                                <p className="font-semibold">{rental.cost ? `${rental.cost} CHF` : '-'}</p>
-                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                  rental.status === 'completed' 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-red-100 text-red-800'
-                                }`}>
-                                  {rental.status === 'completed' ? 'Terminée' : 'Annulée'}
-                                </span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-muted-foreground mb-4">Vous n'avez pas d'abonnement actif</p>
+                        <Link to="/subscriptions">
+                          <Button size="sm">Voir les abonnements</Button>
+                        </Link>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-2">
+                <Tabs defaultValue="account">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="account">Mon compte</TabsTrigger>
+                    <TabsTrigger value="rentals">Locations</TabsTrigger>
+                    <TabsTrigger value="payments">Paiements</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="account" className="space-y-4 mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {accountMenuItems.map((item, index) => (
+                        <Link key={index} to={item.link} className="block">
+                          <Card className="h-full hover:shadow-md transition-shadow">
+                            <CardHeader className="pb-2">
+                              <div className="flex items-start gap-4">
+                                <div className="bg-primary/10 p-2 rounded-lg">
+                                  {item.icon}
+                                </div>
+                                <div>
+                                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                                  <CardDescription>{item.description}</CardDescription>
+                                </div>
+                              </div>
+                            </CardHeader>
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="rentals" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Vos dernières locations</CardTitle>
+                        <CardDescription>Résumé de vos locations récentes</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="border rounded-lg overflow-hidden">
+                            <div className="bg-muted py-2 px-4 text-sm font-medium grid grid-cols-4 gap-4">
+                              <div>Powerbank</div>
+                              <div>Date de début</div>
+                              <div>Durée</div>
+                              <div>Prix</div>
+                            </div>
+                            {[1, 2, 3].map((_, i) => (
+                              <div key={i} className="py-3 px-4 grid grid-cols-4 gap-4 border-t">
+                                <div>Powerbank #{(1000 + i).toString()}</div>
+                                <div className="text-sm">{new Date(Date.now() - 1000 * 60 * 60 * 24 * i).toLocaleDateString('fr-FR')}</div>
+                                <div className="text-sm">{i + 1}h 30min</div>
+                                <div className="text-sm">{((i + 1) * 2).toFixed(2)} CHF</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Link to="/rentals" className="w-full">
+                          <Button variant="outline" className="w-full">
+                            Voir toutes mes locations
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="payments" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Méthodes de paiement</CardTitle>
+                        <CardDescription>Gérez vos cartes et méthodes de paiement</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="border rounded-lg p-4 flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                              <div className="bg-primary/10 p-2 rounded-lg">
+                                <CreditCard className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="font-medium">Visa •••• 4242</p>
+                                <p className="text-sm text-muted-foreground">Expire 04/25</p>
                               </div>
                             </div>
-                          ))}
-                      </div>
-                    )}
-                    {rentals.length > 5 && (
-                      <div className="mt-6 text-center">
-                        <Button variant="outline">Voir toutes mes locations</Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                            <div>
+                              <Button variant="ghost" size="sm">Supprimer</Button>
+                            </div>
+                          </div>
+                          <div className="border rounded-lg p-4 flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                              <div className="bg-primary/10 p-2 rounded-lg">
+                                <CreditCard className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="font-medium">Mastercard •••• 5678</p>
+                                <p className="text-sm text-muted-foreground">Expire 08/26</p>
+                              </div>
+                            </div>
+                            <div>
+                              <Button variant="ghost" size="sm">Supprimer</Button>
+                            </div>
+                          </div>
+                          <Button variant="outline" className="w-full">
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                              <path d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                            </svg>
+                            Ajouter une carte
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="mt-6">
+                      <CardHeader>
+                        <CardTitle>Historique de paiements</CardTitle>
+                        <CardDescription>Vos paiements récents</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {paymentsLoading ? (
+                          <div className="text-center py-10">
+                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="border rounded-lg overflow-hidden">
+                              <div className="bg-muted py-2 px-4 text-sm font-medium grid grid-cols-4 gap-4">
+                                <div>Date</div>
+                                <div>Description</div>
+                                <div>Méthode</div>
+                                <div>Montant</div>
+                              </div>
+                              {paymentsData?.data ? (
+                                paymentsData.data.map((payment: any, i: number) => (
+                                  <div key={i} className="py-3 px-4 grid grid-cols-4 gap-4 border-t">
+                                    <div className="text-sm">{formatDate(payment.date)}</div>
+                                    <div className="text-sm">{payment.description}</div>
+                                    <div className="text-sm">{payment.method}</div>
+                                    <div className="text-sm font-medium">{payment.amount} CHF</div>
+                                  </div>
+                                ))
+                              ) : (
+                                [1, 2, 3].map((_, i) => (
+                                  <div key={i} className="py-3 px-4 grid grid-cols-4 gap-4 border-t">
+                                    <div className="text-sm">{formatDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * i).toString())}</div>
+                                    <div className="text-sm">{i === 0 ? "Abonnement Premium" : "Location Powerbank"}</div>
+                                    <div className="text-sm">Visa •••• 4242</div>
+                                    <div className="text-sm font-medium">{i === 0 ? "19.90" : ((i + 1) * 2).toFixed(2)} CHF</div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-                  <h2 className="text-xl font-bold mb-4">Méthodes de paiement</h2>
-                  <div className="flex items-center p-4 bg-accent rounded-lg mb-4">
-                    <CreditCard className="mr-4 h-6 w-6" />
-                    <div>
-                      <p className="font-medium">Carte Visa se terminant par 4242</p>
-                      <p className="text-sm text-muted-foreground">Expire: 12/2025</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">Ajouter une carte</Button>
-                </div>
-
-                <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-                  <h2 className="text-xl font-bold mb-4">Stations favorites</h2>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-accent rounded-lg">
-                      <div>
-                        <p className="font-medium">Gare de Genève</p>
-                        <p className="text-sm text-muted-foreground">4 bornes disponibles</p>
-                      </div>
-                      <Button size="sm" variant="ghost">Voir</Button>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-accent rounded-lg">
-                      <div>
-                        <p className="font-medium">Centre Commercial Balexert</p>
-                        <p className="text-sm text-muted-foreground">2 bornes disponibles</p>
-                      </div>
-                      <Button size="sm" variant="ghost">Voir</Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-                <h2 className="text-xl font-bold mb-4">Paramètres de notification</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Notifications par email</span>
-                    <div className="w-12 h-6 bg-primary/20 rounded-full flex items-center p-1">
-                      <div className="w-4 h-4 bg-primary rounded-full ml-auto"></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Notifications SMS</span>
-                    <div className="w-12 h-6 bg-primary/20 rounded-full flex items-center p-1">
-                      <div className="w-4 h-4 bg-primary rounded-full"></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Alertes de location</span>
-                    <div className="w-12 h-6 bg-primary/20 rounded-full flex items-center p-1">
-                      <div className="w-4 h-4 bg-primary rounded-full ml-auto"></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Notifications promotionnelles</span>
-                    <div className="w-12 h-6 bg-primary/20 rounded-full flex items-center p-1">
-                      <div className="w-4 h-4 bg-primary rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
+            </div>
           )}
         </section>
       </main>

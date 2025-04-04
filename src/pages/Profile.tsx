@@ -1,319 +1,401 @@
 
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getUserProfile, updateUserProfile } from '@/services/api';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { User, CreditCard, Shield, MapPin } from 'lucide-react';
-import { toast } from 'sonner';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useQuery } from '@tanstack/react-query';
+import { getUserProfile, updateUserProfile } from '@/services/api';
+import { ArrowLeft, Save } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const profileFormSchema = z.object({
+  firstName: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }),
+  lastName: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
+  email: z.string().email({ message: 'Adresse email invalide' }),
+  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
+  city: z.string().optional().or(z.literal('')),
+  postalCode: z.string().optional().or(z.literal('')),
+});
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+const passwordFormSchema = z.object({
+  currentPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
+  newPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
+  confirmPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
+type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 const Profile = () => {
+  const { toast } = useToast();
+  
   // Mock user ID for demo - would come from auth in a real app
   const userId = "user123";
-  
-  const { data: userData, isLoading, error, refetch } = useQuery({
+
+  const { data: userData, isLoading } = useQuery({
     queryKey: ['user', userId],
     queryFn: () => getUserProfile(userId),
   });
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    street: '',
-    city: '',
-    postalCode: '',
-    country: '',
+  const profileForm = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      postalCode: '',
+    },
   });
 
-  // Update form when data is loaded
+  const passwordForm = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
+
+  // Update form values when user data is loaded
   React.useEffect(() => {
     if (userData?.data) {
-      const user = userData.data;
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        street: user.address?.street || '',
-        city: user.address?.city || '',
-        postalCode: user.address?.postalCode || '',
-        country: user.address?.country || '',
+      profileForm.reset({
+        firstName: userData.data.firstName || '',
+        lastName: userData.data.lastName || '',
+        email: userData.data.email || '',
+        phone: userData.data.phone || '',
+        address: userData.data.address || '',
+        city: userData.data.city || '',
+        postalCode: userData.data.postalCode || '',
       });
     }
-  }, [userData]);
+  }, [userData, profileForm]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmitProfile = async (data: ProfileFormValues) => {
     try {
-      const updateData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-        }
-      };
-      
-      await updateUserProfile(userId, updateData);
-      await refetch();
-      toast.success("Profil mis à jour avec succès");
+      await updateUserProfile(userId, data);
+      toast({
+        title: "Profile mis à jour",
+        description: "Vos informations ont été mises à jour avec succès."
+      });
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du profil");
-      console.error(error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour de votre profil.",
+        variant: "destructive"
+      });
     }
   };
+
+  const onSubmitPassword = (data: PasswordFormValues) => {
+    // In a real app, this would call an API to update the password
+    console.log('Password update data:', data);
+    
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Votre mot de passe a été changé avec succès."
+    });
+    
+    passwordForm.reset({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow pt-24 pb-16">
+          <div className="max-w-7xl mx-auto px-6 md:px-12">
+            <div className="text-center py-10">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+              <p className="mt-4">Chargement de votre profil...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow pt-24 pb-16">
         <section className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-16">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Mon Profil</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Gérez vos informations personnelles et vos préférences de compte.
+          <div className="mb-8">
+            <Link to="/account" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Retour à mon compte
+            </Link>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Mon Profil</h1>
+            <p className="text-lg text-muted-foreground">
+              Gérez vos informations personnelles et de sécurité
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="text-center py-10">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-              <p className="mt-4">Chargement de votre profil...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-10 text-destructive">
-              <p>Une erreur est survenue lors du chargement de votre profil.</p>
-              <Button 
-                onClick={() => refetch()} 
-                variant="outline" 
-                className="mt-4"
-              >
-                Réessayer
-              </Button>
-            </div>
-          ) : (
-            <Tabs defaultValue="personal" className="mb-16">
-              <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
-                <TabsTrigger value="personal">Profil</TabsTrigger>
-                <TabsTrigger value="payment">Paiement</TabsTrigger>
-                <TabsTrigger value="security">Sécurité</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="personal" className="mt-6">
-                <div className="bg-card border rounded-lg shadow-sm max-w-2xl mx-auto p-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="bg-primary/10 p-3 rounded-full">
-                      <User className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">Informations personnelles</h2>
-                      <p className="text-muted-foreground">Mettez à jour vos informations personnelles</p>
-                    </div>
-                  </div>
-                  
-                  <form onSubmit={handleSubmit}>
-                    <div className="grid gap-6 mb-6">
-                      <div className="grid gap-3">
-                        <Label htmlFor="name">Nom complet</Label>
-                        <Input 
-                          id="name" 
-                          name="name" 
-                          value={formData.name} 
-                          onChange={handleChange} 
-                          placeholder="Votre nom complet"
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informations Personnelles</CardTitle>
+                  <CardDescription>
+                    Mettez à jour vos informations personnelles
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...profileForm}>
+                    <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={profileForm.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Prénom</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Votre prénom" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={profileForm.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nom</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Votre nom" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
                       
-                      <div className="grid gap-3">
-                        <Label htmlFor="email">Email</Label>
-                        <Input 
-                          id="email" 
-                          name="email" 
-                          type="email" 
-                          value={formData.email} 
-                          onChange={handleChange} 
-                          placeholder="votre.email@exemple.com"
-                        />
-                      </div>
+                      <FormField
+                        control={profileForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Votre email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
-                      <div className="grid gap-3">
-                        <Label htmlFor="phone">Téléphone</Label>
-                        <Input 
-                          id="phone" 
-                          name="phone" 
-                          value={formData.phone} 
-                          onChange={handleChange} 
-                          placeholder="+41 XX XXX XX XX"
-                        />
-                      </div>
-                    </div>
-                    
-                    <Separator className="my-6" />
-                    
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="bg-primary/10 p-3 rounded-full">
-                        <MapPin className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold">Adresse</h2>
-                        <p className="text-muted-foreground">Mettez à jour votre adresse</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid gap-6 mb-6">
-                      <div className="grid gap-3">
-                        <Label htmlFor="street">Rue</Label>
-                        <Input 
-                          id="street" 
-                          name="street" 
-                          value={formData.street} 
-                          onChange={handleChange} 
-                          placeholder="Rue et numéro"
-                        />
-                      </div>
+                      <FormField
+                        control={profileForm.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Téléphone</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Votre numéro de téléphone" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-3">
-                          <Label htmlFor="postalCode">Code postal</Label>
-                          <Input 
-                            id="postalCode" 
-                            name="postalCode" 
-                            value={formData.postalCode} 
-                            onChange={handleChange} 
-                            placeholder="1234"
+                      <div className="border-t pt-6 mt-6">
+                        <h3 className="font-medium mb-4">Adresse</h3>
+                        
+                        <FormField
+                          control={profileForm.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Rue</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Votre adresse" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                          <FormField
+                            control={profileForm.control}
+                            name="city"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Ville</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Ville" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={profileForm.control}
+                            name="postalCode"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Code postal</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Code postal" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
                         </div>
-                        <div className="grid gap-3">
-                          <Label htmlFor="city">Ville</Label>
-                          <Input 
-                            id="city" 
-                            name="city" 
-                            value={formData.city} 
-                            onChange={handleChange} 
-                            placeholder="Votre ville"
-                          />
-                        </div>
                       </div>
                       
-                      <div className="grid gap-3">
-                        <Label htmlFor="country">Pays</Label>
-                        <Input 
-                          id="country" 
-                          name="country" 
-                          value={formData.country} 
-                          onChange={handleChange} 
-                          placeholder="Pays"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button type="submit">Enregistrer les modifications</Button>
-                    </div>
-                  </form>
-                </div>
-              </TabsContent>
+                      <Button type="submit" className="w-full md:w-auto">
+                        <Save className="mr-2 h-4 w-4" />
+                        Enregistrer les modifications
+                      </Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Changer de mot de passe</CardTitle>
+                  <CardDescription>
+                    Mettez à jour votre mot de passe pour sécuriser votre compte
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...passwordForm}>
+                    <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} className="space-y-6">
+                      <FormField
+                        control={passwordForm.control}
+                        name="currentPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mot de passe actuel</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={passwordForm.control}
+                        name="newPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nouveau mot de passe</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={passwordForm.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Confirmer le mot de passe</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Button type="submit" className="w-full">
+                        Mettre à jour le mot de passe
+                      </Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
               
-              <TabsContent value="payment" className="mt-6">
-                <div className="bg-card border rounded-lg shadow-sm max-w-2xl mx-auto p-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="bg-primary/10 p-3 rounded-full">
-                      <CreditCard className="h-6 w-6 text-primary" />
-                    </div>
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Notifications</CardTitle>
+                  <CardDescription>
+                    Gérez vos préférences de notification
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-semibold">Moyens de paiement</h2>
-                      <p className="text-muted-foreground">Gérez vos moyens de paiement</p>
+                      <p className="font-medium">Emails de confirmation</p>
+                      <p className="text-sm text-muted-foreground">Recevoir un email de confirmation pour chaque location</p>
                     </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
                   </div>
                   
-                  {userData?.data?.paymentMethod ? (
-                    <div className="border rounded-lg p-4 mb-6">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-muted p-2 rounded">
-                            <CreditCard className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{userData.data.paymentMethod.type}</p>
-                            <p className="text-sm text-muted-foreground">**** **** **** {userData.data.paymentMethod.lastFour}</p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="sm">Supprimer</Button>
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Notifications de rappel</p>
+                      <p className="text-sm text-muted-foreground">Rappels pour les locations de longue durée</p>
                     </div>
-                  ) : (
-                    <div className="text-center py-8 border rounded-lg border-dashed mb-6">
-                      <CreditCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground mb-4">Aucun moyen de paiement enregistré</p>
-                      <Button>Ajouter un moyen de paiement</Button>
-                    </div>
-                  )}
-                  
-                  <Separator className="my-6" />
-                  
-                  <div className="flex items-center gap-4 mb-6">
-                    <h3 className="text-lg font-semibold">Historique de facturation</h3>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
                   </div>
                   
-                  <div className="text-center py-8 text-muted-foreground">
-                    Aucune facture disponible pour le moment.
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Offres promotionnelles</p>
+                      <p className="text-sm text-muted-foreground">Recevoir des offres spéciales et promotions</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
                   </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="security" className="mt-6">
-                <div className="bg-card border rounded-lg shadow-sm max-w-2xl mx-auto p-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="bg-primary/10 p-3 rounded-full">
-                      <Shield className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">Sécurité</h2>
-                      <p className="text-muted-foreground">Gérez la sécurité de votre compte</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Mot de passe</h3>
-                      <p className="text-muted-foreground mb-4">Changez votre mot de passe régulièrement pour plus de sécurité.</p>
-                      <Button>Changer le mot de passe</Button>
-                    </div>
-                    
-                    <Separator className="my-2" />
-                    
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Authentification à deux facteurs</h3>
-                      <p className="text-muted-foreground mb-4">Ajoutez une couche de sécurité supplémentaire à votre compte.</p>
-                      <Button variant="outline">Activer l'authentification à deux facteurs</Button>
-                    </div>
-                    
-                    <Separator className="my-2" />
-                    
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2 text-destructive">Supprimer le compte</h3>
-                      <p className="text-muted-foreground mb-4">Supprimer définitivement votre compte et toutes vos données.</p>
-                      <Button variant="destructive">Supprimer mon compte</Button>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    Enregistrer les préférences
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
         </section>
       </main>
       <Footer />
