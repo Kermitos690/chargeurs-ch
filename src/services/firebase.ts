@@ -108,8 +108,8 @@ export const resetPassword = async (email: string) => {
   try {
     // Configuration pour le lien de réinitialisation
     const actionCodeSettings: ActionCodeSettings = {
-      // URL vous devez remplacer par l'URL réelle de votre application
-      url: window.location.origin + '/auth/login',
+      // URL de redirection après réinitialisation du mot de passe
+      url: `${window.location.origin}/auth/login`,
       handleCodeInApp: true
     };
 
@@ -118,6 +118,22 @@ export const resetPassword = async (email: string) => {
     // Envoi de l'email avec les paramètres de configuration
     await sendPasswordResetEmail(auth, email, actionCodeSettings);
     console.log("Password reset email sent successfully");
+    
+    // Vérifier si l'utilisateur existe déjà dans Firestore
+    try {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        console.log("No user found in Firestore with this email, but reset email was sent");
+      } else {
+        console.log("User found in Firestore, reset email sent");
+      }
+    } catch (firestoreError) {
+      console.error("Error checking user in Firestore:", firestoreError);
+      // Continue even if Firestore check fails, as the password reset email was sent
+    }
     
     return { success: true };
   } catch (error: any) {

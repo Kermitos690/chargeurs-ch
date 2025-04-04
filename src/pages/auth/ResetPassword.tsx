@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ const ResetPassword = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -33,6 +34,10 @@ const ResetPassword = () => {
 
     try {
       console.log("Attempting to reset password for:", email);
+      // Ensure the origin URL is correct for the current environment
+      const originUrl = window.location.origin;
+      console.log("Current origin for reset:", originUrl);
+      
       const result = await resetPassword(email);
       console.log("Reset password result:", result);
       
