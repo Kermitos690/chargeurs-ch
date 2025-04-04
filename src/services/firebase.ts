@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -21,7 +20,9 @@ import {
   orderBy, 
   limit,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  CollectionReference,
+  DocumentData
 } from 'firebase/firestore';
 
 // Configuration Firebase - à remplacer par votre configuration
@@ -101,8 +102,9 @@ export const getCollection = async (
   limitCount?: number
 ) => {
   try {
-    let q = collection(db, collectionName);
+    let collectionRef = collection(db, collectionName);
     
+    // Build query with constraints if needed
     if (conditions.length > 0 || sortField || limitCount) {
       const queryConstraints = [];
       
@@ -121,16 +123,24 @@ export const getCollection = async (
         queryConstraints.push(limit(limitCount));
       }
       
-      q = query(q, ...queryConstraints);
+      const q = query(collectionRef, ...queryConstraints);
+      const querySnapshot = await getDocs(q);
+      const docs = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      return { success: true, data: docs };
+    } else {
+      // Simple collection fetch without constraints
+      const querySnapshot = await getDocs(collectionRef);
+      const docs = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      return { success: true, data: docs };
     }
-    
-    const querySnapshot = await getDocs(q);
-    const docs = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    return { success: true, data: docs };
   } catch (error: any) {
     console.error(`Erreur lors de la récupération de la collection ${collectionName}:`, error);
     return { success: false, error: error.message };

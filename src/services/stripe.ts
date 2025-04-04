@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { toast } from 'sonner';
 import { auth } from './firebase';
@@ -74,6 +73,49 @@ export const checkSubscriptionStatus = async () => {
   }
 };
 
+// Get subscription details by ID
+const getSubscriptionDetails = async (subscriptionId: string): Promise<Subscription | null> => {
+  try {
+    // This would typically be fetched from your backend or database
+    // For now, we'll use the mock data
+    const subscriptions = [
+      {
+        id: 'basic',
+        name: 'Abonnement Basic',
+        description: 'Pour une utilisation occasionnelle',
+        price: 9.90,
+        priceId: 'price_basic123', // Stripe Price ID
+        features: ['2 locations gratuites par mois', 'Tarif préférentiel: 1 CHF/heure', 'Support par email'],
+        duration: 'monthly' as const
+      },
+      {
+        id: 'premium',
+        name: 'Abonnement Premium',
+        description: 'Pour une utilisation régulière',
+        price: 19.90,
+        priceId: 'price_premium123', // Stripe Price ID
+        features: ['5 locations gratuites par mois', 'Tarif préférentiel: 0.80 CHF/heure', 'Support prioritaire', 'Réservation de powerbank'],
+        duration: 'monthly' as const
+      },
+      {
+        id: 'enterprise',
+        name: 'Abonnement Entreprise',
+        description: 'Pour les équipes et entreprises',
+        price: 49.90,
+        priceId: 'price_enterprise123', // Stripe Price ID
+        features: ['Locations illimitées par mois', 'Tarif fixe: 0.50 CHF/heure', 'Support dédié 24/7', 'Facturation mensuelle', 'Powerbanks personnalisées'],
+        duration: 'monthly' as const
+      }
+    ];
+    
+    const subscription = subscriptions.find(sub => sub.id === subscriptionId);
+    return subscription || null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des détails de l\'abonnement:', error);
+    return null;
+  }
+};
+
 // Subscribe to a plan directly from the UI
 export const subscribeToPlan = async (subscriptionId: string) => {
   try {
@@ -121,48 +163,5 @@ export const cancelSubscription = async () => {
     console.error('Erreur lors de l\'annulation de l\'abonnement:', error);
     toast.error(error.message || 'Une erreur est survenue lors de l\'annulation.');
     return { success: false, error: error.message };
-  }
-};
-
-// Get subscription details by ID
-const getSubscriptionDetails = async (subscriptionId: string): Promise<Subscription | null> => {
-  try {
-    // This would typically be fetched from your backend or database
-    // For now, we'll use the mock data
-    const subscriptions = [
-      {
-        id: 'basic',
-        name: 'Abonnement Basic',
-        description: 'Pour une utilisation occasionnelle',
-        price: 9.90,
-        priceId: 'price_basic123', // Stripe Price ID
-        features: ['2 locations gratuites par mois', 'Tarif préférentiel: 1 CHF/heure', 'Support par email'],
-        duration: 'monthly' as const
-      },
-      {
-        id: 'premium',
-        name: 'Abonnement Premium',
-        description: 'Pour une utilisation régulière',
-        price: 19.90,
-        priceId: 'price_premium123', // Stripe Price ID
-        features: ['5 locations gratuites par mois', 'Tarif préférentiel: 0.80 CHF/heure', 'Support prioritaire', 'Réservation de powerbank'],
-        duration: 'monthly' as const
-      },
-      {
-        id: 'enterprise',
-        name: 'Abonnement Entreprise',
-        description: 'Pour les équipes et entreprises',
-        price: 49.90,
-        priceId: 'price_enterprise123', // Stripe Price ID
-        features: ['Locations illimitées par mois', 'Tarif fixe: 0.50 CHF/heure', 'Support dédié 24/7', 'Facturation mensuelle', 'Powerbanks personnalisées'],
-        duration: 'monthly' as const
-      }
-    ];
-    
-    const subscription = subscriptions.find(sub => sub.id === subscriptionId);
-    return subscription || null;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des détails de l\'abonnement:', error);
-    return null;
   }
 };

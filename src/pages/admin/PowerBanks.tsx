@@ -16,7 +16,6 @@ import {
   deleteDocument,
   updateDocument
 } from '@/services/firebase';
-import { blynkService } from '@/services/blynk';
 import { PowerBank } from '@/types/api';
 import { toast } from 'sonner';
 import { 
@@ -47,7 +46,16 @@ const AdminPowerBanks = () => {
     
     const response = await getCollection('powerBanks');
     if (response.success) {
-      setPowerBanks(response.data);
+      // Make sure the data conforms to PowerBank type
+      const typedData = response.data.map((item: any) => ({
+        id: item.id,
+        serialNumber: item.serialNumber || 'N/A',
+        batteryLevel: item.batteryLevel || 0,
+        capacity: item.capacity || 0,
+        status: item.status || 'maintenance',
+        lastUpdated: item.lastUpdated
+      }));
+      setPowerBanks(typedData);
     } else {
       toast.error(`Erreur: ${response.error}`);
     }

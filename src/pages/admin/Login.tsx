@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginAdmin } from '@/services/firebase';
@@ -16,7 +15,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Battery, Lock } from 'lucide-react';
+import { Battery, Lock, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email('Adresse email invalide'),

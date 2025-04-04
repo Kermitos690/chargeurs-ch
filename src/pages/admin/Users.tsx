@@ -18,18 +18,10 @@ import {
 } from '@/services/firebase';
 import { toast } from 'sonner';
 import { Loader2, Search, Edit, Trash2 } from 'lucide-react';
-
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subscriptionType?: 'basic' | 'premium' | 'enterprise';
-  createdAt?: any;
-}
+import { User } from '@/types/api';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -42,7 +34,16 @@ const AdminUsers = () => {
     
     const response = await getCollection('users');
     if (response.success) {
-      setUsers(response.data);
+      // Make sure the data conforms to User type
+      const typedData = response.data.map((item: any) => ({
+        id: item.id,
+        name: item.name || 'N/A',
+        email: item.email || 'N/A',
+        phone: item.phone || 'N/A',
+        subscriptionType: item.subscriptionType,
+        createdAt: item.createdAt
+      }));
+      setUsers(typedData);
     } else {
       toast.error(`Erreur: ${response.error}`);
     }
