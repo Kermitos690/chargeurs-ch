@@ -76,6 +76,11 @@ export default {
 				'noir-moyen': '#212121',
 				'blanc-pur': '#FFFFFF',
 				'blanc-cassé': '#F5F5F5',
+				// Nouvelles couleurs électriques et lumineuses
+				'electric-blue': '#1EAEDB',
+				'bright-blue': '#33C3F0',
+				'vivid-purple': '#8B5CF6',
+				'magenta-pink': '#D946EF',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -129,6 +134,11 @@ export default {
 				'spin-slow': {
 					'0%': { transform: 'rotate(0deg)' },
 					'100%': { transform: 'rotate(360deg)' }
+				},
+				'electric-pulse': {
+					'0%': { opacity: '0.7', boxShadow: '0 0 5px rgba(30, 174, 219, 0.5)' },
+					'50%': { opacity: '1', boxShadow: '0 0 15px rgba(30, 174, 219, 0.8)' },
+					'100%': { opacity: '0.7', boxShadow: '0 0 5px rgba(30, 174, 219, 0.5)' }
 				}
 			},
 			animation: {
@@ -144,12 +154,15 @@ export default {
 				'exit': 'fade-out 0.3s ease-out, scale-out 0.2s ease-out',
 				'float': 'float 6s ease-in-out infinite',
 				'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
-				'spin-slow': 'spin-slow 8s linear infinite'
+				'spin-slow': 'spin-slow 8s linear infinite',
+				'electric-pulse': 'electric-pulse 2s ease-in-out infinite'
 			},
 			boxShadow: {
 				'subtle': '0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.08)',
 				'elevation': '0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.08), 0 10px 20px rgba(0, 0, 0, 0.12)',
 				'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
+				'electric': '0 0 15px rgba(30, 174, 219, 0.6), 0 0 30px rgba(30, 174, 219, 0.3)',
+				'luminous': '0 0 15px rgba(139, 92, 246, 0.6), 0 0 30px rgba(139, 92, 246, 0.3)',
 			},
 			backdropBlur: {
 				'xs': '2px',

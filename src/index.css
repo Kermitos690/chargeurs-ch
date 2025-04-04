@@ -43,6 +43,18 @@
   }
 }
 
+@keyframes electric-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(30, 174, 219, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(30, 174, 219, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(30, 174, 219, 0.5);
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
 }
@@ -53,6 +65,10 @@
 
 .animate-green-glow {
   animation: green-pulse 2s ease-in-out infinite;
+}
+
+.animate-electric-glow {
+  animation: electric-pulse 2s ease-in-out infinite;
 }
 
 @layer base {
@@ -100,6 +116,12 @@
     --accent-green-light: 140 50% 70%;
     --accent-noir: 0 0% 5%;
     --accent-blanc: 0 0% 98%;
+    
+    /* Nouvelles couleurs électriques et lumineuses */
+    --electric-blue: 196 71% 49%;
+    --bright-blue: 199 82% 58%;
+    --vivid-purple: 260 75% 64%;
+    --magenta-pink: 292 91% 61%;
   }
 
   .dark {
@@ -136,6 +158,12 @@
     --gradient-start: 140 54% 40%;
     --gradient-mid: 140 30% 20%;
     --gradient-end: 0 0% 5%;
+    
+    /* Nouvelles couleurs électriques et lumineuses pour le mode sombre */
+    --electric-blue: 196 71% 40%;
+    --bright-blue: 199 82% 45%;
+    --vivid-purple: 260 75% 50%;
+    --magenta-pink: 292 91% 45%;
   }
 }
 
@@ -169,6 +197,19 @@
   @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium to-blanc-pur;
 }
 
+/* Nouveaux dégradés électriques et lumineux */
+.text-electric-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-bright-blue;
+}
+
+.text-vivid-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-vivid-purple to-magenta-pink;
+}
+
+.text-electric-green-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-green-medium;
+}
+
 /* Nouveaux utilitaires de fond à dégradé */
 .bg-gradient-primary {
   @apply bg-gradient-to-br from-green-medium via-noir-moyen to-noir-profond;
@@ -192,6 +233,23 @@
 
 .bg-gradient-soft {
   @apply bg-gradient-to-br from-green-pale via-blanc-cassé to-blanc-pur;
+}
+
+/* Nouveaux dégradés électriques et lumineux */
+.bg-gradient-electric {
+  @apply bg-gradient-to-br from-electric-blue via-bright-blue to-noir-profond;
+}
+
+.bg-gradient-electric-vivid {
+  @apply bg-gradient-to-br from-electric-blue via-vivid-purple to-magenta-pink;
+}
+
+.bg-gradient-electric-green {
+  @apply bg-gradient-to-br from-electric-blue via-green-medium to-noir-profond;
+}
+
+.bg-gradient-luminous {
+  @apply bg-gradient-to-br from-bright-blue via-electric-blue to-blanc-pur;
 }
 
 /* Améliorations des panneaux en verre */
@@ -219,6 +277,23 @@
   box-shadow: 0 8px 32px rgba(10, 10, 10, 0.1);
 }
 
+/* Nouveaux panneaux en verre électriques et lumineux */
+.glass-panel-electric {
+  background: rgba(30, 174, 219, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 174, 219, 0.18);
+  box-shadow: 0 8px 32px rgba(30, 174, 219, 0.1);
+}
+
+.glass-panel-purple {
+  background: rgba(139, 92, 246, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+}
+
 .shadow-elevation {
   box-shadow: 
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
@@ -229,6 +304,19 @@
   box-shadow: 
     0 10px 25px -5px rgba(45, 140, 80, 0.3),
     0 8px 10px -6px rgba(45, 140, 80, 0.2);
+}
+
+/* Nouvelles ombres électriques et lumineuses */
+.shadow-elevation-electric {
+  box-shadow: 
+    0 10px 25px -5px rgba(30, 174, 219, 0.3),
+    0 8px 10px -6px rgba(30, 174, 219, 0.2);
+}
+
+.shadow-elevation-purple {
+  box-shadow: 
+    0 10px 25px -5px rgba(139, 92, 246, 0.3),
+    0 8px 10px -6px rgba(139, 92, 246, 0.2);
 }
 
 /* Nouvelles classes pour le dégradé révolutionnaire */
@@ -246,4 +334,31 @@
   filter: drop-shadow(0 0 8px rgba(45, 140, 80, 0.6));
 }
 
-/* ... keep existing code */
+/* Nouvelles classes pour les bordures et effets électriques/lumineux */
+.electric-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #1EAEDB, #33C3F0, #FFFFFF) 1;
+}
+
+.electric-text-shadow {
+  text-shadow: 1px 1px 3px rgba(30, 174, 219, 0.5);
+}
+
+.electric-glow {
+  filter: drop-shadow(0 0 8px rgba(30, 174, 219, 0.6));
+}
+
+.luminous-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #8B5CF6, #D946EF, #FFFFFF) 1;
+}
+
+.luminous-text-shadow {
+  text-shadow: 1px 1px 3px rgba(139, 92, 246, 0.5);
+}
+
+.luminous-glow {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+}
