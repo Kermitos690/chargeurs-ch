@@ -79,15 +79,20 @@ export const resetPassword = async (email: string) => {
     console.log("Paramètres de réinitialisation:", actionCodeSettings);
     console.log("URL de redirection configurée:", actionCodeSettings.url);
     
-    // Vérifier si l'email existe dans notre base d'utilisateurs
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      console.log("Aucun utilisateur trouvé avec cet email, mais nous envoyons quand même un email pour des raisons de sécurité");
-    } else {
-      console.log("Utilisateur trouvé avec cet email, procédant à la réinitialisation");
+    // Vérifier si l'email existe dans notre base d'utilisateurs (mais ne pas échouer si on ne peut pas vérifier)
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        console.log("Aucun utilisateur trouvé avec cet email, mais nous envoyons quand même un email pour des raisons de sécurité");
+      } else {
+        console.log("Utilisateur trouvé avec cet email, procédant à la réinitialisation");
+      }
+    } catch (checkError) {
+      // Si on ne peut pas vérifier l'existence de l'utilisateur, on continue quand même
+      console.log("Impossible de vérifier l'existence de l'utilisateur:", checkError);
     }
     
     // Envoi de l'email avec les paramètres configurés
@@ -95,7 +100,7 @@ export const resetPassword = async (email: string) => {
     
     console.log("Email de réinitialisation envoyé avec succès");
     
-    // Enregistrer la tentative de réinitialisation pour le suivi
+    // Enregistrer la tentative de réinitialisation pour le suivi (mais ne pas échouer si ça ne marche pas)
     try {
       await setDoc(doc(db, "passwordResetAttempts", new Date().toISOString()), {
         email,
@@ -130,7 +135,7 @@ export const resetPassword = async (email: string) => {
       errorMessage = 'Erreur de configuration: URL de redirection non autorisée';
     }
     
-    // Enregistrer l'échec pour analyse
+    // Tenter d'enregistrer l'échec pour analyse mais ne pas échouer si ça ne marche pas
     try {
       await setDoc(doc(db, "passwordResetAttempts", new Date().toISOString()), {
         email,
@@ -142,6 +147,7 @@ export const resetPassword = async (email: string) => {
       });
     } catch (logError) {
       console.error("Erreur lors de l'enregistrement de l'échec de réinitialisation:", logError);
+      // Ne rien faire de plus, ne pas bloquer le flux principal
     }
     
     return { 
