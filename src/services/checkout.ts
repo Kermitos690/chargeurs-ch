@@ -20,6 +20,7 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       name: item.product.name + (item.variant ? ` - ${item.variant.name}` : ''),
       price: item.variant?.price || item.product.price,
       quantity: item.quantity,
+      // Utiliser une propriété optionnelle avec opérateur de chaînage facultatif
       stripeProductId: item.product.stripeProductId
     }));
 
