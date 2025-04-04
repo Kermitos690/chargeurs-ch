@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Battery, Zap } from 'lucide-react';
@@ -11,7 +10,6 @@ const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
 
-  // Animation trigger after component mount
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
@@ -23,15 +21,13 @@ const Hero = () => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!circleRef.current || isMobile) return;
 
-      // Get cursor position relative to the viewport
       const {
         clientX,
         clientY
       } = e;
-      const xPos = (clientX / window.innerWidth - 0.5) * 30; // Increased effect
+      const xPos = (clientX / window.innerWidth - 0.5) * 30;
       const yPos = (clientY / window.innerHeight - 0.5) * 30;
 
-      // Apply parallax effect with smooth transition
       circleRef.current.style.transform = `translate(${xPos}px, ${yPos}px)`;
       circleRef.current.style.transition = 'transform 0.3s ease-out';
     };
@@ -44,7 +40,6 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen pt-32 pb-20 overflow-hidden flex items-center">
-      {/* Animated background elements */}
       <div ref={circleRef} className="absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/15 filter blur-[80px] -translate-y-1/2 -translate-x-1/2 animate-pulse-subtle" />
       <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-primary/20 filter blur-[60px] animate-float" />
       <div className="absolute bottom-1/3 right-1/3 w-[200px] h-[200px] rounded-full bg-primary/10 filter blur-[70px] animate-float" style={{ animationDelay: '2s' }} />
@@ -61,7 +56,6 @@ const Hero = () => {
                 Des solutions de recharge innovantes, fiables et accessibles pour les particuliers et les entreprises dans tout le canton de Vaud.
               </p>
               
-              {/* Feature bullets with icons */}
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-primary/10 p-1.5">
@@ -73,7 +67,7 @@ const Hero = () => {
                   <div className="rounded-full bg-primary/10 p-1.5">
                     <Zap className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm">Tech dxnsmiwur 2025</span>
+                  <span className="text-sm">Technologie de chargement ultra rapide (2025 innovation)</span>
                 </div>
               </div>
               
@@ -96,13 +90,11 @@ const Hero = () => {
             <div className="relative h-[400px]">
               <div className="glass-panel rounded-3xl overflow-hidden h-full p-1 shadow-elevation transform transition-transform duration-500 hover:rotate-1 hover:scale-[1.02]">
                 <div className="rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 h-full relative">
-                  {/* 3D Model */}
                   <HeroModel3D />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent mix-blend-overlay" />
                 </div>
               </div>
               
-              {/* Floating elements with staggered animation */}
               <div 
                 className="absolute -bottom-6 -left-6 glass-panel rounded-2xl p-4 backdrop-blur-md shadow-elevation transition-all duration-500"
                 style={{ 
