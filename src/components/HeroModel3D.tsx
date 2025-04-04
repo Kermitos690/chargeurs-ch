@@ -8,7 +8,7 @@ const HeroModel3D = () => {
   
   return (
     <div 
-      className="h-full w-full relative overflow-hidden"
+      className="h-full w-full relative overflow-hidden bg-white" // Added bg-white here
     >
       {/* Background elements */}
       <div className="absolute inset-0 z-0 opacity-20">
