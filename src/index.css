@@ -33,13 +33,13 @@
 
 @keyframes green-pulse {
   0% {
-    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 5px rgba(45, 140, 80, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    box-shadow: 0 0 20px rgba(45, 140, 80, 0.8);
   }
   100% {
-    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 5px rgba(45, 140, 80, 0.5);
   }
 }
 
@@ -58,83 +58,84 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 10%;
 
-    /* New vibrant primary color with a gradient-friendly hue */
-    --primary: 256 76% 60%;
-    --primary-foreground: 210 40% 98%;
+    /* Nouveau thème vert-noir-blanc */
+    --primary: 140 54% 36%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Soft secondary for contrast and balance */
-    --secondary: 262 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Tons secondaires complémentaires */
+    --secondary: 140 12% 96%;
+    --secondary-foreground: 140 54% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 140 10% 96%;
+    --muted-foreground: 140 10% 40%;
 
-    /* Subtle accent for visual interest */
-    --accent: 262 70% 95%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent subtil pour l'intérêt visuel */
+    --accent: 140 20% 95%;
+    --accent-foreground: 140 54% 20%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 256 76% 60%;
+    --border: 140 5% 90%;
+    --input: 140 5% 90%;
+    --ring: 140 54% 36%;
 
     --radius: 0.5rem;
     
-    /* Gradient colors */
-    --gradient-start: 256 76% 60%;
-    --gradient-mid: 226 92% 59%;
-    --gradient-end: 180 100% 50%;
+    /* Couleurs de dégradé */
+    --gradient-start: 140 54% 36%;
+    --gradient-mid: 140 30% 20%;
+    --gradient-end: 0 0% 10%;
     
-    /* Additional accent colors for gradients */
-    --accent-purple: 270 76% 60%;
-    --accent-blue: 210 92% 59%; 
-    --accent-teal: 180 76% 50%;
-    --accent-green: 142 76% 50%;
+    /* Couleurs d'accent supplémentaires pour les dégradés */
+    --accent-green-dark: 140 60% 15%;
+    --accent-green-light: 140 50% 70%;
+    --accent-noir: 0 0% 5%;
+    --accent-blanc: 0 0% 98%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 256 76% 60%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Thème sombre vert-noir-blanc */
+    --primary: 140 54% 36%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 140 15% 15%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 140 15% 15%;
+    --muted-foreground: 140 10% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 140 15% 15%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 256 76% 60%;
+    --border: 140 15% 15%;
+    --input: 140 15% 15%;
+    --ring: 140 54% 36%;
     
-    /* Dark mode gradient colors */
-    --gradient-start: 256 86% 60%;
-    --gradient-mid: 226 92% 59%;
-    --gradient-end: 180 100% 50%;
+    /* Couleurs de dégradé pour le mode sombre */
+    --gradient-start: 140 54% 40%;
+    --gradient-mid: 140 30% 20%;
+    --gradient-end: 0 0% 5%;
   }
 }
 
@@ -147,45 +148,53 @@
   }
 }
 
-/* Enhanced gradient text utilities */
+/* Nouveaux utilitaires de texte à dégradé */
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-dark to-noir-profond;
 }
 
-.text-gradient-purple {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-indigo-600;
+.text-gradient-green {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-light to-green-dark;
 }
 
-.text-gradient-blue {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400;
+.text-gradient-black {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-noir-moyen to-noir-profond;
 }
 
-.text-gradient-teal {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-500;
+.text-gradient-contrast {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium via-noir-profond to-blanc-pur;
 }
 
-.text-green-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600;
+.text-green-white-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium to-blanc-pur;
 }
 
-/* Enhanced background gradient utilities */
+/* Nouveaux utilitaires de fond à dégradé */
 .bg-gradient-primary {
-  @apply bg-gradient-to-br from-[hsl(var(--gradient-start))] via-[hsl(var(--gradient-mid))] to-[hsl(var(--gradient-end))];
+  @apply bg-gradient-to-br from-green-medium via-noir-moyen to-noir-profond;
 }
 
-.bg-gradient-purple {
-  @apply bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500;
+.bg-gradient-vert-noir {
+  @apply bg-gradient-to-br from-green-light via-green-dark to-noir-profond;
 }
 
-.bg-gradient-blue {
-  @apply bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500;
+.bg-gradient-vert-blanc {
+  @apply bg-gradient-to-br from-green-medium via-green-pale to-blanc-pur;
+}
+
+.bg-gradient-noir-blanc {
+  @apply bg-gradient-to-br from-noir-profond via-noir-moyen to-blanc-pur;
+}
+
+.bg-gradient-revolution {
+  @apply bg-gradient-to-br from-green-dark via-noir-profond to-blanc-pur;
 }
 
 .bg-gradient-soft {
-  @apply bg-gradient-to-br from-violet-100 via-purple-100 to-indigo-100;
+  @apply bg-gradient-to-br from-green-pale via-blanc-cassé to-blanc-pur;
 }
 
-/* Glass panel enhancements */
+/* Améliorations des panneaux en verre */
 .glass-panel {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -194,20 +203,20 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.glass-panel-purple {
-  background: rgba(128, 90, 213, 0.08);
+.glass-panel-green {
+  background: rgba(45, 140, 80, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(128, 90, 213, 0.18);
-  box-shadow: 0 8px 32px rgba(128, 90, 213, 0.1);
+  border: 1px solid rgba(45, 140, 80, 0.18);
+  box-shadow: 0 8px 32px rgba(45, 140, 80, 0.1);
 }
 
-.glass-panel-blue {
-  background: rgba(59, 130, 246, 0.08);
+.glass-panel-dark {
+  background: rgba(10, 10, 10, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(59, 130, 246, 0.18);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(33, 33, 33, 0.18);
+  box-shadow: 0 8px 32px rgba(10, 10, 10, 0.1);
 }
 
 .shadow-elevation {
@@ -218,15 +227,23 @@
 
 .shadow-elevation-colored {
   box-shadow: 
-    0 10px 25px -5px rgba(128, 90, 213, 0.3),
-    0 8px 10px -6px rgba(128, 90, 213, 0.2);
+    0 10px 25px -5px rgba(45, 140, 80, 0.3),
+    0 8px 10px -6px rgba(45, 140, 80, 0.2);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Nouvelles classes pour le dégradé révolutionnaire */
+.revolutionary-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #2D8C50, #0A0A0A, #FFFFFF) 1;
 }
+
+.revolutionary-text-shadow {
+  text-shadow: 1px 1px 3px rgba(45, 140, 80, 0.5);
+}
+
+.revolutionary-glow {
+  filter: drop-shadow(0 0 8px rgba(45, 140, 80, 0.6));
+}
+
+/* ... keep existing code */

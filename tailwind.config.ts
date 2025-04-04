@@ -66,7 +66,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Nouvelles couleurs pour le dégradé révolutionnaire vert-noir-blanc
+				'green-dark': '#0E3B21',
+				'green-medium': '#1A5F36',
+				'green-light': '#2D8C50',
+				'green-pale': '#8FCFA7',
+				'noir-profond': '#0A0A0A',
+				'noir-moyen': '#212121',
+				'blanc-pur': '#FFFFFF',
+				'blanc-cassé': '#F5F5F5',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
