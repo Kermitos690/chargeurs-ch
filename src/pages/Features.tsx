@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { BatteryFull, MapPin, Clock, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Features = () => {
   const { data, isLoading, error } = useQuery({
@@ -17,7 +18,7 @@ const Features = () => {
     {
       icon: <BatteryFull className="h-10 w-10 text-primary" />,
       title: "Rechargez n'importe où",
-      description: "Accédez à nos bornes dans plus de 100 emplacements en Suisse."
+      description: "Accédez à nos bornes dans les bars et restaurants de Lausanne."
     },
     {
       icon: <MapPin className="h-10 w-10 text-primary" />,
@@ -44,7 +45,7 @@ const Features = () => {
           <div className="text-center mb-16">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Nos Solutions de Powerbanks</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Découvrez notre réseau de bornes de location de powerbanks, disponibles dans toute la Suisse pour garder vos appareils chargés en permanence.
+              Découvrez notre réseau de bornes de location de powerbanks, disponibles dans les bars et restaurants de Lausanne pour garder vos appareils chargés en permanence.
             </p>
           </div>
 
@@ -121,8 +122,10 @@ const Features = () => {
           
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-6">Prêt à essayer ?</h2>
-            <Button size="lg" className="rounded-full">
-              Trouver une borne
+            <Button size="lg" className="rounded-full" asChild>
+              <Link to="/stations">
+                Trouver une borne
+              </Link>
             </Button>
           </div>
         </section>

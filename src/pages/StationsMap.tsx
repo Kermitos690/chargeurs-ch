@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStations } from '@/services/api';
 import Header from '@/components/Header';
@@ -8,15 +8,131 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Search, BatteryMedium, AlertCircle } from 'lucide-react';
+import LeafletMap from '@/components/LeafletMap';
+import { Station } from '@/types/api';
+
+// Fictional Lausanne bars with power bank stations
+const mockStations: Station[] = [
+  {
+    id: '1',
+    name: 'Le Sidewalk Café',
+    location: 'Rue de Bourg 20, Lausanne',
+    latitude: 46.51991,
+    longitude: 6.63299,
+    availablePowerBanks: 8,
+    totalSlots: 10,
+    status: 'online',
+    description: 'Café branché avec terrasse',
+    imageUrl: '/stations/sidewalk.jpg'
+  },
+  {
+    id: '2',
+    name: 'The Great Escape',
+    location: 'Rue Madeleine 18, Lausanne',
+    latitude: 46.52221,
+    longitude: 6.63359,
+    availablePowerBanks: 4,
+    totalSlots: 8,
+    status: 'online',
+    description: 'Pub avec ambiance internationale',
+    imageUrl: '/stations/great-escape.jpg'
+  },
+  {
+    id: '3',
+    name: 'Bleu Lézard',
+    location: 'Rue Enning 10, Lausanne',
+    latitude: 46.52301,
+    longitude: 6.63547,
+    availablePowerBanks: 2,
+    totalSlots: 6,
+    status: 'online',
+    description: 'Bar et restaurant avec terrasse',
+    imageUrl: '/stations/bleu-lezard.jpg'
+  },
+  {
+    id: '4',
+    name: 'Café du Grütli',
+    location: 'Rue Mercerie 4, Lausanne',
+    latitude: 46.52248,
+    longitude: 6.63492,
+    availablePowerBanks: 0,
+    totalSlots: 6,
+    status: 'maintenance',
+    description: 'Café traditionnel suisse',
+    imageUrl: '/stations/grutli.jpg'
+  },
+  {
+    id: '5',
+    name: 'Le Bourg',
+    location: 'Rue de Bourg 51, Lausanne',
+    latitude: 46.52110,
+    longitude: 6.63430,
+    availablePowerBanks: 5,
+    totalSlots: 8,
+    status: 'online',
+    description: 'Salle de concert et bar',
+    imageUrl: '/stations/le-bourg.jpg'
+  },
+  {
+    id: '6',
+    name: 'Café de l\'Évêché',
+    location: 'Place de l\'Évêché 5, Lausanne',
+    latitude: 46.52303,
+    longitude: 6.63615,
+    availablePowerBanks: 0,
+    totalSlots: 4,
+    status: 'offline',
+    description: 'Café au coeur de la ville',
+    imageUrl: '/stations/eveche.jpg'
+  },
+  {
+    id: '7',
+    name: 'Le Château',
+    location: 'Place du Château 7, Lausanne',
+    latitude: 46.52352,
+    longitude: 6.63528,
+    availablePowerBanks: 3,
+    totalSlots: 6,
+    status: 'online',
+    description: 'Bar à vin avec vue',
+    imageUrl: '/stations/chateau.jpg'
+  },
+  {
+    id: '8',
+    name: 'Ta Cave',
+    location: 'Rue Centrale 5, Lausanne',
+    latitude: 46.52128,
+    longitude: 6.63225,
+    availablePowerBanks: 6,
+    totalSlots: 10,
+    status: 'online',
+    description: 'Bar à vins naturels',
+    imageUrl: '/stations/ta-cave.jpg'
+  }
+];
 
 const StationsMap = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   
-  const { data, isLoading, error } = useQuery({
+  // In a real app we would use the API, but for this demo we're using mock data
+  const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
+    initialData: {
+      success: true,
+      data: mockStations
+    }
   });
+
+  useEffect(() => {
+    // Set map as loaded after a small delay to ensure proper rendering
+    const timer = setTimeout(() => {
+      setIsMapLoaded(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +140,12 @@ const StationsMap = () => {
     console.log("Searching for:", searchQuery);
   };
 
-  const filteredStations = data?.data?.filter(station => 
+  const stations = apiData?.data || [];
+
+  const filteredStations = stations.filter(station => 
     station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     station.location.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -37,7 +155,7 @@ const StationsMap = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Nos Bornes</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Localisez toutes nos bornes de location de powerbanks près de chez vous.
+              Localisez toutes nos bornes de location de powerbanks dans les bars de Lausanne.
             </p>
           </div>
 
@@ -48,7 +166,7 @@ const StationsMap = () => {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Rechercher une ville, un lieu..."
+                      placeholder="Rechercher un bar, un lieu..."
                       className="pl-10"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -128,21 +246,25 @@ const StationsMap = () => {
             <div className="md:w-2/3">
               <Card className="h-[600px] relative overflow-hidden">
                 <CardContent className="p-0 h-full">
-                  <div className="absolute inset-0 bg-muted/20 flex flex-col items-center justify-center p-6 text-center">
-                    <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Carte des bornes</h3>
-                    <p className="text-muted-foreground mb-4 max-w-md">
-                      Cette carte vous permet de visualiser toutes nos bornes de location de powerbanks.
-                      Sélectionnez une borne pour voir plus d'informations.
-                    </p>
-                    <Button>Afficher ma position</Button>
-                  </div>
+                  {!isMapLoaded ? (
+                    <div className="absolute inset-0 bg-muted/20 flex flex-col items-center justify-center p-6 text-center">
+                      <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+                      <p className="mt-4">Chargement de la carte...</p>
+                    </div>
+                  ) : (
+                    <LeafletMap 
+                      stations={filteredStations}
+                      selectedStation={selectedStation}
+                      onStationSelect={setSelectedStation}
+                      height="600px"
+                    />
+                  )}
                   
                   {selectedStation && (
                     <div className="absolute bottom-4 left-4 right-4 bg-card border shadow-lg rounded-lg p-4 z-10">
-                      {data?.data && (
+                      {stations && (
                         (() => {
-                          const station = data.data.find(s => s.id === selectedStation);
+                          const station = stations.find(s => s.id === selectedStation);
                           if (!station) return null;
                           
                           return (
