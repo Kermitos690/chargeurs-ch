@@ -1,96 +1,70 @@
 
-export type Accessory = {
-  id: number;
+export interface Accessory {
+  id: string;
   name: string;
   description: string;
   price: string;
   image: string;
   specs: string[];
-};
+  stripeProductId?: string;
+}
 
 export const accessories: Accessory[] = [
   {
-    id: 1,
-    name: "Câble de recharge Type 2",
-    description: "Câble de recharge renforcé compatible avec toutes les bornes Type 2, idéal pour un usage quotidien.",
-    price: "290 CHF",
-    image: "https://images.unsplash.com/photo-1620752421345-baae8d9336f6?w=800&auto=format&fit=crop&q=60",
+    id: 'acc1',
+    name: 'Adaptateur Type 2',
+    description: 'Adaptateur de charge universel compatible avec la plupart des véhicules électriques',
+    price: '149 CHF',
+    image: '/lovable-uploads/478a170b-6b38-4e9e-acf6-4aee7c34d07b.png',
     specs: [
-      "Longueur: 5 mètres",
-      "Ampérage: 32A",
-      "Gaine haute résistance",
-      "Compatible toutes saisons",
-      "Garantie 24 mois"
-    ]
+      'Compatible avec tous les véhicules Type 2',
+      'Puissance jusqu\'à 22 kW',
+      'Indice de protection IP67',
+      'Câble haute qualité de 50 cm'
+    ],
+    stripeProductId: 'prod_adaptateur_type2'
   },
   {
-    id: 2,
-    name: "Support mural pour câble",
-    description: "Support design et fonctionnel pour ranger votre câble de recharge proprement et en toute sécurité.",
-    price: "79 CHF",
-    image: "https://images.unsplash.com/photo-1633174524827-db00a6b9c7b1?w=800&auto=format&fit=crop&q=60",
+    id: 'acc2',
+    name: 'Câble de recharge renforcé',
+    description: 'Câble de recharge premium pour une utilisation intensive et durable',
+    price: '199 CHF',
+    image: '/lovable-uploads/a18995fa-57e7-4901-b5bd-708fd76ad058.png',
     specs: [
-      "Acier inoxydable",
-      "Installation facile",
-      "Compatible avec tous types de câbles",
-      "Design élégant",
-      "Résistant aux intempéries"
-    ]
+      'Longueur de 5 mètres',
+      'Résistant aux températures extrêmes',
+      'Certification TÜV',
+      'Garantie 3 ans'
+    ],
+    stripeProductId: 'prod_cable_renforce'
   },
   {
-    id: 3,
-    name: "Adaptateur CHAdeMO vers CCS",
-    description: "Adaptateur permettant de connecter un véhicule équipé d'une prise CCS à une borne CHAdeMO.",
-    price: "450 CHF",
-    image: "https://images.unsplash.com/photo-1631083731032-f3cdde056225?w=800&auto=format&fit=crop&q=60",
+    id: 'acc3',
+    name: 'Extension de garantie',
+    description: 'Prolongez la garantie de vos accessoires jusqu\'à 5 ans pour une tranquillité totale',
+    price: 'À partir de 199 CHF',
+    image: '/lovable-uploads/d57ec078-da32-4674-b9e7-64490acf74b3.png',
     specs: [
-      "Puissance max: 50kW",
-      "Sécurité intégrée",
-      "Compact et léger",
-      "Certifié CE",
-      "Garantie 24 mois"
-    ]
+      'Extension à 5 ans',
+      'Couverture complète pièces et main d\'œuvre',
+      'Remplacement express',
+      'Support prioritaire'
+    ],
+    stripeProductId: 'prod_extension_garantie'
   },
   {
-    id: 4,
-    name: "Carte RFID multi-réseaux",
-    description: "Carte RFID permettant d'accéder à plus de 95% des bornes de recharge publiques en Suisse et en Europe.",
-    price: "25 CHF",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&auto=format&fit=crop&q=60",
+    id: 'acc4',
+    name: 'Carte RFID multi-réseaux',
+    description: 'Carte RFID permettant d\'accéder à plus de 95% des bornes de recharge publiques en Suisse et en Europe',
+    price: '25 CHF',
+    image: '/lovable-uploads/e91a302c-6f8e-4a87-93ff-3fff9ee39ef0.png',
     specs: [
-      "Compatible avec +150'000 bornes",
-      "Technologie NFC",
-      "Sans abonnement",
-      "Application de gestion",
-      "Service client 24/7"
-    ]
-  },
-  {
-    id: 5,
-    name: "Borne de recharge portable",
-    description: "Solution de recharge portable pour les situations d'urgence ou les déplacements occasionnels.",
-    price: "390 CHF",
-    image: "https://images.unsplash.com/photo-1618030941059-d3c17c2f20a4?w=800&auto=format&fit=crop&q=60",
-    specs: [
-      "Puissance: 3.7 kW",
-      "Compatible prise domestique",
-      "Mallette de transport",
-      "Protection intégrée",
-      "Garantie 24 mois"
-    ]
-  },
-  {
-    id: 6,
-    name: "Kit de protection intempéries",
-    description: "Protégez votre connexion de recharge contre les intempéries pour une utilisation en extérieur en toute sécurité.",
-    price: "95 CHF",
-    image: "https://images.unsplash.com/photo-1594818020972-e96e69a05f28?w=800&auto=format&fit=crop&q=60",
-    specs: [
-      "100% étanche (IP67)",
-      "Compatible Type 1 et Type 2",
-      "Matériaux durables",
-      "Système de verrouillage",
-      "Résistant aux UV"
-    ]
+      'Compatible avec +150\'000 bornes',
+      'Technologie NFC',
+      'Sans abonnement',
+      'Application de gestion',
+      'Service client 24/7'
+    ],
+    stripeProductId: 'prod_carte_rfid'
   }
 ];

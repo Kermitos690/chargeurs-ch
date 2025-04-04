@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 // Créer une session de checkout Stripe
-export const createCheckoutSession = async (successUrl?: string, cancelUrl?: string) => {
+export const createCheckoutSession = async (successUrl?: string, cancelUrl?: string, useTerminal?: boolean) => {
   try {
     // Récupérer les articles du panier
     const cartItems = await getCartItems();
@@ -20,6 +20,7 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       name: item.product.name + (item.variant ? ` - ${item.variant.name}` : ''),
       price: item.variant?.price || item.product.price,
       quantity: item.quantity,
+      stripeProductId: item.product.stripeProductId
     }));
 
     // Appeler l'API Stripe via la fonction Edge de Supabase
@@ -27,7 +28,8 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       body: { 
         items,
         successUrl,
-        cancelUrl
+        cancelUrl,
+        useTerminal
       }
     });
 
@@ -35,7 +37,15 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       throw new Error(error.message);
     }
 
-    if (data?.url) {
+    if (data?.requiresTerminal && data?.clientSecret) {
+      // Retourner les détails pour le terminal
+      return { 
+        success: true, 
+        requiresTerminal: true, 
+        clientSecret: data.clientSecret,
+        paymentIntentId: data.paymentIntentId
+      };
+    } else if (data?.url) {
       // Rediriger vers l'URL de paiement Stripe
       window.location.href = data.url;
       return { success: true };
@@ -61,6 +71,28 @@ export const handleCheckoutSuccess = async (sessionId: string) => {
     return { success: true };
   } catch (error) {
     console.error('Erreur lors du traitement du succès du paiement:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Procéder au paiement via terminal WISE PAD 3
+export const processTerminalPayment = async (paymentIntentId: string) => {
+  try {
+    // Appeler l'API pour traiter le paiement via terminal
+    const { data, error } = await supabase.functions.invoke('process-terminal-payment', {
+      body: { 
+        paymentIntentId
+      }
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur lors du traitement du paiement via terminal:', error);
+    toast.error('Une erreur est survenue lors du traitement du paiement');
     return { success: false, error: error.message };
   }
 };
