@@ -67,40 +67,43 @@ export const resetPassword = async (email: string) => {
     console.log("Starting password reset process for:", email);
     
     // Define actionCodeSettings for the password reset with correct handling options
-    // Make sure this has the correct settings for your Firebase project
     const actionCodeSettings = {
       // URL to redirect to after password reset
       url: `${window.location.origin}/auth/login?email=${encodeURIComponent(email)}`,
-      // Changed to true to handle the code in the app
+      // Set to true to handle the code in the app
       handleCodeInApp: true
     };
     
     console.log("Action code settings:", actionCodeSettings);
     
-    // First check if the user exists in Firestore
-    try {
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', email));
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        console.log("No user found with this email in Firestore");
-        // Continue with the reset anyway, Firebase Auth will check if the email exists
-      } else {
-        console.log("User found in Firestore with this email");
-      }
-    } catch (firestoreError) {
-      console.error("Error checking user in Firestore:", firestoreError);
-      // Continue with the reset anyway
-    }
+    // Skip Firestore check since we're getting permission errors
+    // This isn't critical for password reset anyway, Firebase Auth will check if email exists
     
-    // Try first with actionCodeSettings
+    // Try sending with actionCodeSettings
     try {
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       console.log("Password reset email sent successfully with actionCodeSettings");
       return { success: true };
     } catch (actionCodeError: any) {
       console.error("Error sending with actionCodeSettings:", actionCodeError);
+      
+      // If there's a rate limit or other error, show appropriate message
+      if (actionCodeError.code === 'auth/too-many-requests') {
+        return { 
+          success: false, 
+          error: "Trop de tentatives de réinitialisation. Veuillez réessayer plus tard.", 
+          code: actionCodeError.code 
+        };
+      }
+      
+      // For RESET_PASSWORD_EXCEED_LIMIT errors
+      if (actionCodeError.message && actionCodeError.message.includes('RESET_PASSWORD_EXCEED_LIMIT')) {
+        return { 
+          success: false, 
+          error: "Limite de réinitialisation dépassée. Veuillez réessayer plus tard (généralement après 1 heure).", 
+          code: 'auth/reset-password-limit-exceeded'
+        };
+      }
       
       // If that fails, fallback to sending without actionCodeSettings
       try {
@@ -122,6 +125,8 @@ export const resetPassword = async (email: string) => {
       errorMessage = 'L\'adresse email n\'est pas valide';
     } else if (error.code === 'auth/too-many-requests') {
       errorMessage = 'Trop de tentatives, veuillez réessayer plus tard';
+    } else if (error.message && error.message.includes('RESET_PASSWORD_EXCEED_LIMIT')) {
+      errorMessage = 'Limite de réinitialisation dépassée. Veuillez réessayer plus tard.';
     }
     
     return { success: false, error: errorMessage, code: error.code };

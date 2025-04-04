@@ -12,8 +12,16 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Clock } from 'lucide-react';
 import { resetPassword } from '@/services/firebase/auth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -24,6 +32,7 @@ const ResetPassword = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -49,6 +58,13 @@ const ResetPassword = () => {
       } else {
         setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
         setRetryCount(prev => prev + 1);
+        
+        // Show special dialog for rate limit errors
+        if (result.code === 'auth/too-many-requests' || 
+            result.code === 'auth/reset-password-limit-exceeded' ||
+            (result.error && result.error.includes('Limite de réinitialisation'))) {
+          setShowLimitDialog(true);
+        }
         
         toast({
           variant: "destructive",
@@ -197,6 +213,36 @@ const ResetPassword = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Rate limit dialog */}
+      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-amber-500" />
+              Limite de tentatives atteinte
+            </DialogTitle>
+            <DialogDescription>
+              Pour des raisons de sécurité, Firebase limite le nombre de réinitialisations de mot de passe pour une adresse email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-3">
+            <p>
+              Veuillez essayer l'une des solutions suivantes:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Attendez environ une heure avant de réessayer</li>
+              <li>Contactez le support si vous avez un besoin urgent d'accès</li>
+              <li>Essayez de vous connecter avec votre ancien mot de passe</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowLimitDialog(false)}>
+              Compris
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
