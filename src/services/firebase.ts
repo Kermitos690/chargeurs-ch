@@ -1,10 +1,13 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
   signOut,
   onAuthStateChanged,
-  User
+  User,
+  createUserWithEmailAndPassword,
+  updateProfile
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -21,6 +24,7 @@ import {
   limit,
   Timestamp,
   serverTimestamp,
+  setDoc,
   CollectionReference,
   DocumentData
 } from 'firebase/firestore';
@@ -40,6 +44,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Exporter les fonctions Firebase Auth nécessaires
+export { 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  updateProfile
+};
 
 // Service d'authentification
 export const loginAdmin = async (email: string, password: string) => {

@@ -1,39 +1,54 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { User } from 'firebase/auth';
-import { auth, authStateListener } from '../services/firebase';
+import { useFirebaseAuth } from './useFirebaseAuth';
 
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+interface AuthContextType {
+  user: User | null;
+  userData: {
+    id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    subscriptionType?: string;
+  } | null;
+  loading: boolean;
+  isAdmin: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  userData: null,
+  loading: true,
+  isAdmin: false
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user, userData, loading } = useFirebaseAuth();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = authStateListener((authUser) => {
-      setUser(authUser);
-      
-      // Check if user has admin role
-      if (authUser) {
-        authUser.getIdTokenResult()
-          .then((idTokenResult) => {
-            // Check if admin custom claim exists
-            setIsAdmin(!!idTokenResult.claims.admin);
-          })
-          .catch((error) => {
-            console.error("Error getting token claims:", error);
-            setIsAdmin(false);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
-        setIsAdmin(false);
-        setLoading(false);
-      }
-    });
+    // Check if user has admin role
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          // Check if admin custom claim exists
+          setIsAdmin(!!idTokenResult.claims.admin);
+        })
+        .catch((error) => {
+          console.error("Error getting token claims:", error);
+          setIsAdmin(false);
+        });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
-    return () => unsubscribe();
-  }, []);
-
-  return { user, loading, isAdmin };
+  return (
+    <AuthContext.Provider value={{ user, userData, loading, isAdmin }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);

@@ -1,14 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { Menu, X, User, MapPin, Battery } from 'lucide-react';
+import { Menu, X, User, MapPin, Battery, LogIn, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/hooks/useAuth';
+import { auth } from '@/services/firebase';
+import { toast } from 'sonner';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +28,17 @@ const Header = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      toast.success("Vous êtes déconnecté");
+      navigate('/');
+    } catch (error) {
+      console.error("Erreur de déconnexion:", error);
+      toast.error("Une erreur est survenue lors de la déconnexion");
+    }
+  };
 
   return (
     <header
@@ -70,15 +86,41 @@ const Header = () => {
           >
             Contact
           </Link>
-          <Link to="/account">
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-white rounded-full"
-              size="sm"
-            >
-              <User className="w-4 h-4 mr-2" />
-              Mon Compte
-            </Button>
-          </Link>
+          {!loading && (
+            <>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <Link to="/account">
+                    <Button 
+                      className="bg-primary hover:bg-primary/90 text-white rounded-full"
+                      size="sm"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Mon Compte
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="ghost" 
+                    size="sm"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Déconnexion
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/auth/login">
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 text-white rounded-full"
+                    size="sm"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Connexion
+                  </Button>
+                </Link>
+              )}
+            </>
+          )}
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -139,17 +181,49 @@ const Header = () => {
           >
             Contact
           </Link>
-          <Link 
-            to="/account"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-white rounded-full w-full mt-4"
-            >
-              <User className="w-4 h-4 mr-2" />
-              Mon Compte
-            </Button>
-          </Link>
+          {!loading && (
+            <>
+              {user ? (
+                <>
+                  <Link 
+                    to="/account"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button 
+                      className="bg-primary hover:bg-primary/90 text-white rounded-full w-full"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Mon Compte
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Déconnexion
+                  </Button>
+                </>
+              ) : (
+                <Link 
+                  to="/auth/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full"
+                >
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 text-white rounded-full w-full"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Connexion
+                  </Button>
+                </Link>
+              )}
+            </>
+          )}
         </nav>
       </div>
     </header>
