@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Battery, Zap } from 'lucide-react';
@@ -49,7 +50,7 @@ const Hero = () => {
           <div className={`order-2 lg:order-1 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
-                <span className="text-gradient">Fini les achat</span> de batteries portables ! 
+                <span className="text-gradient">Fini les achats</span> de batteries portables ! 
                 <span className="block mt-2">Passez à la location !</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
@@ -104,7 +105,7 @@ const Hero = () => {
                 }}
               >
                 <p className="font-medium">100% Disponible</p>
-                <p className="text-sm text-muted-foreground"></p>
+                <p className="text-sm text-muted-foreground">Powerbanks prêts à l'emploi</p>
               </div>
               
               <div 

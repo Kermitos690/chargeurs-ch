@@ -10,7 +10,7 @@ const About = () => {
     "Garantie de 5 ans sur tout notre matériel",
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
-    "Compatibilité avec tous les véhicules électriques",
+    "Compatibilité avec tous les smartphones modernes",
   ];
 
   return (
@@ -24,11 +24,11 @@ const About = () => {
           <div className="order-2 lg:order-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-6">
               <h6 className="text-sm uppercase tracking-wider text-primary font-medium">À propos de nous</h6>
-              <h2 className="text-3xl md:text-4xl font-bold">Experts en solutions de recharge</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">Experts en solutions de recharge portable</h2>
               <p className="text-muted-foreground text-lg">
-                Chez chargeurs.ch, nous proposons des solutions de recharge innovantes et fiables pour véhicules électriques. 
-                Notre mission est de faciliter la transition vers la mobilité électrique en fournissant des infrastructures 
-                de recharge accessibles et performantes.
+                Chez chargeurs.ch, nous proposons des solutions de location de powerbanks innovantes et fiables. 
+                Notre mission est de faciliter la vie mobile en fournissant des powerbanks accessibles et performantes 
+                partout dans le canton de Vaud.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -80,7 +80,7 @@ const About = () => {
                 <div className="mt-10 space-y-4">
                   <h3 className="text-xl font-semibold">Notre engagement</h3>
                   <p className="text-muted-foreground">
-                    Nous nous engageons à fournir des solutions de recharge durables et respectueuses de l'environnement, 
+                    Nous nous engageons à fournir des solutions de recharge portables durables et respectueuses de l'environnement, 
                     en utilisant les dernières technologies pour optimiser l'efficacité énergétique.
                   </p>
                 </div>

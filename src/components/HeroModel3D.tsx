@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, useTexture, Environment } from '@react-three/drei';
+import * as THREE from 'three';
 
 // Animated background particles
 const ParticlesBackground = () => {
@@ -19,7 +20,7 @@ const ParticlesBackground = () => {
     return new Float32Array(positions);
   }, [particlesCount]);
 
-  const pointsRef = useRef();
+  const pointsRef = useRef<THREE.Points>(null);
   
   useFrame(({ clock }) => {
     if (pointsRef.current) {
@@ -51,7 +52,7 @@ const ParticlesBackground = () => {
 
 // Floating PowerBank model
 const PowerBankModel = () => {
-  const meshRef = useRef();
+  const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     if (meshRef.current) {
@@ -85,13 +86,19 @@ const PowerBankModel = () => {
         <boxGeometry args={[0.6, 0.1, 0.05]} />
         <meshStandardMaterial color="#333333" />
       </mesh>
+      
+      {/* Mobile Phone Connector */}
+      <mesh position={[0, 0.15, 1]}>
+        <cylinderGeometry args={[0.05, 0.05, 0.1, 16]} />
+        <meshStandardMaterial color="#666666" />
+      </mesh>
     </mesh>
   );
 };
 
 // Energy flow animation
 const EnergyFlow = () => {
-  const pointsRef = useRef();
+  const pointsRef = useRef<THREE.Points>(null);
   const particlesCount = 100;
   
   const positions = useMemo(() => {
@@ -244,7 +251,7 @@ const HeroModel3D = () => {
               <img 
                 ref={imageRef}
                 src="/lovable-uploads/478a170b-6b38-4e9e-acf6-4aee7c34d07b.png" 
-                alt="Charging Station" 
+                alt="PowerBank" 
                 className="max-w-full max-h-full object-contain transform scale-140 animate-float-3d"
                 style={{
                   filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15))"
@@ -265,7 +272,7 @@ const HeroModel3D = () => {
             }}
           >
             <p className="font-medium text-gradient">Nouvelle génération</p>
-            <p className="text-sm text-muted-foreground">Innovation PowerBank</p>
+            <p className="text-sm text-muted-foreground">Location de PowerBank</p>
           </div>
           
           <div className="absolute bottom-2 right-2 text-xs text-muted-foreground backdrop-blur-sm px-2 py-1 rounded-full">
