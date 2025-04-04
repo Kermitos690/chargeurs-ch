@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from "@/components/ui/button";
@@ -11,19 +12,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, User, Settings, HelpCircle } from 'lucide-react';
-import { clearCart } from '@/services/cart'; // Import clearCart
+import { LogOut, User, Settings, HelpCircle, Menu, X } from 'lucide-react';
+import { clearCart } from '@/services/cart'; 
 import { toast } from 'sonner';
-// Ajouter l'import pour CartIcon
 import CartIcon from './shop/CartIcon';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { auth } from '@/services/firebase';
 
 const Header = () => {
   const { user, userData } = useAuth();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await clearCart(user?.uid); // Clear cart on logout
+      await clearCart(user?.uid); 
       await auth.signOut();
       navigate('/auth/login');
       toast.success("Déconnexion réussie !");
@@ -33,31 +36,37 @@ const Header = () => {
     }
   };
 
+  const navItems = [
+    { path: '/', label: 'Accueil' },
+    { path: '/features', label: 'Fonctionnalités' },
+    { path: '/about', label: 'À propos' },
+    { path: '/contact', label: 'Contact' },
+    { path: '/produits', label: 'Boutique' },
+  ];
+
   return (
     <header className="bg-background border-b">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="font-bold text-2xl">
           Chargeurs Coop
         </Link>
+        
+        {/* Navigation pour desktop */}
         <nav className="hidden md:flex items-center space-x-6">
-          <NavLink to="/" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
-            Accueil
-          </NavLink>
-          <NavLink to="/features" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
-            Fonctionnalités
-          </NavLink>
-          <NavLink to="/about" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
-            À propos
-          </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
-            Contact
-          </NavLink>
-          <NavLink to="/produits" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
-            Boutique
-          </NavLink>
+          {navItems.map((item) => (
+            <NavLink 
+              key={item.path}
+              to={item.path} 
+              className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
+        
         <div className="flex items-center space-x-4">
           <CartIcon />
+          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -100,6 +109,106 @@ const Header = () => {
               </Button>
             </>
           )}
+          
+          {/* Bouton de menu mobile */}
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px] bg-background p-0">
+              <div className="flex flex-col h-full">
+                <div className="p-4 border-b">
+                  <Link to="/" className="font-bold text-xl" onClick={() => setIsMenuOpen(false)}>
+                    Chargeurs Coop
+                  </Link>
+                </div>
+                <nav className="flex-1 p-4">
+                  <ul className="space-y-2">
+                    {navItems.map((item) => (
+                      <li key={item.path}>
+                        <NavLink 
+                          to={item.path} 
+                          className={({ isActive }) => 
+                            `block p-2 rounded-md ${isActive 
+                              ? "bg-primary/10 text-primary" 
+                              : "hover:bg-accent"}`
+                          }
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+                {user ? (
+                  <div className="p-4 border-t">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                        <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={() => {
+                          navigate('/profile');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Profil
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={() => {
+                          navigate('/account');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Paramètres
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Se déconnecter
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 border-t flex flex-col space-y-2">
+                    <Button 
+                      onClick={() => {
+                        navigate('/auth/login');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Se connecter
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        navigate('/auth/register');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      S'inscrire
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
