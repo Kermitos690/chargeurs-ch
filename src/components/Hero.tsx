@@ -64,11 +64,12 @@ const Hero = () => {
           }}>
             <div className="relative">
               <div className="glass-panel rounded-3xl overflow-hidden p-1 shadow-elevation">
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden">
+                <div className="aspect-[4/3] rounded-2xl overflow-hidden flex items-center justify-center">
                   <img 
                     src="/lovable-uploads/d57ec078-da32-4674-b9e7-64490acf74b3.png" 
                     alt="Location de powerbanks" 
-                    className="w-full h-full object-contain" 
+                    className="w-auto h-auto scale-200" 
+                    style={{ transform: "scale(2.0)" }}
                     loading="eager" 
                   />
                 </div>
