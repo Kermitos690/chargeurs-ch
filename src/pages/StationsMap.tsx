@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStations } from '@/services/api';
@@ -20,7 +19,6 @@ const StationsMap = () => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [filteredStations, setFilteredStations] = useState<Station[]>([]);
   
-  // Utiliser useQuery avec des options stables pour éviter de recréer la requête
   const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
@@ -28,25 +26,21 @@ const StationsMap = () => {
       success: true,
       data: mockStations
     },
-    staleTime: 60000, // 1 minute avant de considérer les données comme obsolètes
-    cacheTime: 300000, // 5 minutes de mise en cache
-    retry: 3, // Réessayer 3 fois en cas d'échec
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 3,
     onError: () => {
       toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
     }
   });
 
-  // Extraire les stations des données API ou utiliser un tableau vide
   const stations = apiData?.data || [];
 
-  // Utiliser useCallback pour éviter de recréer la fonction à chaque rendu
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     console.log("Recherche effectuée:", searchQuery);
-    // Pas besoin de re-filtrer ici, cela sera fait dans l'effet useEffect ci-dessous
   }, [searchQuery]);
 
-  // Filter les stations lorsque searchQuery change
   useEffect(() => {
     if (stations.length > 0) {
       const filtered = stations.filter(station => 
@@ -59,7 +53,6 @@ const StationsMap = () => {
     }
   }, [searchQuery, stations]);
 
-  // Simuler un délai de chargement de la carte pour assurer une transition fluide
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMapLoaded(true);
@@ -67,7 +60,6 @@ const StationsMap = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Trouver la station sélectionnée
   const selectedStationData = selectedStation
     ? stations.find(s => s.id === selectedStation)
     : null;

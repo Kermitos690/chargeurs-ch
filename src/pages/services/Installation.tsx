@@ -1,10 +1,9 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Tool, Calendar, FileText, Wrench, Settings } from 'lucide-react';
+import { CheckCircle, Wrench, Calendar, FileText, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ServicesInstallation = () => {
@@ -36,7 +35,7 @@ const ServicesInstallation = () => {
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Tool className="h-5 w-5 text-primary" />
+                    <Wrench className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <span className="font-medium">Installation par des techniciens certifiés</span>

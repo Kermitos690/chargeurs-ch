@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Tool, AlertTriangle, Zap } from 'lucide-react';
+import { CheckCircle, Wrench, AlertTriangle, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Maintenance = () => {
@@ -59,7 +59,7 @@ const Maintenance = () => {
             <Card>
               <CardHeader>
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Tool className="h-6 w-6 text-primary" />
+                  <Wrench className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Maintenance Corrective</CardTitle>
                 <CardDescription>
