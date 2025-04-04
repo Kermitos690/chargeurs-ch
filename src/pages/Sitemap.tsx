@@ -68,6 +68,7 @@ const Sitemap = () => {
         { name: "Conditions d'Utilisation", path: "/conditions" },
         { name: "Politique de Confidentialité", path: "/confidentialite" },
         { name: "Politique de Cookies", path: "/cookies" },
+        { name: "Plan du site", path: "/sitemap" },
       ]
     },
     {
