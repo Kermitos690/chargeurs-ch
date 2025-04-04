@@ -15,6 +15,11 @@ import Profile from "./pages/Profile";
 import StationsMap from "./pages/StationsMap";
 import NotFound from "./pages/NotFound";
 
+// Routes d'administration
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminLayout from "./components/AdminLayout";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,6 +38,14 @@ const App = () => (
           <Route path="/subscriptions" element={<Subscriptions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/stations" element={<StationsMap />} />
+          
+          {/* Routes d'administration */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            {/* Autres routes admin protégées peuvent être ajoutées ici */}
+          </Route>
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -42,3 +55,4 @@ const App = () => (
 );
 
 export default App;
+

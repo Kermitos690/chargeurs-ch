@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { AlertCircle, ArrowLeft, Home } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Home, Shield } from 'lucide-react';
 
 const NotFound = () => {
   return (
@@ -53,6 +53,12 @@ const NotFound = () => {
               </li>
               <li>
                 <Link to="/contact" className="hover:underline">Contacter le support</Link>
+              </li>
+              <li>
+                <Link to="/admin/login" className="hover:underline flex items-center justify-center">
+                  <Shield className="mr-1 h-3 w-3" />
+                  Administration
+                </Link>
               </li>
             </ul>
           </div>
