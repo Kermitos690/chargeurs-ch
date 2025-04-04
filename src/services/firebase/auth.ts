@@ -66,13 +66,16 @@ export const resetPassword = async (email: string) => {
   try {
     console.log("Starting password reset process for:", email);
     
-    // Define actionCodeSettings for the password reset
+    // Define actionCodeSettings for the password reset with correct handling options
+    // Make sure this has the correct settings for your Firebase project
     const actionCodeSettings = {
-      // URL you want to redirect back to after password reset
-      url: window.location.origin + '/auth/login',
-      // This must be true for password reset emails
-      handleCodeInApp: false
+      // URL to redirect to after password reset
+      url: `${window.location.origin}/auth/login?email=${encodeURIComponent(email)}`,
+      // Changed to true to handle the code in the app
+      handleCodeInApp: true
     };
+    
+    console.log("Action code settings:", actionCodeSettings);
     
     // First check if the user exists in Firestore
     try {
@@ -91,11 +94,24 @@ export const resetPassword = async (email: string) => {
       // Continue with the reset anyway
     }
     
-    // Send the password reset email with actionCodeSettings
-    await sendPasswordResetEmail(auth, email, actionCodeSettings);
-    console.log("Password reset email sent successfully");
-    
-    return { success: true };
+    // Try first with actionCodeSettings
+    try {
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      console.log("Password reset email sent successfully with actionCodeSettings");
+      return { success: true };
+    } catch (actionCodeError: any) {
+      console.error("Error sending with actionCodeSettings:", actionCodeError);
+      
+      // If that fails, fallback to sending without actionCodeSettings
+      try {
+        console.log("Trying without actionCodeSettings...");
+        await sendPasswordResetEmail(auth, email);
+        console.log("Password reset email sent successfully without actionCodeSettings");
+        return { success: true };
+      } catch (fallbackError: any) {
+        throw fallbackError; // Let the outer catch handle this
+      }
+    }
   } catch (error: any) {
     console.error('Erreur lors de la réinitialisation du mot de passe:', error);
     let errorMessage = 'Une erreur est survenue lors de la réinitialisation du mot de passe';
