@@ -112,7 +112,7 @@ const Hero = () => {
                 }}
               >
                 <p className="font-medium">100% Disponible</p>
-                <p className="text-sm text-muted-foreground">Bornes 24h/24</p>
+                <p className="text-sm text-muted-foreground"></p>
               </div>
               
               <div 
