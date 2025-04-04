@@ -8,14 +8,8 @@ const HeroModel3D = () => {
   
   return (
     <div 
-      className="h-full w-full relative overflow-hidden bg-white" // Added bg-white here
+      className="h-full w-full relative overflow-hidden bg-white" // Keeping the white background
     >
-      {/* Background elements */}
-      <div className="absolute inset-0 z-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-green-400 filter blur-xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-green-500 filter blur-xl" />
-      </div>
-      
       {/* Main charging station image without parallax and animation effects */}
       <div className="relative h-full w-full flex items-center justify-center z-20">
         <div className="relative w-full h-full flex items-center justify-center">
@@ -29,11 +23,6 @@ const HeroModel3D = () => {
               filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2))"
             }}
           />
-          
-          {/* Overlay effect with green glow matching the image */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="absolute w-[128%] h-[128%] rounded-full bg-green-500 opacity-20 filter blur-2xl" />
-          </div>
         </div>
       </div>
       
