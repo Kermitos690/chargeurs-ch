@@ -26,18 +26,14 @@ const HeroModel3D = () => {
         </div>
       </div>
       
-      {/* Floating information card with new gradient styling */}
+      {/* Floating information card with gradient styling but without text */}
       <div 
         className="absolute bottom-6 right-6 z-30 glass-panel-purple rounded-xl p-3 text-center backdrop-blur-md shadow-elevation-colored"
         style={{
           background: 'linear-gradient(135deg, rgba(128, 90, 213, 0.7), rgba(76, 29, 149, 0.7))',
           border: '1px solid rgba(139, 92, 246, 0.3)'
         }}
-      >
-        <p className="font-medium text-white">
-          <span className="text-gradient-purple font-bold">RENT</span> A POWERBANK
-        </p>
-      </div>
+      />
     </div>
   );
 };

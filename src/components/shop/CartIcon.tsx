@@ -45,8 +45,7 @@ const CartIcon: React.FC = () => {
       
       <CartDrawer 
         open={isCartOpen} 
-        onOpenChange={setIsCartOpen} 
-        onCartUpdated={fetchCartCount}
+        onOpenChange={setIsCartOpen}
       />
     </>
   );
