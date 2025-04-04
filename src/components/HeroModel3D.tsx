@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 
-// Main component - now using a static image instead of 3D model
+// Main component using the provided charging station image
 const HeroModel3D = () => {
   // For the image display with parallax effects
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,11 +38,11 @@ const HeroModel3D = () => {
           transition: 'transform 0.1s ease-out'
         }}
       >
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-blue-400 filter blur-xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-green-400 filter blur-xl" />
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-green-400 filter blur-xl" />
+        <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-green-500 filter blur-xl" />
       </div>
       
-      {/* Main station image with parallax and animation effects */}
+      {/* Main charging station image with parallax and animation effects */}
       <div 
         className="relative h-full w-full flex items-center justify-center z-20"
         style={{
@@ -51,20 +51,20 @@ const HeroModel3D = () => {
         }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Using the last station image */}
+          {/* Using the provided charging station image */}
           <img 
             ref={imageRef}
-            src="/stations/couronne-or.jpg" 
-            alt="Station de PowerBank"
-            className="max-w-full max-h-full object-cover rounded-xl animate-float-slow shadow-2xl"
+            src="/lovable-uploads/a18995fa-57e7-4901-b5bd-708fd76ad058.png" 
+            alt="PowerBank Charging Station"
+            className="max-w-full max-h-full object-contain rounded-xl animate-float-slow shadow-2xl"
             style={{
               filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2))"
             }}
           />
           
-          {/* Overlay effect */}
+          {/* Overlay effect with green glow matching the image */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="absolute w-[80%] h-[80%] rounded-full bg-primary opacity-20 filter blur-2xl animate-pulse-glow" />
+            <div className="absolute w-[80%] h-[80%] rounded-full bg-green-500 opacity-20 filter blur-2xl animate-pulse-glow" />
           </div>
         </div>
       </div>
@@ -74,11 +74,15 @@ const HeroModel3D = () => {
         className="absolute bottom-6 right-6 z-30 glass-panel rounded-xl p-3 text-center backdrop-blur-md shadow-elevation animate-float"
         style={{
           transform: `translateX(${mousePosition.x * -30}px) translateY(${mousePosition.y * -30}px)`,
-          transition: 'transform 0.15s ease-out'
+          transition: 'transform 0.15s ease-out',
+          background: 'rgba(0, 0, 0, 0.7)',
+          border: '1px solid rgba(0, 255, 0, 0.3)'
         }}
       >
-        <p className="font-medium text-gradient">Station Couronne d'Or</p>
-        <p className="text-sm text-muted-foreground">5 PowerBanks disponibles</p>
+        <p className="font-medium text-white">
+          <span className="text-green-500 font-bold">RENT</span> A POWERBANK
+        </p>
+        <p className="text-sm text-gray-300">4 PowerBanks disponibles</p>
       </div>
     </div>
   );
