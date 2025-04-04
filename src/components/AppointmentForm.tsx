@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AvailableTimeSlot } from '@/types/api';
+import { AvailableTimeSlot, Appointment } from '@/types/api';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -40,17 +40,19 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface AppointmentFormProps {
-  selectedDate: Date | null;
-  selectedTimeSlot: AvailableTimeSlot | null;
-  onSubmit: (values: FormValues) => void;
-  isSubmitting: boolean;
+  selectedDate: Date | undefined;
+  selectedTimeSlot?: AvailableTimeSlot | null;
+  onSubmit?: (values: FormValues) => void;
+  isSubmitting?: boolean;
+  onAppointmentCreated?: (appointment: Appointment) => void;
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({
   selectedDate,
   selectedTimeSlot,
   onSubmit,
-  isSubmitting
+  isSubmitting = false,
+  onAppointmentCreated
 }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -74,7 +76,30 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       return;
     }
     
-    onSubmit(values);
+    if (onSubmit) {
+      onSubmit(values);
+    }
+    
+    // Create a mock appointment for the onAppointmentCreated callback
+    if (onAppointmentCreated) {
+      const mockAppointment: Appointment = {
+        id: `appointment-${Date.now()}`,
+        userId: "mock-user-id",
+        userName: values.name,
+        userEmail: values.email,
+        userPhone: values.phone,
+        establishmentName: values.establishmentName,
+        date: selectedDate,
+        startTime: selectedTimeSlot?.startTime || "00:00",
+        endTime: selectedTimeSlot?.endTime || "00:00",
+        status: "scheduled",
+        notes: values.notes,
+        type: values.type,
+        createdAt: new Date()
+      };
+      
+      onAppointmentCreated(mockAppointment);
+    }
   };
 
   return (

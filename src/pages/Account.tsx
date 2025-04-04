@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { getDocument } from '@/services/firebase';
-import { Subscription } from '@/types/api';
+import { getDocument, getCollection } from '@/services/firebase';
+import { Subscription, User as UserType } from '@/types/api';
 
 const Account = () => {
   const { user, loading } = useAuth();
@@ -18,6 +19,7 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
+  const [userData, setUserData] = useState<UserType | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,11 +36,12 @@ const Account = () => {
           const userResult = await getDocument('users', user.uid);
           
           if (userResult.success && userResult.data) {
-            const userData = userResult.data;
+            const userDataFromFirestore = userResult.data as UserType;
+            setUserData(userDataFromFirestore);
             
             // Si l'utilisateur a un abonnement, récupérer les détails
-            if (userData.subscriptionType) {
-              const subResult = await getDocument('subscriptions', userData.subscriptionType);
+            if (userDataFromFirestore.subscriptionType) {
+              const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
               if (subResult.success && subResult.data) {
                 setUserSubscription(subResult.data as Subscription);
               }

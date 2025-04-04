@@ -4,12 +4,27 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AppointmentForm from '@/components/AppointmentForm';
 import AppointmentCalendar from '@/components/AppointmentCalendar';
-import { Appointment as AppointmentType } from '@/types/api';
+import { Appointment as AppointmentType, AvailableTimeSlot } from '@/types/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 
 const AppointmentPage = () => {
+  const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [appointments, setAppointments] = useState<AppointmentType[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<AvailableTimeSlot | null>(null);
+  
+  const handleAppointmentSelected = (date: Date, timeSlot: AvailableTimeSlot) => {
+    setSelectedTimeSlot(timeSlot);
+  };
+  
+  const handleAppointmentCreated = (appointment: AppointmentType) => {
+    setAppointments([...appointments, appointment]);
+    toast({
+      title: "Rendez-vous confirmé",
+      description: `Votre rendez-vous a été réservé avec succès pour le ${appointment.startTime}.`,
+    });
+  };
   
   return (
     <div className="flex min-h-screen flex-col">
@@ -24,14 +39,17 @@ const AppointmentPage = () => {
               selectedDate={selectedDate} 
               onSelectDate={setSelectedDate} 
               appointments={appointments}
+              onAppointmentSelected={handleAppointmentSelected}
             />
           </div>
           
           <div>
             <h2 className="text-xl font-semibold mb-4">Formulaire de rendez-vous</h2>
-            <AppointmentForm selectedDate={selectedDate} onAppointmentCreated={(appointment) => {
-              setAppointments([...appointments, appointment]);
-            }} />
+            <AppointmentForm 
+              selectedDate={selectedDate} 
+              selectedTimeSlot={selectedTimeSlot}
+              onAppointmentCreated={handleAppointmentCreated} 
+            />
           </div>
         </div>
         

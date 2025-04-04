@@ -40,14 +40,19 @@ const generateMockTimeSlots = (date: Date): AvailableTimeSlot[] => {
 };
 
 interface AppointmentCalendarProps {
-  onAppointmentSelected: (date: Date, timeSlot: AvailableTimeSlot) => void;
+  selectedDate: Date | undefined;
+  onSelectDate: (date: Date | undefined) => void;
+  appointments: Appointment[];
+  onAppointmentSelected?: (date: Date, timeSlot: AvailableTimeSlot) => void;
 }
 
 const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({ 
+  selectedDate,
+  onSelectDate,
+  appointments,
   onAppointmentSelected 
 }) => {
   const today = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<AvailableTimeSlot[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<AvailableTimeSlot | null>(null);
   
@@ -73,7 +78,7 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   
   // Quand une date est sélectionnée, charger les créneaux disponibles
   const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
+    onSelectDate(date);
     setSelectedTimeSlot(null);
     
     if (date) {
@@ -87,7 +92,7 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   
   const handleTimeSlotSelect = (timeSlot: AvailableTimeSlot) => {
     setSelectedTimeSlot(timeSlot);
-    if (selectedDate) {
+    if (selectedDate && onAppointmentSelected) {
       onAppointmentSelected(selectedDate, timeSlot);
     }
   };
