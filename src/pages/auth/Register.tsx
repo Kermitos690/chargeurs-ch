@@ -8,13 +8,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Card, 
   CardContent, 
-  CardDescription, 
   CardFooter, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, UserPlus } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Battery, Loader2, UserPlus, AlertCircle } from 'lucide-react';
 import { auth, createUserWithEmailAndPassword, updateProfile, db } from '@/services/firebase';
 import { setDoc, doc } from 'firebase/firestore';
 import Header from '@/components/Header';
@@ -28,39 +28,64 @@ const Register = () => {
   const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return "Cette adresse email est déjà utilisée par un autre compte";
+      case 'auth/invalid-email':
+        return "Format d'adresse email invalide";
+      case 'auth/weak-password':
+        return "Le mot de passe est trop faible (minimum 6 caractères)";
+      case 'auth/network-request-failed':
+        return "Problème de connexion réseau. Vérifiez votre connexion internet.";
+      case 'passwords-dont-match':
+        return "Les mots de passe ne correspondent pas";
+      case 'terms-not-accepted':
+        return "Vous devez accepter les conditions d'utilisation";
+      default:
+        return "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     
+    // Validations côté client
     if (password !== confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas",
-      });
+      setErrorMessage(getErrorMessage('passwords-dont-match'));
       return;
     }
     
     if (!acceptTerms) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Vous devez accepter les conditions d'utilisation",
-      });
+      setErrorMessage(getErrorMessage('terms-not-accepted'));
+      return;
+    }
+    
+    // Validation du mot de passe
+    if (password.length < 6) {
+      setErrorMessage(getErrorMessage('auth/weak-password'));
       return;
     }
     
     setIsLoading(true);
 
     try {
+      console.log("Tentative de création de compte pour:", email);
+      
       // Create the user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
+      console.log("Compte créé avec succès, uid:", user.uid);
+      
       // Update the user profile with the name
       await updateProfile(user, { displayName: name });
+      console.log("Profil mis à jour avec le nom:", name);
       
       // Create a user document in Firestore
       await setDoc(doc(db, "users", user.uid), {
@@ -72,6 +97,8 @@ const Register = () => {
         createdAt: new Date()
       });
       
+      console.log("Document utilisateur créé dans Firestore");
+      
       toast({
         title: "Compte créé avec succès",
         description: "Bienvenue sur chargeurs.ch !",
@@ -79,22 +106,8 @@ const Register = () => {
       
       navigate('/stations');
     } catch (error: any) {
-      let errorMessage = "Une erreur est survenue lors de l'inscription";
-      
-      // Firebase error handling
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = "Cette adresse email est déjà utilisée";
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = "Adresse email invalide";
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = "Le mot de passe est trop faible";
-      }
-      
-      toast({
-        variant: "destructive",
-        title: "Erreur d'inscription",
-        description: errorMessage,
-      });
+      console.error("Erreur détaillée lors de l'inscription:", error);
+      setErrorMessage(getErrorMessage(error.code));
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +129,17 @@ const Register = () => {
           </div>
 
           <Card>
+            {errorMessage && (
+              <div className="p-3 pt-6 px-6">
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Erreur d'inscription</AlertTitle>
+                  <AlertDescription>
+                    {errorMessage}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
             <CardContent className="pt-6">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">

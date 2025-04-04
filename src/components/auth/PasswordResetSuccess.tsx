@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { CheckCircle, RefreshCw, AlertTriangle } from 'lucide-react';
+import { CheckCircle, RefreshCw, AlertTriangle, ExternalLink } from 'lucide-react';
 
 interface PasswordResetSuccessProps {
   email: string;
@@ -34,6 +34,7 @@ export const PasswordResetSuccess = ({ email, onReset }: PasswordResetSuccessPro
                   <li>Vérifiez votre dossier de spam/indésirables</li>
                   <li>L'email provient de "noreply@chargeurs-ch.firebaseapp.com"</li>
                   <li>Le lien expire dans 24 heures</li>
+                  <li>Si vous ne recevez pas l'email, essayez d'ajouter cette adresse à vos contacts</li>
                 </ul>
               </div>
             </div>
@@ -52,8 +53,8 @@ export const PasswordResetSuccess = ({ email, onReset }: PasswordResetSuccessPro
         </div>
       </div>
       
-      <div className="pt-2">
-        <p className="text-sm text-gray-600 mb-3">
+      <div className="pt-2 space-y-3">
+        <p className="text-sm text-gray-600 mb-1">
           Si vous n'avez pas reçu l'email après quelques minutes :
         </p>
         <Button 
@@ -64,6 +65,16 @@ export const PasswordResetSuccess = ({ email, onReset }: PasswordResetSuccessPro
           <RefreshCw className="mr-2 h-4 w-4" />
           Réessayer avec une autre adresse
         </Button>
+        
+        <a 
+          href="https://console.firebase.google.com/project/chargeurs-ch/authentication/emails" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="block text-xs text-gray-500 hover:underline mt-2"
+        >
+          Problème persistant ? Contactez notre support
+          <ExternalLink className="inline-block ml-1 h-3 w-3" />
+        </a>
       </div>
     </div>
   );
