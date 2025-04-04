@@ -47,8 +47,12 @@ const Header = () => {
   return (
     <header className="bg-background border-b">
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="font-bold text-2xl">
-          Chargeurs Coop
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/logo.png" 
+            alt="Chargeurs Coop Logo" 
+            className="h-10 w-auto" 
+          />
         </Link>
         
         {/* Navigation pour desktop */}
@@ -124,8 +128,12 @@ const Header = () => {
             <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
               <div className="flex flex-col h-full">
                 <div className="p-4 border-b">
-                  <Link to="/" className="font-bold text-xl" onClick={() => setIsMenuOpen(false)}>
-                    Chargeurs Coop
+                  <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
+                    <img 
+                      src="/logo.png" 
+                      alt="Chargeurs Coop Logo" 
+                      className="h-8 w-auto" 
+                    />
                   </Link>
                 </div>
                 <nav className="flex-1 p-4">
