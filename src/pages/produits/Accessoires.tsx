@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -21,7 +20,7 @@ const ProduitsAccessoires = () => {
         "Ampérage: 32A",
         "Gaine haute résistance",
         "Compatible toutes saisons",
-        "Garantie 3 ans"
+        "Garantie 24 mois"
       ]
     },
     {
@@ -49,7 +48,7 @@ const ProduitsAccessoires = () => {
         "Sécurité intégrée",
         "Compact et léger",
         "Certifié CE",
-        "Garantie 2 ans"
+        "Garantie 24 mois"
       ]
     },
     {
@@ -77,7 +76,7 @@ const ProduitsAccessoires = () => {
         "Compatible prise domestique",
         "Mallette de transport",
         "Protection intégrée",
-        "Poids: 2.5 kg"
+        "Garantie 24 mois"
       ]
     },
     {

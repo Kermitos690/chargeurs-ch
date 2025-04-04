@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, CreditCard, CheckCircle, AlertCircle, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { startRentalWithPreAuth } from '@/services/rentalPayment';
 import { useAuth } from '@/hooks/useAuth';
@@ -251,6 +250,14 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
                     <li>À la restitution, seule la durée réelle d'utilisation vous sera facturée.</li>
                     <li>La différence vous sera remboursée automatiquement.</li>
                   </ol>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-md flex items-center gap-3 text-sm">
+                  <ShieldCheck className="text-blue-600 h-5 w-5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-blue-800">Garantie limitée</p>
+                    <p className="text-blue-700">Les powerbanks sont garanties 12 mois dans le cadre d'une utilisation normale.</p>
+                  </div>
                 </div>
               </div>
               
