@@ -13,7 +13,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { Battery, Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { resetPassword } from '@/services/firebase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -110,13 +110,21 @@ const ResetPassword = () => {
               ) : (
                 <div className="space-y-4 text-center">
                   <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="flex justify-center mb-2">
+                      <CheckCircle className="h-8 w-8 text-green-500" />
+                    </div>
                     <p className="text-green-800">
                       Un email contenant un lien pour réinitialiser votre mot de passe a été envoyé à <strong>{email}</strong>.
                     </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Si vous ne recevez pas l'email dans les prochaines minutes, vérifiez votre dossier de spam ou réessayez.
-                  </p>
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                      Vérifiez votre dossier de spam si vous ne recevez pas l'email dans les prochaines minutes.
+                    </p>
+                    <p>
+                      Cliquez sur le lien dans l'email pour être redirigé vers une page où vous pourrez créer un nouveau mot de passe.
+                    </p>
+                  </div>
                   <Button 
                     variant="outline" 
                     className="mt-2" 
