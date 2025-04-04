@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { resetPassword } from '@/services/firebase';
+import { resetPassword } from '@/services/firebase/auth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 

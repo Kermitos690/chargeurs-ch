@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '@/services/firebase';
+import { User } from 'firebase/auth';
+import { auth, db } from '@/services/firebase/config';
+import { onAuthStateChanged } from '@/services/firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 interface UserData {
