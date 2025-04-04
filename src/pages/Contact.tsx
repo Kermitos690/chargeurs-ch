@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import { MapPin, Phone, Mail } from 'lucide-react';
 import LeafletMap from '@/components/LeafletMap';
+import { Station } from '@/types/api';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
@@ -71,14 +71,14 @@ const Contact = () => {
     }
   ];
 
-  // Définir l'emplacement de l'entreprise pour la carte
-  const officeLocation = [{
+  // Définir l'emplacement de l'entreprise pour la carte avec le type correct
+  const officeLocation: Station[] = [{
     id: "office",
     name: "chargeurs.ch - Siège",
     location: "123 Rue du Commerce, 1204 Genève",
     latitude: 46.203, // Coordonnées pour Genève
     longitude: 6.144,
-    status: "online",
+    status: "online", // Now this is explicitly one of the allowed values in the Station interface
     availablePowerBanks: 0,
     totalSlots: 0
   }];
