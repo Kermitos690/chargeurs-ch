@@ -32,7 +32,7 @@ const Contact = () => {
                     <p className="font-medium">Adresse</p>
                     <p className="text-muted-foreground">
                       Rue de la Gare 15<br />
-                      1201 Genève, Suisse
+                      1000 Lausanne, Suisse
                     </p>
                   </div>
                 </div>

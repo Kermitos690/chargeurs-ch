@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -57,7 +58,7 @@ const Contact = () => {
     {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: "Adresse",
-      details: ["123 Rue du Commerce", "1204 Genève", "Suisse"]
+      details: ["123 Rue du Commerce", "1000 Lausanne", "Suisse"]
     },
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
@@ -75,10 +76,10 @@ const Contact = () => {
   const officeLocation: Station[] = [{
     id: "office",
     name: "chargeurs.ch - Siège",
-    location: "123 Rue du Commerce, 1204 Genève",
-    latitude: 46.203, // Coordonnées pour Genève
-    longitude: 6.144,
-    status: "online", // Now this is explicitly one of the allowed values in the Station interface
+    location: "123 Rue du Commerce, 1000 Lausanne",
+    latitude: 46.519, // Coordonnées pour Lausanne
+    longitude: 6.633,
+    status: "online", 
     availablePowerBanks: 0,
     totalSlots: 0
   }];
