@@ -11,7 +11,7 @@ import { MapPin, Search, BatteryMedium, AlertCircle } from 'lucide-react';
 import LeafletMap from '@/components/LeafletMap';
 import { Station } from '@/types/api';
 
-// Fictional Lausanne bars with power bank stations
+// Bars et restaurants branchés fictifs de Lausanne avec des bornes de powerbanks
 const mockStations: Station[] = [
   {
     id: '1',
@@ -22,7 +22,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 8,
     totalSlots: 10,
     status: 'online',
-    description: 'Café branché avec terrasse',
+    description: 'Café branché avec terrasse ensoleillée au centre-ville',
     imageUrl: '/stations/sidewalk.jpg'
   },
   {
@@ -34,7 +34,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 4,
     totalSlots: 8,
     status: 'online',
-    description: 'Pub avec ambiance internationale',
+    description: 'Pub avec ambiance internationale et large choix de bières',
     imageUrl: '/stations/great-escape.jpg'
   },
   {
@@ -46,7 +46,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 2,
     totalSlots: 6,
     status: 'online',
-    description: 'Bar et restaurant avec terrasse',
+    description: 'Bar et restaurant avec terrasse et espace culturel en sous-sol',
     imageUrl: '/stations/bleu-lezard.jpg'
   },
   {
@@ -58,7 +58,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 0,
     totalSlots: 6,
     status: 'maintenance',
-    description: 'Café traditionnel suisse',
+    description: 'Café traditionnel suisse avec spécialités locales',
     imageUrl: '/stations/grutli.jpg'
   },
   {
@@ -70,7 +70,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 5,
     totalSlots: 8,
     status: 'online',
-    description: 'Salle de concert et bar',
+    description: 'Salle de concert et bar alternatif avec scène émergente',
     imageUrl: '/stations/le-bourg.jpg'
   },
   {
@@ -82,7 +82,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 0,
     totalSlots: 4,
     status: 'offline',
-    description: 'Café au coeur de la ville',
+    description: 'Café au coeur de la vieille ville avec vue pittoresque',
     imageUrl: '/stations/eveche.jpg'
   },
   {
@@ -94,7 +94,7 @@ const mockStations: Station[] = [
     availablePowerBanks: 3,
     totalSlots: 6,
     status: 'online',
-    description: 'Bar à vin avec vue',
+    description: 'Bar à vin avec vue panoramique sur le lac Léman',
     imageUrl: '/stations/chateau.jpg'
   },
   {
@@ -106,8 +106,56 @@ const mockStations: Station[] = [
     availablePowerBanks: 6,
     totalSlots: 10,
     status: 'online',
-    description: 'Bar à vins naturels',
+    description: 'Bar à vins naturels et tapas dans une ambiance conviviale',
     imageUrl: '/stations/ta-cave.jpg'
+  },
+  {
+    id: '9',
+    name: 'Le Gram',
+    location: 'Avenue de France 15, Lausanne',
+    latitude: 46.52420,
+    longitude: 6.62991,
+    availablePowerBanks: 7,
+    totalSlots: 8,
+    status: 'online',
+    description: 'Restaurant moderne avec cuisine d\'inspiration mondiale',
+    imageUrl: '/stations/le-gram.jpg'
+  },
+  {
+    id: '10',
+    name: 'Café Romand',
+    location: 'Place Saint-François 2, Lausanne',
+    latitude: 46.52037, 
+    longitude: 6.63246,
+    availablePowerBanks: 4,
+    totalSlots: 6,
+    status: 'online',
+    description: 'Institution lausannoise servant des spécialités suisses',
+    imageUrl: '/stations/cafe-romand.jpg'
+  },
+  {
+    id: '11',
+    name: 'L\'Éléphant Blanc',
+    location: 'Rue du Simplon 17, Lausanne',
+    latitude: 46.52508,
+    longitude: 6.62782,
+    availablePowerBanks: 3,
+    totalSlots: 6,
+    status: 'online',
+    description: 'Bar à cocktails avec ambiance feutrée et terrasse',
+    imageUrl: '/stations/elephant-blanc.jpg'
+  },
+  {
+    id: '12',
+    name: 'La Couronne d\'Or',
+    location: 'Rue des Deux-Marchés 13, Lausanne',
+    latitude: 46.52217,
+    longitude: 6.63467,
+    availablePowerBanks: 5,
+    totalSlots: 8,
+    status: 'online',
+    description: 'Bistrot de quartier avec cuisine de saison et ambiance cosy',
+    imageUrl: '/stations/couronne-or.jpg'
   }
 ];
 

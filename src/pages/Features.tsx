@@ -5,7 +5,7 @@ import { getStations } from '@/services/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { BatteryFull, MapPin, Clock, CreditCard } from 'lucide-react';
+import { BatteryFull, MapPin, Clock, CreditCard, Star, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Features = () => {
@@ -34,7 +34,27 @@ const Features = () => {
       icon: <CreditCard className="h-10 w-10 text-primary" />,
       title: "Paiement simplifié",
       description: "Payez uniquement pour le temps d'utilisation réel de la powerbank."
+    },
+    {
+      icon: <Star className="h-10 w-10 text-primary" />,
+      title: "Établissements premium",
+      description: "Disponible dans les meilleurs bars et restaurants de Lausanne."
+    },
+    {
+      icon: <Building className="h-10 w-10 text-primary" />,
+      title: "Partenariats locaux",
+      description: "Collaboration avec des établissements branchés de la région."
     }
+  ];
+
+  // Valeurs fictives pour la section partenaires
+  const partnershipBenefits = [
+    "Attirez une clientèle tech-friendly et branchée",
+    "Générez des revenus supplémentaires grâce au système de commission",
+    "Offrez un service additionnel très apprécié par les clients",
+    "Aucun coût d'installation ou de maintenance",
+    "Espace requis minimal pour la borne (25cm x 35cm)",
+    "Visibilité accrue sur notre application et site web"
   ];
 
   return (
@@ -49,7 +69,7 @@ const Features = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
               <div 
                 key={index} 
@@ -63,7 +83,7 @@ const Features = () => {
           </div>
 
           <div className="bg-accent p-8 rounded-xl mb-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">Nos Bornes</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Nos Établissements Partenaires</h2>
             
             {isLoading && (
               <div className="text-center py-10">
@@ -93,7 +113,10 @@ const Features = () => {
                     className="bg-card p-6 rounded-lg shadow-sm border border-border"
                   >
                     <h3 className="font-semibold text-lg mb-2">{station.name}</h3>
-                    <p className="text-muted-foreground mb-4">{station.location}</p>
+                    <p className="text-muted-foreground mb-1">{station.location}</p>
+                    {station.description && (
+                      <p className="text-muted-foreground text-sm mb-4 italic">"{station.description}"</p>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className={`px-2 py-1 rounded text-xs ${
                         station.status === 'online' 
@@ -118,6 +141,49 @@ const Features = () => {
                 <p>Aucune borne n'est disponible pour le moment.</p>
               </div>
             )}
+          </div>
+          
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold mb-8 text-center">Devenez Partenaire</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Les avantages pour votre établissement</h3>
+                <ul className="space-y-3">
+                  {partnershipBenefits.map((benefit, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">✓</span>
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button size="lg" className="mt-6 rounded-full" asChild>
+                  <Link to="/contact">
+                    Nous contacter
+                  </Link>
+                </Button>
+              </div>
+              <div className="bg-muted p-6 rounded-xl">
+                <h3 className="font-semibold text-lg mb-4">Comment ça fonctionne ?</h3>
+                <ol className="space-y-4">
+                  <li className="flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">1</span>
+                    <span>Nous installons gratuitement une borne dans votre établissement</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">2</span>
+                    <span>Vos clients peuvent louer des powerbanks via notre application</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">3</span>
+                    <span>Vous recevez une commission sur chaque location</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">4</span>
+                    <span>Nous nous occupons de la maintenance et du support client</span>
+                  </li>
+                </ol>
+              </div>
+            </div>
           </div>
           
           <div className="text-center">
