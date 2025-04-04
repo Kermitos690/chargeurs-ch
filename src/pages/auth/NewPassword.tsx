@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { resetPassword } from '@/services/firebase/auth';
+import { completePasswordReset } from '@/services/firebase/auth';
 
 const formSchema = z.object({
   password: z.string()
@@ -58,7 +58,7 @@ const NewPassword = () => {
     setIsSubmitting(true);
     
     try {
-      const result = await resetPassword(oobCode, data.password);
+      const result = await completePasswordReset(oobCode, data.password);
       
       if (result && result.success) {
         toast({
