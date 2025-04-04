@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,16 +66,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221.2 83.2% 53.3%;
+    /* New vibrant primary color with a gradient-friendly hue */
+    --primary: 256 76% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    /* Soft secondary for contrast and balance */
+    --secondary: 262 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    /* Subtle accent for visual interest */
+    --accent: 262 70% 95%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -82,9 +86,20 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 256 76% 60%;
 
     --radius: 0.5rem;
+    
+    /* Gradient colors */
+    --gradient-start: 256 76% 60%;
+    --gradient-mid: 226 92% 59%;
+    --gradient-end: 180 100% 50%;
+    
+    /* Additional accent colors for gradients */
+    --accent-purple: 270 76% 60%;
+    --accent-blue: 210 92% 59%; 
+    --accent-teal: 180 76% 50%;
+    --accent-green: 142 76% 50%;
   }
 
   .dark {
@@ -97,7 +112,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 256 76% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -114,7 +129,12 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --ring: 256 76% 60%;
+    
+    /* Dark mode gradient colors */
+    --gradient-start: 256 86% 60%;
+    --gradient-mid: 226 92% 59%;
+    --gradient-end: 180 100% 50%;
   }
 }
 
@@ -127,7 +147,45 @@
   }
 }
 
-/* More custom styles */
+/* Enhanced gradient text utilities */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600;
+}
+
+.text-gradient-purple {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-indigo-600;
+}
+
+.text-gradient-blue {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400;
+}
+
+.text-gradient-teal {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-500;
+}
+
+.text-green-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600;
+}
+
+/* Enhanced background gradient utilities */
+.bg-gradient-primary {
+  @apply bg-gradient-to-br from-[hsl(var(--gradient-start))] via-[hsl(var(--gradient-mid))] to-[hsl(var(--gradient-end))];
+}
+
+.bg-gradient-purple {
+  @apply bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500;
+}
+
+.bg-gradient-blue {
+  @apply bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500;
+}
+
+.bg-gradient-soft {
+  @apply bg-gradient-to-br from-violet-100 via-purple-100 to-indigo-100;
+}
+
+/* Glass panel enhancements */
 .glass-panel {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -136,18 +194,32 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
+.glass-panel-purple {
+  background: rgba(128, 90, 213, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(128, 90, 213, 0.18);
+  box-shadow: 0 8px 32px rgba(128, 90, 213, 0.1);
+}
+
+.glass-panel-blue {
+  background: rgba(59, 130, 246, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+}
+
 .shadow-elevation {
   box-shadow: 
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600;
-}
-
-.text-green-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600;
+.shadow-elevation-colored {
+  box-shadow: 
+    0 10px 25px -5px rgba(128, 90, 213, 0.3),
+    0 8px 10px -6px rgba(128, 90, 213, 0.2);
 }
 
 @layer base {
