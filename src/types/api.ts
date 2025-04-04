@@ -83,3 +83,29 @@ export interface Payment {
   rentalId?: string;
   subscriptionId?: string;
 }
+
+// Add Appointment interface for meeting scheduling
+export interface Appointment {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone?: string;
+  establishmentName?: string;
+  date: any; // Timestamp
+  startTime: string;
+  endTime: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  notes?: string;
+  type: 'video' | 'phone';
+  createdAt: any;
+}
+
+// Add AvailableTimeSlot interface for available meeting times
+export interface AvailableTimeSlot {
+  id: string;
+  date: any; // Timestamp
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}

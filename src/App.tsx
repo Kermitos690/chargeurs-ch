@@ -13,6 +13,7 @@ import Rentals from "./pages/Rentals";
 import Subscriptions from "./pages/Subscriptions";
 import Profile from "./pages/Profile";
 import StationsMap from "./pages/StationsMap";
+import Appointment from "./pages/Appointment";
 import NotFound from "./pages/NotFound";
 
 // Routes d'administration
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/subscriptions" element={<Subscriptions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/stations" element={<StationsMap />} />
+          <Route path="/appointment" element={<Appointment />} />
           
           {/* Routes d'administration */}
           <Route path="/admin/login" element={<AdminLogin />} />
