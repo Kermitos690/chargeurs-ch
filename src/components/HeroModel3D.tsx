@@ -69,7 +69,7 @@ const HeroModel3D = () => {
         </div>
       </div>
       
-      {/* Floating information card */}
+      {/* Floating information card - updated to remove the "4 PowerBanks disponibles" text */}
       <div 
         className="absolute bottom-6 right-6 z-30 glass-panel rounded-xl p-3 text-center backdrop-blur-md shadow-elevation animate-float"
         style={{
@@ -82,7 +82,6 @@ const HeroModel3D = () => {
         <p className="font-medium text-white">
           <span className="text-green-500 font-bold">RENT</span> A POWERBANK
         </p>
-        <p className="text-sm text-gray-300">4 PowerBanks disponibles</p>
       </div>
     </div>
   );
