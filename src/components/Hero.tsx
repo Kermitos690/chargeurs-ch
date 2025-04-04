@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const circleRef = useRef<HTMLDivElement>(null);
@@ -48,8 +49,11 @@ const Hero = () => {
                   Découvrir nos solutions
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="rounded-full">
-                  Nos bornes
+                <Button size="lg" variant="outline" className="rounded-full" asChild>
+                  <Link to="/stations">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Nos bornes
+                  </Link>
                 </Button>
               </div>
             </div>
