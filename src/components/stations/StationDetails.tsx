@@ -10,22 +10,24 @@ interface StationDetailsProps {
 }
 
 const StationDetails: React.FC<StationDetailsProps> = ({ station, onClose }) => {
+  if (!station) return null;
+  
   return (
     <div className="absolute bottom-4 left-4 right-4 bg-card border shadow-lg rounded-lg p-4 z-10">
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold">{station.name}</h3>
+        <h3 className="font-semibold">{station.name || 'Station sans nom'}</h3>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
           ×
         </Button>
       </div>
       <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
         <MapPin size={14} />
-        {station.location}
+        {station.location || 'Emplacement non disponible'}
       </p>
       <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
         <div>
           <p className="text-muted-foreground">Disponibilité</p>
-          <p className="font-medium">{station.availablePowerBanks}/{station.totalSlots} powerbanks</p>
+          <p className="font-medium">{station.availablePowerBanks ?? 0}/{station.totalSlots ?? 0} powerbanks</p>
         </div>
         <div>
           <p className="text-muted-foreground">Status</p>

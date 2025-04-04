@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStations } from '@/services/api';
 import Header from '@/components/Header';
@@ -12,46 +12,64 @@ import StationsList from '@/components/stations/StationsList';
 import StationDetails from '@/components/stations/StationDetails';
 import HowItWorks from '@/components/stations/HowItWorks';
 import { Station } from '@/types/api';
+import { toast } from 'sonner';
 
 const StationsMap = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [filteredStations, setFilteredStations] = useState<Station[]>([]);
   
-  // In a real app we would use the API, but for this demo we're using mock data
+  // Utiliser useQuery avec des options stables pour éviter de recréer la requête
   const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
     initialData: {
       success: true,
       data: mockStations
+    },
+    staleTime: 60000, // 1 minute avant de considérer les données comme obsolètes
+    cacheTime: 300000, // 5 minutes de mise en cache
+    retry: 3, // Réessayer 3 fois en cas d'échec
+    onError: () => {
+      toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
     }
   });
 
+  // Extraire les stations des données API ou utiliser un tableau vide
+  const stations = apiData?.data || [];
+
+  // Utiliser useCallback pour éviter de recréer la fonction à chaque rendu
+  const handleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Recherche effectuée:", searchQuery);
+    // Pas besoin de re-filtrer ici, cela sera fait dans l'effet useEffect ci-dessous
+  }, [searchQuery]);
+
+  // Filter les stations lorsque searchQuery change
   useEffect(() => {
-    // Set map as loaded after a small delay to ensure proper rendering
+    if (stations.length > 0) {
+      const filtered = stations.filter(station => 
+        station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        station.location.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredStations(filtered);
+    } else {
+      setFilteredStations([]);
+    }
+  }, [searchQuery, stations]);
+
+  // Simuler un délai de chargement de la carte pour assurer une transition fluide
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsMapLoaded(true);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, this would filter stations based on the search query
-    console.log("Searching for:", searchQuery);
-  };
-
-  const stations = apiData?.data || [];
-
-  const filteredStations = stations.filter(station => 
-    station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    station.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Find the currently selected station
-  const selectedStationData = selectedStation 
-    ? stations.find(s => s.id === selectedStation) 
+  // Trouver la station sélectionnée
+  const selectedStationData = selectedStation
+    ? stations.find(s => s.id === selectedStation)
     : null;
 
   return (
@@ -73,6 +91,7 @@ const StationsMap = () => {
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                   handleSearch={handleSearch}
+                  isLoading={isLoading}
                 />
                 
                 <div className="bg-card border rounded-lg shadow-sm overflow-hidden">
