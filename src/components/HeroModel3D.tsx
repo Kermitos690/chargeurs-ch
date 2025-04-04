@@ -103,6 +103,8 @@ const PowerBankModel = () => {
       rotationIntensity={0.2} 
       floatIntensity={0.5}
       position={[0, 0, 0]}
+      // Increase the size by 40% by applying a scale of 1.4
+      scale={[1.4, 1.4, 1.4]}
     >
       {/* Main power bank body */}
       <mesh ref={meshRef} castShadow>
