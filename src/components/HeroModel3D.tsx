@@ -1,5 +1,8 @@
 
 import React, { useRef, useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { PowerIcon, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Main component using the provided charging station image
 const HeroModel3D = () => {
@@ -7,6 +10,7 @@ const HeroModel3D = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isLoading, setIsLoading] = useState(false);
   
   // Handle mouse movement for container parallax
   useEffect(() => {
@@ -23,6 +27,18 @@ const HeroModel3D = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Handle reset power bank and open station
+  const handleOpenStation = () => {
+    setIsLoading(true);
+    toast.success("Ouverture de la station en cours...");
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success("La station est ouverte et les powerbanks ont été réinitialisés!");
+    }, 2000);
+  };
 
   return (
     <div 
@@ -67,6 +83,29 @@ const HeroModel3D = () => {
             <div className="absolute w-[128%] h-[128%] rounded-full bg-green-500 opacity-20 filter blur-2xl animate-pulse-glow" />
           </div>
         </div>
+      </div>
+      
+      {/* Primary CTA for resetting/opening station */}
+      <div 
+        className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-40"
+        style={{
+          transform: `translateX(calc(-50% + ${mousePosition.x * -15}px)) translateY(${mousePosition.y * -15}px)`,
+          transition: 'transform 0.15s ease-out'
+        }}
+      >
+        <Button 
+          size="lg" 
+          className="rounded-full px-6 py-6 h-auto bg-green-600 hover:bg-green-700 animate-green-glow shadow-lg flex items-center gap-3"
+          onClick={handleOpenStation}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <RefreshCw className="h-5 w-5 animate-spin" />
+          ) : (
+            <PowerIcon className="h-5 w-5" />
+          )}
+          <span className="font-bold text-base">{isLoading ? "Ouverture en cours..." : "Ouvrir la Station & Réinitialiser"}</span>
+        </Button>
       </div>
       
       {/* Floating information card - updated to remove the "4 PowerBanks disponibles" text */}
