@@ -1,19 +1,35 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserRentals, getStations } from '@/services/api';
+import { completeRental, calculateRentalCost, formatCurrency } from '@/services/rentalPayment';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Battery, MapPin, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Battery, MapPin, Clock, CheckCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2 } from 'lucide-react';
 
 const Rentals = () => {
   // Mock user ID for demo - would come from auth in a real app
   const userId = "user123";
+  const navigate = useNavigate();
+  const [isReturnDialogOpen, setIsReturnDialogOpen] = useState(false);
+  const [selectedRental, setSelectedRental] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const { data: rentalsData, isLoading: rentalsLoading, error: rentalsError } = useQuery({
+  const { data: rentalsData, isLoading: rentalsLoading, error: rentalsError, refetch } = useQuery({
     queryKey: ['rentals', userId],
     queryFn: () => getUserRentals(userId),
   });
@@ -58,8 +74,43 @@ const Rentals = () => {
     return Math.ceil(diffInMs / (1000 * 60 * 60)); // Return hours as number, rounded up
   };
 
-  const handleReturnPowerBank = () => {
-    toast.info("Veuillez vous rendre à une borne pour retourner votre powerbank");
+  const handleReturnPowerBank = (rental) => {
+    setSelectedRental(rental);
+    setIsReturnDialogOpen(true);
+  };
+
+  const handleConfirmReturn = async () => {
+    if (!selectedRental) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      // Pour la démonstration, nous utilisons une station fixe comme point de retour
+      // Dans une application réelle, cela serait déterminé par la borne où la powerbank est rendue
+      const endStationId = "station002"; 
+      
+      // Calculer le montant final à facturer en fonction de la durée
+      const finalAmount = getHoursFromDuration(selectedRental.startTime) * 2;
+      
+      const result = await completeRental({
+        rentalId: selectedRental.id,
+        endStationId: endStationId,
+        finalAmount: finalAmount
+      });
+      
+      if (result.success) {
+        toast.success('Powerbank restituée avec succès');
+        setIsReturnDialogOpen(false);
+        refetch(); // Rafraîchir les données
+      } else {
+        toast.error('Erreur lors de la restitution: ' + (result.error || 'Veuillez réessayer'));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la restitution:', error);
+      toast.error('Une erreur est survenue lors de la restitution');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -146,13 +197,24 @@ const Rentals = () => {
                                   <p className="text-sm font-medium text-muted-foreground">Durée</p>
                                   <p className="font-medium text-lg">{calculateDuration(rental.startTime)}</p>
                                 </div>
+                                <div className="flex justify-between items-center mt-2 p-3 bg-primary/5 rounded-md">
+                                  <div>
+                                    <p className="text-sm font-medium text-primary">Pré-autorisation</p>
+                                    <p className="font-medium">{formatCurrency(rental.maxAmount || 30)}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-sm font-medium text-primary">Coût actuel</p>
+                                    <p className="font-medium">{formatCurrency(calculateRentalCost(rental.startTime))}</p>
+                                  </div>
+                                </div>
                               </div>
                             </CardContent>
                             <CardFooter className="border-t bg-muted/30 flex justify-between">
-                              <p className="text-sm">
-                                <span className="font-medium">Coût estimé:</span> {(getHoursFromDuration(rental.startTime) * 2).toFixed(2)} CHF
-                              </p>
-                              <Button onClick={handleReturnPowerBank}>
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                <CreditCard size={16} className="mr-1" />
+                                Facturation à la restitution
+                              </div>
+                              <Button onClick={() => handleReturnPowerBank(rental)}>
                                 Retourner
                               </Button>
                             </CardFooter>
@@ -223,7 +285,7 @@ const Rentals = () => {
                                 <span className="font-medium">Durée:</span> {rental.endTime ? calculateDuration(rental.startTime, rental.endTime) : '-'}
                               </p>
                               <p className="text-sm font-medium">
-                                {rental.cost ? `${rental.cost.toFixed(2)} CHF` : '-'}
+                                {rental.finalAmount ? `${rental.finalAmount.toFixed(2)} CHF` : (rental.cost ? `${rental.cost.toFixed(2)} CHF` : '-')}
                               </p>
                             </CardFooter>
                           </Card>
@@ -240,6 +302,63 @@ const Rentals = () => {
           </Tabs>
         </section>
       </main>
+      
+      {/* Dialogue de confirmation de retour */}
+      <Dialog open={isReturnDialogOpen} onOpenChange={setIsReturnDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmer la restitution</DialogTitle>
+            <DialogDescription>
+              Vous êtes sur le point de restituer votre powerbank. 
+              Le montant final sera calculé en fonction de la durée de location.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedRental && (
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-md">
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Powerbank</span>
+                  <span className="font-medium">#{selectedRental.powerBankId.slice(-4)}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Durée</span>
+                  <span className="font-medium">{calculateDuration(selectedRental.startTime)}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Pré-autorisation</span>
+                  <span className="font-medium">{formatCurrency(selectedRental.maxAmount || 30)}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t">
+                  <span className="font-medium">Montant total</span>
+                  <span className="font-medium text-primary">{formatCurrency(calculateRentalCost(selectedRental.startTime))}</span>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Le montant réellement facturé sera déduit de la pré-autorisation initiale. 
+                La différence sera remboursée sur votre carte dans un délai de 5 à 7 jours ouvrables.
+              </p>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReturnDialogOpen(false)} disabled={isProcessing}>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmReturn} disabled={isProcessing}>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Traitement...
+                </>
+              ) : (
+                'Confirmer la restitution'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       <Footer />
     </div>
   );

@@ -1,8 +1,41 @@
 
+# This file describes project configuration for the local development setup.
+
 project_id = "wokvkfwnqdpdgrquhnub"
 
-[functions.create-checkout]
-verify_jwt = false
+[api]
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-[functions.webhook-stripe]
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 16
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:3000"
+
+[inbucket]
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+file_size_limit = "50MiB"
+
+[realtime]
+enabled = true
+
+[functions.create-rental-payment]
+verify_jwt = true
+
+[functions.update-rental-payment]
+verify_jwt = true
+
+[functions.webhook-rental]
 verify_jwt = false
