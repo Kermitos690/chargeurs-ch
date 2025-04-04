@@ -66,9 +66,9 @@ const Hero = () => {
               <div className="glass-panel rounded-3xl overflow-hidden p-1 shadow-elevation">
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1676569925557-856165c42824?q=80&w=2874&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                    src="/lovable-uploads/d57ec078-da32-4674-b9e7-64490acf74b3.png" 
                     alt="Location de powerbanks" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                     loading="eager" 
                   />
                 </div>
