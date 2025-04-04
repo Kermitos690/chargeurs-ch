@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, MapPin, Battery } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +19,11 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
   return (
     <header
       className={cn(
@@ -26,19 +32,42 @@ const Header = () => {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center z-50">
+          <Battery className="mr-2 h-6 w-6 text-primary" />
           <span className="text-xl font-semibold tracking-tight">chargeurs.ch</span>
         </Link>
 
         {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-10">
-          <Link to="/features" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
-            Caractéristiques
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link 
+            to="/features" 
+            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
+          >
+            Fonctionnalités
           </Link>
-          <Link to="/about" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
+          <Link 
+            to="/stations" 
+            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors flex items-center"
+          >
+            <MapPin className="w-4 h-4 mr-1" />
+            Nos bornes
+          </Link>
+          <Link 
+            to="/subscriptions" 
+            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
+          >
+            Abonnements
+          </Link>
+          <Link 
+            to="/about" 
+            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
+          >
             À propos
           </Link>
-          <Link to="/contact" className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors">
+          <Link 
+            to="/contact" 
+            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
+          >
             Contact
           </Link>
           <Link to="/account">
@@ -54,9 +83,9 @@ const Header = () => {
 
         {/* Mobile Menu Toggle */}
         <button 
-          className="md:hidden flex items-center justify-center"
+          className="md:hidden flex items-center justify-center z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
         >
           {isMobileMenuOpen ? (
             <X className="w-6 h-6" />
@@ -73,13 +102,28 @@ const Header = () => {
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <nav className="flex flex-col items-center space-y-8">
+        <nav className="flex flex-col items-center space-y-6">
           <Link 
             to="/features" 
             className="text-lg font-medium"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Caractéristiques
+            Fonctionnalités
+          </Link>
+          <Link 
+            to="/stations" 
+            className="text-lg font-medium flex items-center"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <MapPin className="w-5 h-5 mr-1.5" />
+            Nos bornes
+          </Link>
+          <Link 
+            to="/subscriptions" 
+            className="text-lg font-medium"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Abonnements
           </Link>
           <Link 
             to="/about" 

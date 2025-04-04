@@ -100,9 +100,9 @@ const Rentals = () => {
                 </Card>
               )}
               
-              {rentalsData?.success && rentalsData?.data && (
+              {rentalsData && (
                 <>
-                  {rentalsData.data.filter(rental => rental.status === 'active').length > 0 ? (
+                  {rentalsData.data && rentalsData.data.filter(rental => rental.status === 'active').length > 0 ? (
                     <div className="grid gap-8">
                       {rentalsData.data
                         .filter(rental => rental.status === 'active')
@@ -156,7 +156,7 @@ const Rentals = () => {
                     <div className="text-center py-10 bg-muted/30 rounded-lg">
                       <p className="mb-4">Vous n'avez pas de location active.</p>
                       <Button 
-                        onClick={() => window.location.href = '/features'}
+                        onClick={() => window.location.href = '/stations'}
                         className="rounded-full"
                       >
                         Trouver une borne
@@ -175,9 +175,9 @@ const Rentals = () => {
                 </div>
               )}
               
-              {rentalsData?.success && rentalsData?.data && (
+              {rentalsData && (
                 <>
-                  {rentalsData.data.filter(rental => rental.status === 'completed').length > 0 ? (
+                  {rentalsData.data && rentalsData.data.filter(rental => rental.status === 'completed').length > 0 ? (
                     <div className="grid gap-4">
                       {rentalsData.data
                         .filter(rental => rental.status === 'completed')
