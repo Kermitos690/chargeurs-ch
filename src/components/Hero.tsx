@@ -68,8 +68,8 @@ const Hero = () => {
                   <img 
                     src="/lovable-uploads/d57ec078-da32-4674-b9e7-64490acf74b3.png" 
                     alt="Location de powerbanks" 
-                    className="w-auto h-auto scale-200" 
-                    style={{ transform: "scale(2.0)" }}
+                    className="w-auto h-auto scale-140" 
+                    style={{ transform: "scale(1.4)" }}
                     loading="eager" 
                   />
                 </div>
