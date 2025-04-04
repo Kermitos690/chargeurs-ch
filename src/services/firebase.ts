@@ -6,7 +6,8 @@ import {
   onAuthStateChanged,
   User,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -59,7 +60,8 @@ export {
   signOut, 
   onAuthStateChanged,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 };
 
 // Service d'authentification
@@ -97,6 +99,27 @@ export const logoutAdmin = async () => {
 // Hook personnalisé pour l'authentification
 export const authStateListener = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// Service de réinitialisation du mot de passe
+export const resetPassword = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+    let errorMessage = 'Une erreur est survenue lors de la réinitialisation du mot de passe';
+    
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'Aucun compte n\'est associé à cet email';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'L\'adresse email n\'est pas valide';
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMessage = 'Trop de tentatives, veuillez réessayer plus tard';
+    }
+    
+    return { success: false, error: errorMessage };
+  }
 };
 
 // Services Firestore

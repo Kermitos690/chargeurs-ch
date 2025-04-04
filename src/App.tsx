@@ -19,6 +19,7 @@ import Appointment from "./pages/Appointment";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -45,6 +46,7 @@ const App = () => (
             {/* Routes d'authentification */}
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
+            <Route path="/auth/reset-password" element={<ResetPassword />} />
             
             {/* Routes protégées qui nécessitent une connexion */}
             <Route path="/account" element={<RouteGuard><Account /></RouteGuard>} />
