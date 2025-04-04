@@ -1,9 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { auth, db } from '@/services/firebase/config';
-import { onAuthStateChanged } from '@/services/firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { auth, db, authStateListener } from '@/services/firebase';
 
 interface UserData {
   id: string;
@@ -19,7 +18,7 @@ export const useFirebaseAuth = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+    const unsubscribe = authStateListener(async (authUser) => {
       setLoading(true);
       
       if (authUser) {
