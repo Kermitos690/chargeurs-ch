@@ -1,90 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Clock } from 'lucide-react';
-import { resetPassword } from '@/services/firebase/auth';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Battery, ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { PasswordResetForm } from '@/components/auth/PasswordResetForm';
+import { PasswordResetSuccess } from '@/components/auth/PasswordResetSuccess';
+import { RateLimitDialog } from '@/components/auth/RateLimitDialog';
 
 const ResetPassword = () => {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
   const [retryCount, setRetryCount] = useState(0);
   const [showLimitDialog, setShowLimitDialog] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  const handleResetSuccess = (emailAddress: string) => {
+    setEmailSent(true);
+    setEmail(emailAddress);
+    setRetryCount(0);
+  };
 
-    try {
-      console.log("Tentative de réinitialisation pour:", email);
-      
-      const result = await resetPassword(email);
-      console.log("Résultat de la réinitialisation:", result);
-      
-      if (result.success) {
-        setEmailSent(true);
-        setRetryCount(0);
-        toast({
-          title: "Email envoyé",
-          description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
-        });
-      } else {
-        setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
-        setRetryCount(prev => prev + 1);
-        
-        // Show special dialog for rate limit errors
-        if (result.code === 'auth/too-many-requests' || 
-            result.code === 'auth/reset-password-limit-exceeded' ||
-            (result.error && result.error.includes('Limite de réinitialisation'))) {
-          setShowLimitDialog(true);
-        }
-        
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: result.error || "Une erreur est survenue lors de l'envoi de l'email",
-        });
-      }
-    } catch (error: any) {
-      console.error("Erreur dans la réinitialisation:", error);
-      setError("Une erreur inattendue s'est produite");
-      setRetryCount(prev => prev + 1);
-      
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleRetry = () => {
+    setEmailSent(false);
+    setEmail('');
+  };
+
+  const handleRetryCountUpdate = () => {
+    setRetryCount(prev => prev + 1);
+  };
+
+  const handleRateLimitError = () => {
+    setShowLimitDialog(true);
   };
 
   return (
@@ -108,84 +55,16 @@ const ResetPassword = () => {
           <Card>
             <CardContent className="pt-6">
               {!emailSent ? (
-                <form onSubmit={handleResetPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="nom@exemple.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </div>
-                  
-                  {error && (
-                    <div className="bg-red-50 p-3 rounded-md flex items-start">
-                      <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-red-800">
-                        <p>{error}</p>
-                        {retryCount > 1 && (
-                          <p className="mt-1">
-                            Astuce: Vérifiez que votre adresse email est correcte. Si vous n'avez pas de compte, 
-                            vous pouvez en <Link to="/auth/register" className="font-medium text-primary hover:underline">créer un nouveau</Link>.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Envoyer un lien de réinitialisation
-                      </>
-                    )}
-                  </Button>
-                </form>
+                <PasswordResetForm 
+                  onSuccess={handleResetSuccess} 
+                  onRetryCountUpdate={handleRetryCountUpdate}
+                  onRateLimitError={handleRateLimitError}
+                />
               ) : (
-                <div className="space-y-4 text-center">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex justify-center mb-2">
-                      <CheckCircle className="h-8 w-8 text-green-500" />
-                    </div>
-                    <p className="text-green-800">
-                      Un email contenant un lien pour réinitialiser votre mot de passe a été envoyé à <strong>{email}</strong>.
-                    </p>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    <p>
-                      Vérifiez votre dossier de spam si vous ne recevez pas l'email dans les prochaines minutes.
-                    </p>
-                    <p>
-                      Cliquez sur le lien dans l'email pour être redirigé vers une page où vous pourrez créer un nouveau mot de passe.
-                    </p>
-                    <p className="font-medium text-primary">
-                      Important: Le lien est valable pour une durée limitée.
-                    </p>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setEmailSent(false);
-                        setEmail('');
-                        setError(null);
-                      }}
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Réessayer avec une autre adresse
-                    </Button>
-                  </div>
-                </div>
+                <PasswordResetSuccess 
+                  email={email} 
+                  onReset={handleRetry} 
+                />
               )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 pt-0">
@@ -215,34 +94,10 @@ const ResetPassword = () => {
       <Footer />
 
       {/* Rate limit dialog */}
-      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-amber-500" />
-              Limite de tentatives atteinte
-            </DialogTitle>
-            <DialogDescription>
-              Pour des raisons de sécurité, Firebase limite le nombre de réinitialisations de mot de passe pour une adresse email.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-3">
-            <p>
-              Veuillez essayer l'une des solutions suivantes:
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Attendez environ une heure avant de réessayer</li>
-              <li>Contactez le support si vous avez un besoin urgent d'accès</li>
-              <li>Essayez de vous connecter avec votre ancien mot de passe</li>
-            </ul>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowLimitDialog(false)}>
-              Compris
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RateLimitDialog 
+        open={showLimitDialog} 
+        onOpenChange={setShowLimitDialog} 
+      />
     </div>
   );
 };
