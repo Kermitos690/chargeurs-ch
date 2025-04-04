@@ -16,11 +16,17 @@ const getOrCreateSessionId = (): string => {
 export const initializeCart = async (userId?: string) => {
   try {
     const sessionId = getOrCreateSessionId();
-    const { data: existingCart, error: fetchError } = await supabase
-      .from('carts')
-      .select('id')
-      .or(`user_id.eq.${userId ? userId : null},session_id.eq.${sessionId}`)
-      .maybeSingle();
+    
+    // Construire la condition de requête de manière sécurisée
+    let query = supabase.from('carts').select('id');
+    
+    if (userId) {
+      query = query.eq('user_id', userId);
+    } else {
+      query = query.eq('session_id', sessionId);
+    }
+    
+    const { data: existingCart, error: fetchError } = await query.maybeSingle();
 
     if (fetchError) throw fetchError;
 
@@ -109,12 +115,17 @@ export const getCartItems = async (userId?: string) => {
   try {
     const sessionId = getOrCreateSessionId();
     
+    // Construire la requête de manière sécurisée
+    let cartQuery = supabase.from('carts').select('id');
+    
+    if (userId) {
+      cartQuery = cartQuery.eq('user_id', userId);
+    } else {
+      cartQuery = cartQuery.eq('session_id', sessionId);
+    }
+    
     // D'abord, trouver l'ID du panier
-    const { data: cart, error: cartError } = await supabase
-      .from('carts')
-      .select('id')
-      .or(`user_id.eq.${userId ? userId : null},session_id.eq.${sessionId}`)
-      .maybeSingle();
+    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
 
     if (cartError) throw cartError;
     if (!cart) return [];
@@ -221,12 +232,17 @@ export const clearCart = async (userId?: string) => {
   try {
     const sessionId = getOrCreateSessionId();
     
+    // Construire la requête de manière sécurisée
+    let cartQuery = supabase.from('carts').select('id');
+    
+    if (userId) {
+      cartQuery = cartQuery.eq('user_id', userId);
+    } else {
+      cartQuery = cartQuery.eq('session_id', sessionId);
+    }
+    
     // Trouver l'ID du panier
-    const { data: cart, error: cartError } = await supabase
-      .from('carts')
-      .select('id')
-      .or(`user_id.eq.${userId ? userId : null},session_id.eq.${sessionId}`)
-      .maybeSingle();
+    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
 
     if (cartError) throw cartError;
     if (!cart) return true;
