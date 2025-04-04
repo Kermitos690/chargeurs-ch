@@ -7,7 +7,7 @@ const About = () => {
   const benefits = [
     "Installation professionnelle par des experts certifiés",
     "Support technique 7j/7",
-    "Garantie de 24 mois sur tout notre matériel",
+    "Garantie de 24 mois sur toutes nos bornes",
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
     "Compatibilité avec tous les smartphones modernes",
