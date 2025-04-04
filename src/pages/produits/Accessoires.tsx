@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -175,7 +176,7 @@ const ProduitsAccessoires = () => {
                   Prolongez la garantie de vos accessoires jusqu'à 5 ans pour une tranquillité totale.
                 </p>
                 <div className="flex justify-center">
-                  <Badge variant="outline">À partir de 29 CHF</Badge>
+                  <Badge variant="outline">À partir de 199 CHF</Badge>
                 </div>
               </div>
             </div>
