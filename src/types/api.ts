@@ -19,16 +19,19 @@ export interface PowerBank {
   lastUpdated?: any;
 }
 
-// Add User interface
+// Update User interface with required fields
 export interface User {
   id: string;
   email: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   address?: string;
   city?: string;
   postalCode?: string;
   subscriptionType?: 'basic' | 'premium' | 'enterprise';
+  subscription?: string; // For backward compatibility
   createdAt?: any;
 }
 
@@ -53,7 +56,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// Add Rental interface
+// Update Rental interface with station-related fields
 export interface Rental {
   id: string;
   userId: string;
@@ -63,6 +66,9 @@ export interface Rental {
   status: 'active' | 'completed' | 'cancelled';
   stationStartId: string;
   stationEndId?: string;
+  startStationId?: string; // For backward compatibility
+  endStationId?: string;   // For backward compatibility
+  cost?: number;           // For backward compatibility
   amount?: number;
 }
 

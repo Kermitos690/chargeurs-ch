@@ -13,9 +13,9 @@ import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 
 // Create custom icon for stations
 const stationIcon = new Icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconRetinaUrl: markerIconRetina,
+  iconUrl: markerIcon.src || markerIcon,
+  shadowUrl: markerShadow.src || markerShadow,
+  iconRetinaUrl: markerIconRetina.src || markerIconRetina,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -24,9 +24,9 @@ const stationIcon = new Icon({
 
 // Create custom icon for selected station
 const selectedStationIcon = new Icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconRetinaUrl: markerIconRetina,
+  iconUrl: markerIcon.src || markerIcon,
+  shadowUrl: markerShadow.src || markerShadow,
+  iconRetinaUrl: markerIconRetina.src || markerIconRetina,
   iconSize: [35, 51],
   iconAnchor: [17, 51],
   popupAnchor: [1, -34],
