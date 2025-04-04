@@ -12,15 +12,17 @@ interface AuthContextType {
     phone?: string;
     subscriptionType?: string;
   } | null;
-  loading: boolean;
+  loading: boolean;  // Renamed from 'isLoading' to match actual usage
   isAdmin: boolean;
+  isLoading: boolean; // Added to match the expected property in RentPowerBank
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
-  isAdmin: false
+  isAdmin: false,
+  isLoading: true  // Added with default value
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -45,7 +47,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isAdmin }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userData, 
+      loading, 
+      isAdmin, 
+      isLoading: loading // Map loading to isLoading for compatibility
+    }}>
       {children}
     </AuthContext.Provider>
   );
