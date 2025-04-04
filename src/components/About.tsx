@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Check } from 'lucide-react';
@@ -7,6 +8,7 @@ const About = () => {
     "Installation professionnelle par des experts certifiés",
     "Support technique 7j/7",
     "Garantie de 24 mois sur toutes nos bornes et 12 mois sur les powerbanks",
+    "Prolongation de garantie à partir de 99.-",
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
     "Compatibilité avec tous les smartphones modernes",
