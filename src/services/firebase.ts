@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -27,13 +26,14 @@ import {
 } from 'firebase/firestore';
 
 // Configuration Firebase avec votre clé API
+// Important: Complétez ces valeurs depuis votre console Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDLcFXeCYGpNQzAAA7s_ilZYHvh3_EZa_Y",
-  authDomain: "VOTRE_AUTH_DOMAIN",
-  projectId: "VOTRE_PROJECT_ID",
-  storageBucket: "VOTRE_STORAGE_BUCKET",
-  messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-  appId: "VOTRE_APP_ID"
+  authDomain: "chargeurs-ch.firebaseapp.com", // À remplacer par votre auth domain
+  projectId: "chargeurs-ch", // À remplacer par votre project ID
+  storageBucket: "chargeurs-ch.appspot.com", // À remplacer par votre storage bucket
+  messagingSenderId: "123456789", // À remplacer par votre messaging sender ID
+  appId: "1:123456789:web:abc123def456" // À remplacer par votre app ID
 };
 
 // Initialiser Firebase
