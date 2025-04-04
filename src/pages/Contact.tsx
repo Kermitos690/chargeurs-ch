@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import LeafletMap from '@/components/LeafletMap';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
@@ -69,6 +70,18 @@ const Contact = () => {
       details: ["info@chargeurs.ch", "support@chargeurs.ch"]
     }
   ];
+
+  // Définir l'emplacement de l'entreprise pour la carte
+  const officeLocation = [{
+    id: "office",
+    name: "chargeurs.ch - Siège",
+    location: "123 Rue du Commerce, 1204 Genève",
+    latitude: 46.203, // Coordonnées pour Genève
+    longitude: 6.144,
+    status: "online",
+    availablePowerBanks: 0,
+    totalSlots: 0
+  }];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -195,11 +208,13 @@ const Contact = () => {
 
           <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 text-center">Où nous trouver</h2>
-            <div className="h-96 bg-gray-200 rounded-xl overflow-hidden">
-              {/* Placeholder for Google Maps */}
-              <div className="w-full h-full flex items-center justify-center bg-muted">
-                <p className="text-muted-foreground">Carte Google Maps ici</p>
-              </div>
+            <div className="h-96 rounded-xl overflow-hidden">
+              <LeafletMap 
+                stations={officeLocation}
+                selectedStation={null}
+                onStationSelect={() => {}}
+                height="100%"
+              />
             </div>
           </div>
           
