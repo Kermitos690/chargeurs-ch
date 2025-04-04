@@ -63,7 +63,7 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
       title: "Téléphone",
-      details: ["+41 22 123 45 67"]
+      details: ["+41 78 633 67 77"]
     },
     {
       icon: <Mail className="h-6 w-6 text-primary" />,

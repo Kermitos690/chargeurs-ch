@@ -31,7 +31,6 @@ const Contact = () => {
                   <div>
                     <p className="font-medium">Adresse</p>
                     <p className="text-muted-foreground">
-                      Rue de la Gare 15<br />
                       1000 Lausanne, Suisse
                     </p>
                   </div>
@@ -55,8 +54,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-medium">Téléphone</p>
-                    <a href="tel:+41223000000" className="text-primary hover:underline">
-                      +41 22 300 00 00
+                    <a href="tel:+41786336777" className="text-primary hover:underline">
+                      +41 78 633 67 77
                     </a>
                   </div>
                 </div>
