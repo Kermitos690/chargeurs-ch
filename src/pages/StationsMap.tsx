@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStations } from '@/services/api';
@@ -22,17 +23,26 @@ const StationsMap = () => {
   const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
-    initialData: {
+    initialData: () => ({
       success: true,
       data: mockStations
-    },
+    }),
     staleTime: 60000,
     gcTime: 300000,
     retry: 3,
-    onError: () => {
-      toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
+    meta: {
+      onError: () => {
+        toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
+      }
     }
   });
+
+  // Handle errors outside of query options too
+  useEffect(() => {
+    if (error) {
+      toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
+    }
+  }, [error]);
 
   const stations = apiData?.data || [];
 
