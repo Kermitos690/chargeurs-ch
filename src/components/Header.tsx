@@ -57,7 +57,11 @@ const Header = () => {
             <NavLink 
               key={item.path}
               to={item.path} 
-              className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md ${isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-accent"}`
+              }
             >
               {item.label}
             </NavLink>
@@ -77,7 +81,7 @@ const Header = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-popover border-border shadow-lg" align="end" forceMount>
                 <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
@@ -117,7 +121,7 @@ const Header = () => {
                 {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[250px] bg-background p-0">
+            <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
               <div className="flex flex-col h-full">
                 <div className="p-4 border-b">
                   <Link to="/" className="font-bold text-xl" onClick={() => setIsMenuOpen(false)}>
@@ -132,7 +136,7 @@ const Header = () => {
                           to={item.path} 
                           className={({ isActive }) => 
                             `block p-2 rounded-md ${isActive 
-                              ? "bg-primary/10 text-primary" 
+                              ? "bg-primary text-primary-foreground" 
                               : "hover:bg-accent"}`
                           }
                           onClick={() => setIsMenuOpen(false)}
