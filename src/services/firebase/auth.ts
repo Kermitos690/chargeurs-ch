@@ -9,7 +9,8 @@ import {
   sendPasswordResetEmail,
   confirmPasswordReset,
   ActionCodeSettings,
-  sendEmailVerification
+  sendEmailVerification,
+  verifyPasswordResetCode
 } from 'firebase/auth';
 import { collection, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
 import { auth, db } from './config';
@@ -23,7 +24,8 @@ export {
   updateProfile,
   sendPasswordResetEmail,
   confirmPasswordReset,
-  sendEmailVerification
+  sendEmailVerification,
+  verifyPasswordResetCode
 };
 
 // Admin login service
@@ -69,17 +71,17 @@ export const resetPassword = async (email: string) => {
   try {
     console.log("Début de la procédure de réinitialisation pour:", email);
     
-    // Configuration pour l'email de réinitialisation
+    // Configuration pour l'email de réinitialisation avec URL correcte
     const actionCodeSettings: ActionCodeSettings = {
-      // URL de redirection après clic sur le lien (doit être autorisée dans la console Firebase)
-      url: `${window.location.origin}/auth/login`,
-      handleCodeInApp: true
+      // URL de redirection après clic sur le lien
+      url: `${window.location.origin}/auth/new-password`,
+      handleCodeInApp: false
     };
     
     console.log("Paramètres de réinitialisation:", actionCodeSettings);
     console.log("URL de redirection configurée:", actionCodeSettings.url);
     
-    // Vérifier si l'email existe dans notre base d'utilisateurs (mais ne pas échouer si on ne peut pas vérifier)
+    // Vérifier si l'email existe dans notre base d'utilisateurs
     try {
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
@@ -95,12 +97,14 @@ export const resetPassword = async (email: string) => {
       console.log("Impossible de vérifier l'existence de l'utilisateur:", checkError);
     }
     
-    // Essayer d'abord avec les paramètres complets incluant l'URL de redirection
+    // Envoi de l'email de réinitialisation
     try {
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       console.log("Email de réinitialisation envoyé avec succès (avec URL de redirection)");
     } catch (redirectError: any) {
-      // Si l'erreur est liée à l'URL de redirection (domain non autorisé), retenter sans continueUrl
+      console.error("Erreur lors de l'envoi avec URL:", redirectError);
+      
+      // Si l'erreur est liée à l'URL de redirection, retenter sans URL spécifique
       if (redirectError.code === 'auth/unauthorized-continue-uri' || 
           redirectError.code === 'auth/unauthorized-domain' ||
           (redirectError.message && redirectError.message.includes('UNAUTHORIZED_DOMAIN'))) {
@@ -115,23 +119,23 @@ export const resetPassword = async (email: string) => {
       }
     }
     
-    // Enregistrer la tentative de réinitialisation pour le suivi (mais ne pas échouer si ça ne marche pas)
+    // Enregistrer la tentative de réinitialisation pour le suivi
     try {
       await setDoc(doc(db, "passwordResetAttempts", new Date().toISOString()), {
         email,
         timestamp: new Date(),
         successful: true,
-        userAgent: navigator.userAgent,
-        ipAddress: "REDACTED" // Dans une vraie application, cela serait géré côté serveur
+        userAgent: navigator.userAgent
       });
     } catch (logError) {
       console.error("Erreur lors de l'enregistrement de la tentative de réinitialisation:", logError);
-      // On ne fait pas échouer l'opération principale si le logging échoue
     }
     
     return { success: true };
   } catch (error: any) {
     console.error('Erreur détaillée lors de la réinitialisation du mot de passe:', error);
+    
+    // Gestion des erreurs
     let errorMessage = 'Une erreur est survenue lors de la réinitialisation du mot de passe';
     let errorCode = error.code || 'unknown';
     
@@ -144,13 +148,9 @@ export const resetPassword = async (email: string) => {
       errorMessage = 'Trop de tentatives, veuillez réessayer plus tard';
     } else if (error.code === 'auth/network-request-failed') {
       errorMessage = 'Problème de connexion réseau. Vérifiez votre connexion internet.';
-    } else if (error.code === 'auth/missing-continue-uri') {
-      errorMessage = 'Erreur de configuration: URL de redirection manquante';
-    } else if (error.code === 'auth/unauthorized-continue-uri') {
-      errorMessage = 'Erreur de configuration: URL de redirection non autorisée';
     }
     
-    // Tenter d'enregistrer l'échec pour analyse mais ne pas échouer si ça ne marche pas
+    // Enregistrer l'échec
     try {
       await setDoc(doc(db, "passwordResetAttempts", new Date().toISOString()), {
         email,
@@ -162,15 +162,83 @@ export const resetPassword = async (email: string) => {
       });
     } catch (logError) {
       console.error("Erreur lors de l'enregistrement de l'échec de réinitialisation:", logError);
-      // Ne rien faire de plus, ne pas bloquer le flux principal
     }
     
     return { 
       success: false, 
       error: errorMessage, 
       code: errorCode,
-      details: error.message,
-      url: window.location.origin + '/auth/login' // Pour le débogage
+      details: error.message
+    };
+  }
+};
+
+// Nouvelle fonction pour confirmer la réinitialisation du mot de passe
+export const completePasswordReset = async (oobCode: string, newPassword: string) => {
+  try {
+    console.log("Vérification du code de réinitialisation...");
+    
+    // D'abord, vérifier que le code est valide
+    const email = await verifyPasswordResetCode(auth, oobCode);
+    console.log("Code valide pour l'email:", email);
+    
+    // Confirmer la réinitialisation du mot de passe
+    await confirmPasswordReset(auth, oobCode, newPassword);
+    console.log("Mot de passe réinitialisé avec succès");
+    
+    // Enregistrer la réinitialisation réussie
+    try {
+      await setDoc(doc(db, "passwordResetCompletions", new Date().toISOString()), {
+        email,
+        timestamp: new Date(),
+        successful: true,
+        userAgent: navigator.userAgent
+      });
+    } catch (logError) {
+      console.error("Erreur lors de l'enregistrement de la réinitialisation réussie:", logError);
+    }
+    
+    return { 
+      success: true,
+      email
+    };
+  } catch (error: any) {
+    console.error("Erreur lors de la confirmation de réinitialisation:", error);
+    
+    let errorMessage = "Une erreur est survenue lors de la réinitialisation du mot de passe";
+    let errorCode = error.code || "unknown";
+    
+    // Messages d'erreur plus précis
+    if (error.code === 'auth/expired-action-code') {
+      errorMessage = "Ce lien de réinitialisation a expiré. Veuillez demander un nouveau lien.";
+    } else if (error.code === 'auth/invalid-action-code') {
+      errorMessage = "Ce lien de réinitialisation n'est plus valide. Il a peut-être déjà été utilisé.";
+    } else if (error.code === 'auth/user-disabled') {
+      errorMessage = "Ce compte a été désactivé. Veuillez contacter le support.";
+    } else if (error.code === 'auth/user-not-found') {
+      errorMessage = "Aucun utilisateur correspondant à ce lien de réinitialisation n'a été trouvé.";
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = "Le mot de passe est trop faible. Utilisez au moins 6 caractères.";
+    }
+    
+    // Enregistrer l'échec
+    try {
+      await setDoc(doc(db, "passwordResetCompletions", new Date().toISOString()), {
+        timestamp: new Date(),
+        successful: false,
+        error: errorCode,
+        errorDetails: error.message,
+        userAgent: navigator.userAgent
+      });
+    } catch (logError) {
+      console.error("Erreur lors de l'enregistrement de l'échec de réinitialisation:", logError);
+    }
+    
+    return {
+      success: false,
+      error: errorMessage,
+      code: errorCode,
+      details: error.message
     };
   }
 };

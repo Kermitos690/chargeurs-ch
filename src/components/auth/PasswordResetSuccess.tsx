@@ -34,7 +34,7 @@ export const PasswordResetSuccess = ({ email, onReset }: PasswordResetSuccessPro
                   <li>Vérifiez votre dossier de spam/indésirables</li>
                   <li>L'email provient de "noreply@chargeurs-ch.firebaseapp.com"</li>
                   <li>Le lien expire dans 24 heures</li>
-                  <li>Si vous ne recevez pas l'email, essayez d'ajouter cette adresse à vos contacts</li>
+                  <li>Cliquez sur le lien dans l'email pour accéder au formulaire de création de nouveau mot de passe</li>
                 </ul>
               </div>
             </div>
