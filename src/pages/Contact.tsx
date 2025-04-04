@@ -58,7 +58,7 @@ const Contact = () => {
     {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: "Adresse",
-      details: ["123 Rue du Commerce", "1000 Lausanne", "Suisse"]
+      details: ["1000 Lausanne", "Suisse"]
     },
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
@@ -76,7 +76,7 @@ const Contact = () => {
   const officeLocation: Station[] = [{
     id: "office",
     name: "chargeurs.ch - Siège",
-    location: "123 Rue du Commerce, 1000 Lausanne",
+    location: "1000 Lausanne",
     latitude: 46.519, // Coordonnées pour Lausanne
     longitude: 6.633,
     status: "online", 
