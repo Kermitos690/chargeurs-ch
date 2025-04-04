@@ -6,10 +6,11 @@ import { Loader2 } from 'lucide-react';
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { user, loading } = useAuth();
+const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
+  const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -22,6 +23,10 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
 
   if (!user) {
     return <Navigate to="/admin/login" replace />;
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;

@@ -4,10 +4,17 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { subscribeToPlan } from '@/services/stripe';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const Subscriptions = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loadingSubscription, setLoadingSubscription] = React.useState<string | null>(null);
+  
   const subscriptions = [
     {
       id: 'basic',
@@ -53,8 +60,25 @@ const Subscriptions = () => {
     }
   ];
 
-  const handleSubscribe = (id: string) => {
-    toast.success(`Vous avez souscrit à l'abonnement ${id}. Redirection vers le paiement...`);
+  const handleSubscribe = async (id: string) => {
+    if (!user) {
+      toast('Vous devez être connecté pour souscrire à un abonnement.');
+      navigate('/account');
+      return;
+    }
+    
+    setLoadingSubscription(id);
+    
+    try {
+      const result = await subscribeToPlan(id);
+      // If success is true, the user will be redirected to the Stripe checkout page
+      // If not, an error toast is displayed by the subscribeToPlan function
+      if (!result.success) {
+        setLoadingSubscription(null);
+      }
+    } catch (error) {
+      setLoadingSubscription(null);
+    }
   };
 
   return (
@@ -106,8 +130,16 @@ const Subscriptions = () => {
                     onClick={() => handleSubscribe(subscription.id)} 
                     variant={subscription.recommended ? 'default' : 'outline'} 
                     className="w-full"
+                    disabled={loadingSubscription === subscription.id}
                   >
-                    Souscrire
+                    {loadingSubscription === subscription.id ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Traitement...
+                      </>
+                    ) : (
+                      'Souscrire'
+                    )}
                   </Button>
                 </CardFooter>
               </Card>

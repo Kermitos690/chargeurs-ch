@@ -18,6 +18,8 @@ import NotFound from "./pages/NotFound";
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminPowerBanks from "./pages/admin/PowerBanks";
 import AdminLayout from "./components/AdminLayout";
 
 const queryClient = new QueryClient();
@@ -43,8 +45,16 @@ const App = () => (
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="powerbanks" element={<AdminPowerBanks />} />
             {/* Autres routes admin protégées peuvent être ajoutées ici */}
           </Route>
+          
+          {/* Route pour les utilisateurs non autorisés */}
+          <Route path="/unauthorized" element={<div className="flex h-screen items-center justify-center flex-col">
+            <h1 className="text-2xl font-bold mb-4">Accès non autorisé</h1>
+            <p>Vous n'avez pas les droits pour accéder à cette page.</p>
+          </div>} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
@@ -55,4 +65,3 @@ const App = () => (
 );
 
 export default App;
-
