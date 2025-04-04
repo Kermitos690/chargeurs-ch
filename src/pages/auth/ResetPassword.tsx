@@ -13,7 +13,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { resetPassword } from '@/services/firebase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -22,12 +22,14 @@ const ResetPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       console.log("Attempting to reset password for:", email);
@@ -41,6 +43,7 @@ const ResetPassword = () => {
           description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
         });
       } else {
+        setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
         toast({
           variant: "destructive",
           title: "Erreur",
@@ -49,6 +52,7 @@ const ResetPassword = () => {
       }
     } catch (error: any) {
       console.error("Error in reset password:", error);
+      setError("Une erreur inattendue s'est produite");
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -93,6 +97,14 @@ const ResetPassword = () => {
                       autoComplete="email"
                     />
                   </div>
+                  
+                  {error && (
+                    <div className="bg-red-50 p-3 rounded-md flex items-start">
+                      <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-red-800">{error}</p>
+                    </div>
+                  )}
+                  
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -124,11 +136,18 @@ const ResetPassword = () => {
                     <p>
                       Cliquez sur le lien dans l'email pour être redirigé vers une page où vous pourrez créer un nouveau mot de passe.
                     </p>
+                    <p className="font-medium text-primary">
+                      Important: Le lien vous redirigera vers la page de connexion après avoir réinitialisé votre mot de passe.
+                    </p>
                   </div>
                   <Button 
                     variant="outline" 
                     className="mt-2" 
-                    onClick={() => setEmailSent(false)}
+                    onClick={() => {
+                      setEmailSent(false);
+                      setEmail('');
+                      setError(null);
+                    }}
                   >
                     Réessayer avec une autre adresse
                   </Button>

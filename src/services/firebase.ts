@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -7,7 +8,8 @@ import {
   User,
   createUserWithEmailAndPassword,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  ActionCodeSettings
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -104,7 +106,19 @@ export const authStateListener = (callback: (user: User | null) => void) => {
 // Service de réinitialisation du mot de passe
 export const resetPassword = async (email: string) => {
   try {
-    await sendPasswordResetEmail(auth, email);
+    // Configuration pour le lien de réinitialisation
+    const actionCodeSettings: ActionCodeSettings = {
+      // URL vous devez remplacer par l'URL réelle de votre application
+      url: window.location.origin + '/auth/login',
+      handleCodeInApp: true
+    };
+
+    console.log("Sending password reset with settings:", actionCodeSettings);
+    
+    // Envoi de l'email avec les paramètres de configuration
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    console.log("Password reset email sent successfully");
+    
     return { success: true };
   } catch (error: any) {
     console.error('Erreur lors de la réinitialisation du mot de passe:', error);
