@@ -24,7 +24,7 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Sécurité optimale",
-      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité."
+      description: "Bornes garanties 24 mois et powerbanks garanties 12 mois sous réserve d'une utilisation appropriée."
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,
