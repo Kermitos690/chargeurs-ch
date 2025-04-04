@@ -51,20 +51,20 @@ const HeroModel3D = () => {
         }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Using the provided charging station image */}
+          {/* Using the provided charging station image - increased by 140% */}
           <img 
             ref={imageRef}
             src="/lovable-uploads/a18995fa-57e7-4901-b5bd-708fd76ad058.png" 
             alt="PowerBank Charging Station"
-            className="max-w-full max-h-full object-contain rounded-xl animate-float-slow shadow-2xl"
+            className="max-w-[140%] max-h-[140%] object-contain rounded-xl animate-float-slow shadow-2xl"
             style={{
               filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2))"
             }}
           />
           
-          {/* Overlay effect with green glow matching the image */}
+          {/* Overlay effect with green glow matching the image - increased to match image size */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="absolute w-[80%] h-[80%] rounded-full bg-green-500 opacity-20 filter blur-2xl animate-pulse-glow" />
+            <div className="absolute w-[112%] h-[112%] rounded-full bg-green-500 opacity-20 filter blur-2xl animate-pulse-glow" />
           </div>
         </div>
       </div>
