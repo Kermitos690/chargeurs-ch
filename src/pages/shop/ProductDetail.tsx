@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -254,7 +255,7 @@ const ProductDetail: React.FC = () => {
                   <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
                     <h4 className="font-medium">Garantie de 24 mois</h4>
-                    <p className="text-sm text-muted-foreground">Sous réserve d'une utilisation adaptée</p>
+                    <p className="text-sm text-muted-foreground">Sous réserve d'une utilisation appropriée</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

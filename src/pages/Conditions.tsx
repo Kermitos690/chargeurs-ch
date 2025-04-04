@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -131,10 +132,10 @@ const Conditions = () => {
             </p>
             <ul>
               <li>Bornes de recharge: garantie de 24 mois à compter de la date d'achat</li>
-              <li>Powerbanks: garantie de 12 mois à compter de la date d'achat</li>
+              <li>Powerbanks: garantie de 24 mois à compter de la date d'achat</li>
             </ul>
             <p>
-              Ces garanties s'appliquent uniquement dans le respect des précautions d'usage et de bonne utilisation des produits, et ne couvrent pas les dommages résultant d'une utilisation inappropriée, d'accidents, ou de modifications non autorisées.
+              Ces garanties s'appliquent uniquement sous réserve d'une utilisation appropriée des produits, et ne couvrent pas les dommages résultant d'une utilisation inappropriée, d'accidents, ou de modifications non autorisées.
             </p>
 
             <Separator className="my-6" />
