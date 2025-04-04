@@ -11,7 +11,7 @@ const About = () => {
     "Prolongation de garantie à partir de 99.-",
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
-    "Compatibilité avec tous les smartphones modernes",
+    "Compatibilité avec tous les smartphones modernes USB-C / Lightning / Micro-USB",
   ];
 
   return (
