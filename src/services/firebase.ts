@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -25,9 +26,9 @@ import {
   DocumentData
 } from 'firebase/firestore';
 
-// Configuration Firebase - à remplacer par votre configuration
+// Configuration Firebase avec votre clé API
 const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
+  apiKey: "AIzaSyDLcFXeCYGpNQzAAA7s_ilZYHvh3_EZa_Y",
   authDomain: "VOTRE_AUTH_DOMAIN",
   projectId: "VOTRE_PROJECT_ID",
   storageBucket: "VOTRE_STORAGE_BUCKET",
