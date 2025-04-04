@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -34,15 +33,10 @@ const ResetPassword = () => {
     setError(null);
 
     try {
-      console.log("Attempting to reset password for:", email);
-      console.log("Retry count:", retryCount);
-      
-      // Ensure the origin URL is correct for the current environment
-      const originUrl = window.location.origin;
-      console.log("Current origin for reset:", originUrl);
+      console.log("Tentative de réinitialisation pour:", email);
       
       const result = await resetPassword(email);
-      console.log("Reset password result:", result);
+      console.log("Résultat de la réinitialisation:", result);
       
       if (result.success) {
         setEmailSent(true);
@@ -62,7 +56,7 @@ const ResetPassword = () => {
         });
       }
     } catch (error: any) {
-      console.error("Error in reset password:", error);
+      console.error("Erreur dans la réinitialisation:", error);
       setError("Une erreur inattendue s'est produite");
       setRetryCount(prev => prev + 1);
       
@@ -158,7 +152,7 @@ const ResetPassword = () => {
                       Cliquez sur le lien dans l'email pour être redirigé vers une page où vous pourrez créer un nouveau mot de passe.
                     </p>
                     <p className="font-medium text-primary">
-                      Important: Le lien est valable pour une durée limitée et vous redirigera vers la page de connexion après avoir réinitialisé votre mot de passe.
+                      Important: Le lien est valable pour une durée limitée.
                     </p>
                   </div>
                   <div className="flex flex-col space-y-2">

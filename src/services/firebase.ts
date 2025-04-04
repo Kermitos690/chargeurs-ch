@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -108,45 +107,31 @@ export const authStateListener = (callback: (user: User | null) => void) => {
 // Service de réinitialisation du mot de passe
 export const resetPassword = async (email: string) => {
   try {
-    // Configuration pour le lien de réinitialisation
-    const originUrl = window.location.origin;
-    const actionCodeSettings: ActionCodeSettings = {
-      // URL de redirection après réinitialisation du mot de passe
-      url: `${originUrl}/auth/login`,
-      handleCodeInApp: false // Changement important pour Firebase Auth
-    };
-
-    console.log("Sending password reset with settings:", actionCodeSettings);
+    // Nous n'utilisons pas ActionCodeSettings car cela peut causer des problèmes
+    // avec certaines configurations Firebase
+    console.log("Starting password reset process for:", email);
     
-    // Envoi de l'email avec les paramètres de configuration
-    await sendPasswordResetEmail(auth, email, actionCodeSettings);
-    console.log("Password reset email sent successfully");
-    
-    // Vérifier si l'utilisateur existe déjà dans Firestore
+    // Vérifier d'abord si l'utilisateur existe dans Firestore
     try {
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('email', '==', email));
       const querySnapshot = await getDocs(q);
       
       if (querySnapshot.empty) {
-        console.log("No user found in Firestore with this email, but reset email was sent");
-        
-        // Optionnel: créer une entrée utilisateur dans Firestore si aucune n'existe
-        // Cela peut être utile pour suivre les demandes de réinitialisation
-        /*
-        await addDoc(collection(db, 'passwordResetRequests'), {
-          email,
-          requestedAt: serverTimestamp(),
-          status: 'pending'
-        });
-        */
+        console.log("No user found with this email in Firestore");
+        // Continuer quand même avec la réinitialisation, Firebase Auth vérifiera si l'email existe
       } else {
-        console.log("User found in Firestore, reset email sent");
+        console.log("User found in Firestore with this email");
       }
     } catch (firestoreError) {
       console.error("Error checking user in Firestore:", firestoreError);
-      // Continue even if Firestore check fails, as the password reset email was sent
+      // Continuer quand même avec la réinitialisation
     }
+    
+    // Envoyer l'email de réinitialisation sans ActionCodeSettings spécifiques
+    // Firebase utilisera les paramètres par défaut configurés dans la console Firebase
+    await sendPasswordResetEmail(auth, email);
+    console.log("Password reset email sent successfully");
     
     return { success: true };
   } catch (error: any) {
