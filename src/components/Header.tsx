@@ -49,9 +49,9 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center">
           <img 
-            src="/logo.png" 
-            alt="Chargeurs Coop Logo" 
-            className="h-10 w-auto" 
+            src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+            alt="Chargeurs.ch Logo" 
+            className="h-12 w-auto" 
           />
         </Link>
         
@@ -130,9 +130,9 @@ const Header = () => {
                 <div className="p-4 border-b">
                   <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
                     <img 
-                      src="/logo.png" 
-                      alt="Chargeurs Coop Logo" 
-                      className="h-8 w-auto" 
+                      src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+                      alt="Chargeurs.ch Logo" 
+                      className="h-10 w-auto" 
                     />
                   </Link>
                 </div>
