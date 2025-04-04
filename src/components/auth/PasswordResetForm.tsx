@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, Mail } from 'lucide-react';
+import { AlertCircle, Loader2, Mail, Info } from 'lucide-react';
 import { resetPassword } from '@/services/firebase/auth';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -21,18 +21,22 @@ export const PasswordResetForm = ({
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detailedError, setDetailedError] = useState<string | null>(null);
+  const [showDetailedError, setShowDetailedError] = useState(false);
   const { toast } = useToast();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setDetailedError(null);
+    setShowDetailedError(false);
 
     try {
       console.log("Tentative de réinitialisation pour:", email);
       
       const result = await resetPassword(email);
-      console.log("Résultat de la réinitialisation:", result);
+      console.log("Résultat complet de la réinitialisation:", result);
       
       if (result.success) {
         onSuccess(email);
@@ -42,9 +46,15 @@ export const PasswordResetForm = ({
         });
       } else {
         setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
+        
+        // Stocker l'erreur détaillée pour débogage
+        if (result.details) {
+          setDetailedError(result.details);
+        }
+        
         onRetryCountUpdate();
         
-        // Show special dialog for rate limit errors
+        // Afficher une boîte de dialogue spécifique pour les erreurs de limite de taux
         if (result.code === 'auth/too-many-requests' || 
             result.code === 'auth/reset-password-limit-exceeded' ||
             (result.error && result.error.includes('Limite de réinitialisation'))) {
@@ -58,8 +68,9 @@ export const PasswordResetForm = ({
         });
       }
     } catch (error: any) {
-      console.error("Erreur dans la réinitialisation:", error);
+      console.error("Erreur inattendue dans la réinitialisation:", error);
       setError("Une erreur inattendue s'est produite");
+      setDetailedError(error.message || "Erreur inconnue");
       onRetryCountUpdate();
       
       toast({
@@ -90,11 +101,43 @@ export const PasswordResetForm = ({
       {error && (
         <div className="bg-red-50 p-3 rounded-md flex items-start">
           <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-red-800">
+          <div className="text-sm text-red-800 flex-1">
             <p>{error}</p>
+            
+            {detailedError && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="text-blue-700 text-xs flex items-center"
+                  onClick={() => setShowDetailedError(!showDetailedError)}
+                >
+                  <Info className="h-3 w-3 mr-1" />
+                  {showDetailedError ? "Masquer les détails" : "Afficher les détails techniques"}
+                </button>
+                
+                {showDetailedError && (
+                  <pre className="mt-1 text-xs p-2 bg-red-100 rounded overflow-x-auto">
+                    {detailedError}
+                  </pre>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
+      
+      <div className="rounded-md bg-blue-50 p-3 mb-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <Info className="h-5 w-5 text-blue-400" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              Si vous ne recevez pas l'email, vérifiez votre dossier spam. Assurez-vous que l'adresse email est correcte et associée à un compte.
+            </p>
+          </div>
+        </div>
+      </div>
       
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? (
