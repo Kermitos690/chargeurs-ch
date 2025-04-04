@@ -20,9 +20,29 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       name: item.product.name + (item.variant ? ` - ${item.variant.name}` : ''),
       price: item.variant?.price || item.product.price,
       quantity: item.quantity,
-      // Utiliser une propriété optionnelle avec opérateur de chaînage facultatif
-      stripeProductId: item.product?.stripeProductId
+      // Le stripeProductId n'existe pas dans le type retourné par getCartItems()
+      // Nous devons l'ajouter manuellement pour les produits d'accessoires
+      stripeProductId: null // On ne peut pas utiliser la propriété qui n'existe pas dans le type
     }));
+
+    // Pour les accessoires, on peut chercher le stripeProductId via les données statiques
+    // Cette solution temporaire permet de faire fonctionner le code sans modifier le type
+    try {
+      const { data: accessoriesModule } = await import('@/data/accessories');
+      if (accessoriesModule && accessoriesModule.accessories) {
+        const accessories = accessoriesModule.accessories;
+        
+        // Mettre à jour les items avec les stripeProductId des accessoires
+        items.forEach(item => {
+          const accessory = accessories.find(acc => acc.id === item.id);
+          if (accessory && accessory.stripeProductId) {
+            item.stripeProductId = accessory.stripeProductId;
+          }
+        });
+      }
+    } catch (error) {
+      console.log('Impossible de charger les données des accessoires:', error);
+    }
 
     // Appeler l'API Stripe via la fonction Edge de Supabase
     const { data, error } = await supabase.functions.invoke('create-checkout', {
