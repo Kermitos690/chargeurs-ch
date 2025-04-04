@@ -13,7 +13,7 @@ const Contact = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-fade-in">
             <h6 className="text-sm uppercase tracking-wider text-primary font-medium mb-2">Contactez-nous</h6>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Prêt à passer à l'électrique?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Prêt à passer à la location de powerbanks?</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Notre équipe est à votre disposition pour répondre à toutes vos questions et vous accompagner dans votre projet.
             </p>
