@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserRentals, getStations } from '@/services/api';
@@ -49,6 +48,14 @@ const Rentals = () => {
     const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
     
     return `${hours}h ${minutes}min`;
+  };
+
+  // New helper function to extract hours as number for cost calculation
+  const getHoursFromDuration = (startTime: string, endTime?: string) => {
+    const start = new Date(startTime);
+    const end = endTime ? new Date(endTime) : new Date();
+    const diffInMs = end.getTime() - start.getTime();
+    return Math.ceil(diffInMs / (1000 * 60 * 60)); // Return hours as number, rounded up
   };
 
   const handleReturnPowerBank = () => {
@@ -143,7 +150,7 @@ const Rentals = () => {
                             </CardContent>
                             <CardFooter className="border-t bg-muted/30 flex justify-between">
                               <p className="text-sm">
-                                <span className="font-medium">Coût estimé:</span> {(calculateDuration(rental.startTime).split('h')[0] * 2).toFixed(2)} CHF
+                                <span className="font-medium">Coût estimé:</span> {(getHoursFromDuration(rental.startTime) * 2).toFixed(2)} CHF
                               </p>
                               <Button onClick={handleReturnPowerBank}>
                                 Retourner
