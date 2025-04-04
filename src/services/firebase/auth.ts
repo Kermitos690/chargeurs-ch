@@ -64,7 +64,7 @@ export const authStateListener = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
 
-// Improved password reset service with debugging
+// Improved password reset service with debugging and fallback
 export const resetPassword = async (email: string) => {
   try {
     console.log("Début de la procédure de réinitialisation pour:", email);
@@ -95,10 +95,25 @@ export const resetPassword = async (email: string) => {
       console.log("Impossible de vérifier l'existence de l'utilisateur:", checkError);
     }
     
-    // Envoi de l'email avec les paramètres configurés
-    await sendPasswordResetEmail(auth, email, actionCodeSettings);
-    
-    console.log("Email de réinitialisation envoyé avec succès");
+    // Essayer d'abord avec les paramètres complets incluant l'URL de redirection
+    try {
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      console.log("Email de réinitialisation envoyé avec succès (avec URL de redirection)");
+    } catch (redirectError: any) {
+      // Si l'erreur est liée à l'URL de redirection (domain non autorisé), retenter sans continueUrl
+      if (redirectError.code === 'auth/unauthorized-continue-uri' || 
+          redirectError.code === 'auth/unauthorized-domain' ||
+          (redirectError.message && redirectError.message.includes('UNAUTHORIZED_DOMAIN'))) {
+        
+        console.log("Erreur d'URL non autorisée, retentative sans l'URL de redirection");
+        // Envoyer sans URL de redirection
+        await sendPasswordResetEmail(auth, email);
+        console.log("Email de réinitialisation envoyé avec succès (sans URL de redirection)");
+      } else {
+        // Si c'est une autre erreur, la remonter
+        throw redirectError;
+      }
+    }
     
     // Enregistrer la tentative de réinitialisation pour le suivi (mais ne pas échouer si ça ne marche pas)
     try {
