@@ -21,7 +21,7 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       price: item.variant?.price || item.product.price,
       quantity: item.quantity,
       // Utiliser une propriété optionnelle avec opérateur de chaînage facultatif
-      stripeProductId: item.product.stripeProductId
+      stripeProductId: item.product?.stripeProductId
     }));
 
     // Appeler l'API Stripe via la fonction Edge de Supabase
