@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -45,12 +44,10 @@ const ProductDetail: React.FC = () => {
         const data = await getProductBySlug(slug);
         setProduct(data);
         
-        // Si le produit a des variantes, sélectionner la première par défaut
         if (data.product_variants && data.product_variants.length > 0) {
           setSelectedVariant(data.product_variants[0]);
         }
         
-        // Charger les produits similaires
         if (data.category_id) {
           const similar = await getSimilarProducts(data.id, data.category_id);
           setSimilarProducts(similar);
@@ -65,7 +62,7 @@ const ProductDetail: React.FC = () => {
     };
     
     loadProduct();
-    window.scrollTo(0, 0); // Faire défiler en haut de la page
+    window.scrollTo(0, 0);
   }, [slug, navigate]);
 
   const handleAddToCart = async () => {
@@ -129,7 +126,6 @@ const ProductDetail: React.FC = () => {
       <Header />
       <main className="flex-grow pt-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Navigation */}
           <div className="py-4">
             <Button variant="ghost" onClick={() => navigate(-1)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -137,9 +133,7 @@ const ProductDetail: React.FC = () => {
             </Button>
           </div>
           
-          {/* Détails du produit */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* Image du produit */}
             <div className="bg-gray-50 rounded-lg overflow-hidden">
               {product.image_url ? (
                 <img 
@@ -154,7 +148,6 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
             
-            {/* Informations produit */}
             <div>
               <h1 className="text-3xl font-bold">{product.name}</h1>
               
@@ -176,12 +169,10 @@ const ProductDetail: React.FC = () => {
                 {inStock ? 'En stock' : 'Rupture de stock'}
               </div>
               
-              {/* Description */}
               <div className="mt-4">
                 <p className="text-muted-foreground">{product.description}</p>
               </div>
               
-              {/* Variantes */}
               {product.product_variants && product.product_variants.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-medium mb-2">Options</h3>
@@ -212,7 +203,6 @@ const ProductDetail: React.FC = () => {
                 </div>
               )}
               
-              {/* Quantité */}
               <div className="mt-6">
                 <h3 className="font-medium mb-2">Quantité</h3>
                 <div className="flex items-center">
@@ -236,7 +226,6 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
               
-              {/* Boutons d'action */}
               <div className="mt-8 flex gap-4">
                 <Button 
                   size="lg" 
@@ -253,7 +242,6 @@ const ProductDetail: React.FC = () => {
                 </Button>
               </div>
               
-              {/* Informations supplémentaires */}
               <div className="mt-8 space-y-4">
                 <div className="flex items-start gap-3">
                   <Truck className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -265,8 +253,8 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <h4 className="font-medium">Garantie de 2 ans</h4>
-                    <p className="text-sm text-muted-foreground">Tous nos produits sont garantis</p>
+                    <h4 className="font-medium">Garantie de 24 mois</h4>
+                    <p className="text-sm text-muted-foreground">Sous réserve d'une utilisation adaptée</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -280,7 +268,6 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
           
-          {/* Onglets d'informations supplémentaires */}
           <div className="mb-12">
             <Tabs defaultValue="description">
               <TabsList className="grid w-full grid-cols-3">
@@ -306,7 +293,6 @@ const ProductDetail: React.FC = () => {
             </Tabs>
           </div>
           
-          {/* Produits similaires */}
           {similarProducts.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold mb-6">Produits similaires</h2>

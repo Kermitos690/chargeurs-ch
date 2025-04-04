@@ -1,4 +1,3 @@
-
 import { getCartItems, clearCart } from './cart';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,7 +27,7 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
     // Pour les accessoires, on peut chercher le stripeProductId via les données statiques
     // Cette solution temporaire permet de faire fonctionner le code sans modifier le type
     try {
-      const { data: accessoriesModule } = await import('@/data/accessories');
+      const accessoriesModule = await import('@/data/accessories');
       if (accessoriesModule && accessoriesModule.accessories) {
         const accessories = accessoriesModule.accessories;
         
