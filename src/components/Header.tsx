@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { Menu, X, User, MapPin, Battery, LogIn, LogOut } from 'lucide-react';
+import { Menu, X, User, MapPin, LogIn, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
 import { auth } from '@/services/firebase';
@@ -49,7 +48,11 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center z-50">
-          <Battery className="mr-2 h-6 w-6 text-primary" />
+          <img 
+            src="/lovable-uploads/e91a302c-6f8e-4a87-93ff-3fff9ee39ef0.png" 
+            alt="chargeurs.ch logo" 
+            className="h-8 w-auto mr-2"
+          />
           <span className="text-xl font-semibold tracking-tight">chargeurs.ch</span>
         </Link>
 
@@ -145,6 +148,13 @@ const Header = () => {
         )}
       >
         <nav className="flex flex-col items-center space-y-6">
+          <div className="flex items-center mb-4">
+            <img 
+              src="/lovable-uploads/e91a302c-6f8e-4a87-93ff-3fff9ee39ef0.png" 
+              alt="chargeurs.ch logo" 
+              className="h-12 w-auto"
+            />
+          </div>
           <Link 
             to="/features" 
             className="text-lg font-medium"
