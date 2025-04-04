@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BatteryFull, MapPin, Clock, Shield, Smartphone, CreditCard } from 'lucide-react';
@@ -24,7 +23,7 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Sécurité optimale",
-      description: "Garantie de 24 mois sur tout notre matériel sous réserve d'une utilisation appropriée."
+      description: "Garantie de 24 mois sur nos bornes et 12 mois sur nos powerbanks sous réserve d'une utilisation appropriée."
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,

@@ -130,7 +130,8 @@ const Conditions = () => {
               Nos produits bénéficient des garanties suivantes:
             </p>
             <ul>
-              <li>Garantie de 24 mois sur tout notre matériel à compter de la date d'achat</li>
+              <li>Garantie de 24 mois sur nos bornes de recharge à compter de la date d'achat</li>
+              <li>Garantie de 12 mois sur nos powerbanks à compter de la date d'achat</li>
             </ul>
             <p>
               Ces garanties s'appliquent uniquement sous réserve d'une utilisation appropriée des produits, et ne couvrent pas les dommages résultant d'une utilisation inappropriée, d'accidents, ou de modifications non autorisées.
