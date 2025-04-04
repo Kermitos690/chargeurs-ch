@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { Battery, Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { resetPassword } from '@/services/firebase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -23,6 +23,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -34,6 +35,8 @@ const ResetPassword = () => {
 
     try {
       console.log("Attempting to reset password for:", email);
+      console.log("Retry count:", retryCount);
+      
       // Ensure the origin URL is correct for the current environment
       const originUrl = window.location.origin;
       console.log("Current origin for reset:", originUrl);
@@ -43,12 +46,15 @@ const ResetPassword = () => {
       
       if (result.success) {
         setEmailSent(true);
+        setRetryCount(0);
         toast({
           title: "Email envoyé",
           description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
         });
       } else {
         setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
+        setRetryCount(prev => prev + 1);
+        
         toast({
           variant: "destructive",
           title: "Erreur",
@@ -58,6 +64,8 @@ const ResetPassword = () => {
     } catch (error: any) {
       console.error("Error in reset password:", error);
       setError("Une erreur inattendue s'est produite");
+      setRetryCount(prev => prev + 1);
+      
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -106,7 +114,15 @@ const ResetPassword = () => {
                   {error && (
                     <div className="bg-red-50 p-3 rounded-md flex items-start">
                       <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-red-800">{error}</p>
+                      <div className="text-sm text-red-800">
+                        <p>{error}</p>
+                        {retryCount > 1 && (
+                          <p className="mt-1">
+                            Astuce: Vérifiez que votre adresse email est correcte. Si vous n'avez pas de compte, 
+                            vous pouvez en <Link to="/auth/register" className="font-medium text-primary hover:underline">créer un nouveau</Link>.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                   
@@ -142,20 +158,22 @@ const ResetPassword = () => {
                       Cliquez sur le lien dans l'email pour être redirigé vers une page où vous pourrez créer un nouveau mot de passe.
                     </p>
                     <p className="font-medium text-primary">
-                      Important: Le lien vous redirigera vers la page de connexion après avoir réinitialisé votre mot de passe.
+                      Important: Le lien est valable pour une durée limitée et vous redirigera vers la page de connexion après avoir réinitialisé votre mot de passe.
                     </p>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="mt-2" 
-                    onClick={() => {
-                      setEmailSent(false);
-                      setEmail('');
-                      setError(null);
-                    }}
-                  >
-                    Réessayer avec une autre adresse
-                  </Button>
+                  <div className="flex flex-col space-y-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setEmailSent(false);
+                        setEmail('');
+                        setError(null);
+                      }}
+                    >
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Réessayer avec une autre adresse
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

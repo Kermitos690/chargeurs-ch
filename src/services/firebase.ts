@@ -9,7 +9,8 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
-  ActionCodeSettings
+  ActionCodeSettings,
+  confirmPasswordReset
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -63,7 +64,8 @@ export {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  confirmPasswordReset
 };
 
 // Service d'authentification
@@ -107,10 +109,11 @@ export const authStateListener = (callback: (user: User | null) => void) => {
 export const resetPassword = async (email: string) => {
   try {
     // Configuration pour le lien de réinitialisation
+    const originUrl = window.location.origin;
     const actionCodeSettings: ActionCodeSettings = {
       // URL de redirection après réinitialisation du mot de passe
-      url: `${window.location.origin}/auth/login`,
-      handleCodeInApp: true
+      url: `${originUrl}/auth/login`,
+      handleCodeInApp: false // Changement important pour Firebase Auth
     };
 
     console.log("Sending password reset with settings:", actionCodeSettings);
@@ -127,6 +130,16 @@ export const resetPassword = async (email: string) => {
       
       if (querySnapshot.empty) {
         console.log("No user found in Firestore with this email, but reset email was sent");
+        
+        // Optionnel: créer une entrée utilisateur dans Firestore si aucune n'existe
+        // Cela peut être utile pour suivre les demandes de réinitialisation
+        /*
+        await addDoc(collection(db, 'passwordResetRequests'), {
+          email,
+          requestedAt: serverTimestamp(),
+          status: 'pending'
+        });
+        */
       } else {
         console.log("User found in Firestore, reset email sent");
       }
@@ -148,7 +161,7 @@ export const resetPassword = async (email: string) => {
       errorMessage = 'Trop de tentatives, veuillez réessayer plus tard';
     }
     
-    return { success: false, error: errorMessage };
+    return { success: false, error: errorMessage, code: error.code };
   }
 };
 
