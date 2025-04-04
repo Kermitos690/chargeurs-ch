@@ -1,160 +1,10 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, PresentationControls, Environment, Float, Text } from '@react-three/drei';
-import * as THREE from 'three';
-
-const PowerBankModel = () => {
-  // Model refs
-  const meshRef = useRef<THREE.Mesh>(null);
-  const batteryLevelRef = useRef<THREE.Mesh>(null);
-  const brandTextRef = useRef<THREE.Mesh>(null);
-  
-  // Battery animation state
-  const [batteryLevel, setBatteryLevel] = useState(0.5);
-  const [chargingUp, setChargingUp] = useState(true);
-  
-  // Parallax effect based on mouse movement
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    
-    // Smooth rotation based on mouse movement
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(
-      meshRef.current.rotation.y,
-      (state.mouse.x * Math.PI) / 5,
-      0.05
-    );
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(
-      meshRef.current.rotation.x,
-      (state.mouse.y * Math.PI) / 10,
-      0.05
-    );
-    
-    // Animate battery level for charging effect
-    if (batteryLevelRef.current) {
-      if (chargingUp) {
-        setBatteryLevel(prev => {
-          const newLevel = prev + 0.003;
-          if (newLevel >= 0.95) setChargingUp(false);
-          return Math.min(newLevel, 0.95);
-        });
-      } else {
-        setBatteryLevel(prev => {
-          const newLevel = prev - 0.002;
-          if (newLevel <= 0.4) setChargingUp(true);
-          return Math.max(newLevel, 0.4);
-        });
-      }
-      
-      // Update battery indicator height
-      batteryLevelRef.current.scale.y = batteryLevel;
-      batteryLevelRef.current.position.y = -0.9 + batteryLevel * 0.9;
-      
-      // Update battery color based on charge level
-      const material = batteryLevelRef.current.material as THREE.MeshBasicMaterial;
-      material.color.setHSL(0.33 * batteryLevel, 0.9, 0.6); // Green to yellow-green
-    }
-  });
-
-  // Creating parallax lightning effect
-  const ChargeParticles = () => {
-    const particlesRef = useRef<THREE.Group>(null);
-    
-    useFrame((state) => {
-      if (!particlesRef.current) return;
-      
-      // Subtle floating movement
-      particlesRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.05;
-      
-      // Rotate based on mouse with parallax effect
-      particlesRef.current.rotation.y = THREE.MathUtils.lerp(
-        particlesRef.current.rotation.y,
-        (state.mouse.x * Math.PI) / 15,
-        0.02
-      );
-    });
-    
-    return (
-      <group ref={particlesRef} position={[0, 0, 0]}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <mesh 
-            key={i} 
-            position={[
-              (Math.random() - 0.5) * 1.5,
-              (Math.random() - 0.5) * 2.5,
-              (Math.random() - 0.5) * 0.3 + 0.4
-            ]}
-          >
-            <sphereGeometry args={[0.03, 8, 8]} />
-            <meshBasicMaterial 
-              color={chargingUp ? "#10B981" : "#60A5FA"} 
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-        ))}
-      </group>
-    );
-  };
-
-  return (
-    <Float 
-      speed={1.5} 
-      rotationIntensity={0.2} 
-      floatIntensity={0.5}
-      position={[0, 0, 0]}
-      // Increase the size by 40% by applying a scale of 1.4
-      scale={[1.4, 1.4, 1.4]}
-    >
-      {/* Main power bank body */}
-      <mesh ref={meshRef} castShadow>
-        <boxGeometry args={[1.2, 2.5, 0.5]} />
-        <meshStandardMaterial 
-          color="#3B82F6" 
-          roughness={0.3}
-          metalness={0.8}
-          emissive="#1E40AF"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-
-      {/* Battery level indicator with dynamic scale */}
-      <mesh 
-        ref={batteryLevelRef} 
-        position={[0, -0.9 + batteryLevel * 0.9, 0.26]} 
-        scale={[1, batteryLevel, 1]}
-      >
-        <boxGeometry args={[0.8, 1.8, 0.02]} />
-        <meshBasicMaterial color="#10B981" />
-      </mesh>
-
-      {/* Charging port */}
-      <mesh position={[0, -1.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.1, 16]} />
-        <meshStandardMaterial color="#1F2937" metalness={0.9} roughness={0.2} />
-      </mesh>
-
-      {/* Brand text position */}
-      <mesh ref={brandTextRef} position={[0, -0.9, 0.26]}>
-        <boxGeometry args={[0.8, 0.3, 0.01]} />
-        <meshBasicMaterial color="#F9FAFB" />
-      </mesh>
-      
-      {/* Charge particles for electricity effect */}
-      <ChargeParticles />
-      
-      {/* Power indicator light */}
-      <mesh position={[0.4, 1.1, 0.26]}>
-        <sphereGeometry args={[0.05, 16, 16]} />
-        <meshBasicMaterial color={chargingUp ? "#10B981" : "#60A5FA"} />
-      </mesh>
-    </Float>
-  );
-};
 
 const HeroModel3D = () => {
   // Refs for parallax container
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
   // Handle mouse movement for container parallax
@@ -172,7 +22,7 @@ const HeroModel3D = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-  
+
   return (
     <div 
       ref={containerRef} 
@@ -208,31 +58,31 @@ const HeroModel3D = () => {
         </g>
       </svg>
 
-      <Canvas
-        className="z-20"
-        shadows
-        dpr={[1, 2]}
-        camera={{ position: [0, 0, 4], fov: 35 }}
+      {/* Charging station image with parallax effect */}
+      <div 
+        className="relative h-full w-full flex items-center justify-center z-20"
         style={{
           transform: `translateX(${mousePosition.x * 15}px) translateY(${mousePosition.y * 15}px) rotateY(${mousePosition.x * 5}deg) rotateX(${-mousePosition.y * 5}deg)`,
           transition: 'transform 0.1s ease-out'
         }}
       >
-        <color attach="background" args={['#f8fafc']} />
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-        <PresentationControls
-          global
-          config={{ mass: 2, tension: 500 }}
-          snap={{ mass: 4, tension: 300 }}
-          rotation={[0, 0, 0]}
-          polar={[-Math.PI / 3, Math.PI / 3]}
-          azimuth={[-Math.PI / 1.4, Math.PI / 2]}
-        >
-          <PowerBankModel />
-        </PresentationControls>
-        <Environment preset="city" />
-      </Canvas>
+        <div className="relative w-full h-full flex items-center justify-center">
+          <img 
+            ref={imageRef}
+            src="/lovable-uploads/478a170b-6b38-4e9e-acf6-4aee7c34d07b.png" 
+            alt="Charging Station" 
+            className="max-w-full max-h-full object-contain transform scale-140 animate-float-3d"
+            style={{
+              filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15))"
+            }}
+          />
+          
+          {/* Animated glow effect */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="absolute w-[80%] h-[80%] rounded-full bg-green-500 opacity-20 filter blur-2xl animate-pulse-glow" />
+          </div>
+        </div>
+      </div>
       
       {/* Overlay text with parallax effect */}
       <div 
