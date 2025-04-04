@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -13,7 +14,7 @@ const Footer = () => {
               <h3 className="text-lg font-semibold">chargeurs.ch</h3>
             </div>
             <p className="text-muted-foreground mb-4 text-sm">
-              Votre partenaire de confiance pour la location de powerbanks dans les bars et restaurants en Suisse.
+              Votre partenaire de confiance pour la location de powerbanks dans les bars et restaurants en Suisse Romande.
             </p>
             <div className="flex space-x-4">
               {/* Social Media Icons */}
