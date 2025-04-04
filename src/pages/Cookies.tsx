@@ -1,12 +1,76 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { toast } from 'sonner';
+
+type CookiePreferences = {
+  necessary: boolean;
+  functional: boolean;
+  analytics: boolean;
+  targeting: boolean;
+};
 
 const Cookies = () => {
+  const [preferences, setPreferences] = useState<CookiePreferences>(() => {
+    // Tenter de récupérer les préférences enregistrées
+    const savedPrefs = localStorage.getItem('cookiePreferences');
+    if (savedPrefs) {
+      try {
+        return JSON.parse(savedPrefs);
+      } catch (e) {
+        console.error('Erreur lors de la lecture des préférences de cookies:', e);
+      }
+    }
+    // Valeurs par défaut
+    return {
+      necessary: true, // Toujours activé
+      functional: false,
+      analytics: false,
+      targeting: false
+    };
+  });
+
+  // Enregistrer les préférences dans localStorage quand elles changent
+  useEffect(() => {
+    localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+  }, [preferences]);
+
+  const handleAcceptCookie = (type: keyof CookiePreferences) => {
+    if (type === 'necessary') return; // On ne peut pas modifier celle-ci
+    setPreferences(prev => ({ ...prev, [type]: true }));
+    toast.success(`Cookies ${type} acceptés`);
+  };
+
+  const handleRejectCookie = (type: keyof CookiePreferences) => {
+    if (type === 'necessary') return; // On ne peut pas modifier celle-ci
+    setPreferences(prev => ({ ...prev, [type]: false }));
+    toast.success(`Cookies ${type} rejetés`);
+  };
+
+  const handleAcceptAll = () => {
+    setPreferences({
+      necessary: true,
+      functional: true,
+      analytics: true,
+      targeting: true
+    });
+    toast.success('Tous les cookies ont été acceptés');
+  };
+
+  const handleRejectAll = () => {
+    setPreferences({
+      necessary: true, // Toujours activé
+      functional: false,
+      analytics: false,
+      targeting: false
+    });
+    toast.success('Tous les cookies optionnels ont été rejetés');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -118,25 +182,58 @@ const Cookies = () => {
                     <h4 className="font-medium">Cookies de fonctionnalité</h4>
                     <p className="text-sm text-muted-foreground">Améliorent votre expérience</p>
                   </div>
-                  <Button variant="outline">Accepter</Button>
+                  <Button 
+                    variant={preferences.functional ? "default" : "outline"} 
+                    onClick={() => preferences.functional ? 
+                      handleRejectCookie('functional') : 
+                      handleAcceptCookie('functional')
+                    }
+                  >
+                    {preferences.functional ? 'Accepté' : 'Accepter'}
+                  </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium">Cookies d'analyse</h4>
                     <p className="text-sm text-muted-foreground">Nous aident à améliorer notre site</p>
                   </div>
-                  <Button variant="outline">Accepter</Button>
+                  <Button 
+                    variant={preferences.analytics ? "default" : "outline"} 
+                    onClick={() => preferences.analytics ? 
+                      handleRejectCookie('analytics') : 
+                      handleAcceptCookie('analytics')
+                    }
+                  >
+                    {preferences.analytics ? 'Accepté' : 'Accepter'}
+                  </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium">Cookies de ciblage</h4>
                     <p className="text-sm text-muted-foreground">Personnalisent les publicités</p>
                   </div>
-                  <Button variant="outline">Accepter</Button>
+                  <Button 
+                    variant={preferences.targeting ? "default" : "outline"} 
+                    onClick={() => preferences.targeting ? 
+                      handleRejectCookie('targeting') : 
+                      handleAcceptCookie('targeting')
+                    }
+                  >
+                    {preferences.targeting ? 'Accepté' : 'Accepter'}
+                  </Button>
                 </div>
                 <div className="flex justify-between mt-6">
-                  <Button variant="outline">Rejeter tout</Button>
-                  <Button>Accepter tout</Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRejectAll}
+                  >
+                    Rejeter tout
+                  </Button>
+                  <Button 
+                    onClick={handleAcceptAll}
+                  >
+                    Accepter tout
+                  </Button>
                 </div>
               </div>
             </div>
