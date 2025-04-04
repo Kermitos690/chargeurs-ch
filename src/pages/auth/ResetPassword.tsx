@@ -30,7 +30,9 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
+      console.log("Attempting to reset password for:", email);
       const result = await resetPassword(email);
+      console.log("Reset password result:", result);
       
       if (result.success) {
         setEmailSent(true);
@@ -46,6 +48,7 @@ const ResetPassword = () => {
         });
       }
     } catch (error: any) {
+      console.error("Error in reset password:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -87,6 +90,7 @@ const ResetPassword = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
