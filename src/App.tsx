@@ -20,7 +20,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import NewPassword from "./pages/auth/NewPassword"; // Ajout de la nouvelle page
+import NewPassword from "./pages/auth/NewPassword"; 
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -34,6 +34,13 @@ import ProduitsResidentiels from "./pages/produits/Residentiels";
 import ProduitsEntreprises from "./pages/produits/Entreprises";
 import ProduitsPubliques from "./pages/produits/Publiques";
 import ProduitsAccessoires from "./pages/produits/Accessoires";
+
+// Pages de boutique
+import Products from "./pages/shop/Products";
+import ProductDetail from "./pages/shop/ProductDetail";
+import Cart from "./pages/shop/Cart";
+import CheckoutSuccess from "./pages/shop/CheckoutSuccess";
+import CheckoutCancel from "./pages/shop/CheckoutCancel";
 
 // Services
 import ServicesInstallation from "./pages/services/Installation";
@@ -75,6 +82,13 @@ const App = () => (
             <Route path="/profile" element={<RouteGuard><Profile /></RouteGuard>} />
             <Route path="/stations" element={<RouteGuard><StationsMap /></RouteGuard>} />
             <Route path="/appointment" element={<RouteGuard><Appointment /></RouteGuard>} />
+            
+            {/* Routes de boutique */}
+            <Route path="/produits" element={<Products />} />
+            <Route path="/produits/:slug" element={<ProductDetail />} />
+            <Route path="/panier" element={<Cart />} />
+            <Route path="/checkout/success" element={<CheckoutSuccess />} />
+            <Route path="/checkout/cancel" element={<CheckoutCancel />} />
             
             {/* Routes de produits */}
             <Route path="/produits/residentiels" element={<ProduitsResidentiels />} />

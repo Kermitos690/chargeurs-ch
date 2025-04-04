@@ -59,9 +59,9 @@ const NewPassword = () => {
 
     try {
       // Appeler la fonction de Firebase pour confirmer la réinitialisation
-      const result = await confirmPasswordReset(oobCode, password);
+      const result = await confirmPasswordReset(oobCode, password, undefined);
       
-      if (result.success) {
+      if (result && result.success) {
         setSuccess(true);
         toast({
           title: "Mot de passe mis à jour",
@@ -73,11 +73,11 @@ const NewPassword = () => {
           navigate('/auth/login');
         }, 3000);
       } else {
-        setError(result.error || "Une erreur est survenue lors de la réinitialisation du mot de passe.");
+        setError(result && result.error ? result.error : "Une erreur est survenue lors de la réinitialisation du mot de passe.");
         toast({
           variant: "destructive",
           title: "Erreur",
-          description: result.error || "Une erreur est survenue",
+          description: result && result.error ? result.error : "Une erreur est survenue",
         });
       }
     } catch (error: any) {

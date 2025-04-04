@@ -1,240 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { cn } from "@/lib/utils";
-import { Menu, X, User, MapPin, LogIn, LogOut } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { auth } from '@/services/firebase';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LogOut, User, Settings, HelpCircle } from 'lucide-react';
+import { clearCart } from '@/services/cart'; // Import clearCart
 import { toast } from 'sonner';
+// Ajouter l'import pour CartIcon
+import CartIcon from './shop/CartIcon';
 
 const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const { user, userData } = useAuth();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
 
   const handleLogout = async () => {
     try {
+      await clearCart(user?.uid); // Clear cart on logout
       await auth.signOut();
-      toast.success("Vous êtes déconnecté");
-      navigate('/');
-    } catch (error) {
-      console.error("Erreur de déconnexion:", error);
-      toast.error("Une erreur est survenue lors de la déconnexion");
+      navigate('/auth/login');
+      toast.success("Déconnexion réussie !");
+    } catch (error: any) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast.error("Erreur lors de la déconnexion");
     }
   };
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4 px-6 md:px-12",
-        isScrolled ? "bg-white/80 backdrop-blur-lg shadow-subtle" : "bg-transparent"
-      )}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center z-50">
-          <img 
-            src="/lovable-uploads/e91a302c-6f8e-4a87-93ff-3fff9ee39ef0.png" 
-            alt="chargeurs.ch logo" 
-            className="h-8 w-auto mr-2"
-          />
-          <span className="text-xl font-semibold tracking-tight">chargeurs.ch</span>
+    <header className="bg-background border-b">
+      <div className="container flex items-center justify-between h-16">
+        <Link to="/" className="font-bold text-2xl">
+          Chargeurs Coop
         </Link>
-
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link 
-            to="/features" 
-            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
-          >
+        <nav className="hidden md:flex items-center space-x-6">
+          <NavLink to="/" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
+            Accueil
+          </NavLink>
+          <NavLink to="/features" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
             Fonctionnalités
-          </Link>
-          <Link 
-            to="/stations" 
-            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors flex items-center"
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Nos bornes
-          </Link>
-          <Link 
-            to="/subscriptions" 
-            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
-          >
-            Abonnements
-          </Link>
-          <Link 
-            to="/about" 
-            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
-          >
+          </NavLink>
+          <NavLink to="/about" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
             À propos
-          </Link>
-          <Link 
-            to="/contact" 
-            className="link-underline text-sm font-medium text-foreground/90 hover:text-foreground transition-colors"
-          >
+          </NavLink>
+          <NavLink to="/contact" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
             Contact
-          </Link>
-          {!loading && (
-            <>
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <Link to="/account">
-                    <Button 
-                      className="bg-primary hover:bg-primary/90 text-white rounded-full"
-                      size="sm"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Mon Compte
-                    </Button>
-                  </Link>
-                  <Button 
-                    onClick={handleLogout}
-                    variant="ghost" 
-                    size="sm"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Déconnexion
-                  </Button>
-                </div>
-              ) : (
-                <Link to="/auth/login">
-                  <Button 
-                    className="bg-primary hover:bg-primary/90 text-white rounded-full"
-                    size="sm"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Connexion
-                  </Button>
-                </Link>
-              )}
-            </>
-          )}
+          </NavLink>
+          <NavLink to="/produits" className={({ isActive }) => isActive ? "text-primary underline underline-offset-4" : ""}>
+            Boutique
+          </NavLink>
         </nav>
-
-        {/* Mobile Menu Toggle */}
-        <button 
-          className="md:hidden flex items-center justify-center z-50"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-        >
-          {isMobileMenuOpen ? (
-            <X className="w-6 h-6" />
+        <div className="flex items-center space-x-4">
+          <CartIcon />
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                    <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/account')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Paramètres</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/faq')}>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Aide</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Se déconnecter</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Menu className="w-6 h-6" />
-          )}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      <div 
-        className={cn(
-          "fixed inset-0 bg-white z-40 md:hidden transition-transform duration-300 ease-in-out pt-24 px-6",
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        <nav className="flex flex-col items-center space-y-6">
-          <div className="flex items-center mb-4">
-            <img 
-              src="/lovable-uploads/e91a302c-6f8e-4a87-93ff-3fff9ee39ef0.png" 
-              alt="chargeurs.ch logo" 
-              className="h-12 w-auto"
-            />
-          </div>
-          <Link 
-            to="/features" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Fonctionnalités
-          </Link>
-          <Link 
-            to="/stations" 
-            className="text-lg font-medium flex items-center"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <MapPin className="w-5 h-5 mr-1.5" />
-            Nos bornes
-          </Link>
-          <Link 
-            to="/subscriptions" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Abonnements
-          </Link>
-          <Link 
-            to="/about" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            À propos
-          </Link>
-          <Link 
-            to="/contact" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Contact
-          </Link>
-          {!loading && (
             <>
-              {user ? (
-                <>
-                  <Link 
-                    to="/account"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Button 
-                      className="bg-primary hover:bg-primary/90 text-white rounded-full w-full"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Mon Compte
-                    </Button>
-                  </Link>
-                  <Button 
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    variant="outline" 
-                    className="w-full"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Déconnexion
-                  </Button>
-                </>
-              ) : (
-                <Link 
-                  to="/auth/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full"
-                >
-                  <Button 
-                    className="bg-primary hover:bg-primary/90 text-white rounded-full w-full"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Connexion
-                  </Button>
-                </Link>
-              )}
+              <Button variant="outline" size="sm" onClick={() => navigate('/auth/login')}>
+                Se connecter
+              </Button>
+              <Button size="sm" onClick={() => navigate('/auth/register')}>
+                S'inscrire
+              </Button>
             </>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );
