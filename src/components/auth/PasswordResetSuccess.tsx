@@ -67,7 +67,7 @@ export const PasswordResetSuccess = ({ email, onReset }: PasswordResetSuccessPro
         </Button>
         
         <a 
-          href="https://console.firebase.google.com/project/chargeurs-ch/authentication/emails" 
+          href="mailto:support@chargeurs.ch" 
           target="_blank" 
           rel="noopener noreferrer" 
           className="block text-xs text-gray-500 hover:underline mt-2"

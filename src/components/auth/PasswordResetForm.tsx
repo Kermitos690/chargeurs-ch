@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, Mail, Info } from 'lucide-react';
 import { resetPassword } from '@/services/firebase/auth';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface PasswordResetFormProps {
   onSuccess: (email: string) => void;
@@ -45,7 +45,21 @@ export const PasswordResetForm = ({
           description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
         });
       } else {
-        setError(result.error || "Une erreur est survenue lors de l'envoi de l'email");
+        // Traduction améliorée des messages d'erreur
+        let errorMessage = result.error || "Une erreur est survenue lors de l'envoi de l'email";
+        
+        // Messages d'erreur plus précis en français
+        if (result.code === 'auth/user-not-found') {
+          errorMessage = "Une erreur est survenue lors de la réinitialisation du mot de passe";
+        } else if (result.code === 'auth/invalid-email') {
+          errorMessage = "L'adresse email n'est pas valide";
+        } else if (result.code === 'auth/too-many-requests') {
+          errorMessage = "Trop de tentatives, veuillez réessayer plus tard";
+        } else if (result.code === 'auth/network-request-failed') {
+          errorMessage = "Problème de connexion réseau. Vérifiez votre connexion internet.";
+        }
+        
+        setError(errorMessage);
         
         // Stocker l'erreur détaillée pour débogage
         if (result.details) {
@@ -64,12 +78,12 @@ export const PasswordResetForm = ({
         toast({
           variant: "destructive",
           title: "Erreur",
-          description: result.error || "Une erreur est survenue lors de l'envoi de l'email",
+          description: errorMessage,
         });
       }
     } catch (error: any) {
       console.error("Erreur inattendue dans la réinitialisation:", error);
-      setError("Une erreur inattendue s'est produite");
+      setError("Une erreur est survenue lors de la réinitialisation du mot de passe");
       setDetailedError(error.message || "Erreur inconnue");
       onRetryCountUpdate();
       
@@ -95,6 +109,7 @@ export const PasswordResetForm = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
+          aria-invalid={!!error}
         />
       </div>
       
