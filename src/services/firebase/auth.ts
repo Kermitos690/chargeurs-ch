@@ -64,9 +64,15 @@ export const authStateListener = (callback: (user: User | null) => void) => {
 // Password reset service
 export const resetPassword = async (email: string) => {
   try {
-    // We don't use ActionCodeSettings as it can cause issues
-    // with certain Firebase configurations
     console.log("Starting password reset process for:", email);
+    
+    // Define actionCodeSettings for the password reset
+    const actionCodeSettings = {
+      // URL you want to redirect back to after password reset
+      url: window.location.origin + '/auth/login',
+      // This must be true for password reset emails
+      handleCodeInApp: false
+    };
     
     // First check if the user exists in Firestore
     try {
@@ -85,9 +91,8 @@ export const resetPassword = async (email: string) => {
       // Continue with the reset anyway
     }
     
-    // Send the password reset email without specific ActionCodeSettings
-    // Firebase will use the default settings configured in the Firebase console
-    await sendPasswordResetEmail(auth, email);
+    // Send the password reset email with actionCodeSettings
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
     console.log("Password reset email sent successfully");
     
     return { success: true };
