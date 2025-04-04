@@ -1,9 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin } from 'lucide-react';
+import { ArrowRight, MapPin, Battery, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import HeroModel3D from './HeroModel3D';
 
 const Hero = () => {
   const circleRef = useRef<HTMLDivElement>(null);
@@ -59,6 +60,23 @@ const Hero = () => {
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
                 Des solutions de recharge innovantes, fiables et accessibles pour les particuliers et les entreprises dans tout le canton de Vaud.
               </p>
+              
+              {/* Feature bullets with icons */}
+              <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-primary/10 p-1.5">
+                    <Battery className="h-4 w-4 text-primary" />
+                  </div>
+                  <span className="text-sm">Charge ultra-rapide</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-primary/10 p-1.5">
+                    <Zap className="h-4 w-4 text-primary" />
+                  </div>
+                  <span className="text-sm">Tech dxnsmiwur 2025</span>
+                </div>
+              </div>
+              
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button size="lg" className="rounded-full group transition-all duration-300 hover:pr-7">
                   Découvrir nos solutions
@@ -75,16 +93,11 @@ const Hero = () => {
           </div>
           
           <div className={`order-1 lg:order-2 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="relative">
-              <div className="glass-panel rounded-3xl overflow-hidden p-1 shadow-elevation transform transition-transform duration-500 hover:rotate-1 hover:scale-[1.02]">
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
-                  <img 
-                    src="/lovable-uploads/d57ec078-da32-4674-b9e7-64490acf74b3.png" 
-                    alt="Location de powerbanks"
-                    className="w-auto h-auto scale-140" 
-                    style={{ transform: "scale(1.4)" }}
-                    loading="eager"
-                  />
+            <div className="relative h-[400px]">
+              <div className="glass-panel rounded-3xl overflow-hidden h-full p-1 shadow-elevation transform transition-transform duration-500 hover:rotate-1 hover:scale-[1.02]">
+                <div className="rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 h-full relative">
+                  {/* 3D Model */}
+                  <HeroModel3D />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent mix-blend-overlay" />
                 </div>
               </div>
@@ -112,19 +125,6 @@ const Hero = () => {
               >
                 <p className="font-medium">Certifié Suisse</p>
                 <p className="text-sm text-muted-foreground">Qualité garantie</p>
-              </div>
-              
-              {/* New floating element */}
-              <div 
-                className="absolute top-1/2 -right-4 glass-panel rounded-2xl p-3 backdrop-blur-md shadow-elevation transition-all duration-500"
-                style={{ 
-                  animation: `fade-in 0.5s ease-out forwards ${isVisible ? '1.2s' : '0s'}`,
-                  opacity: 0,
-                  transform: 'translateY(10px)' 
-                }}
-              >
-                <p className="font-medium">dxnsmiwur 2025</p>
-                <p className="text-sm text-muted-foreground">Nouvelle génération</p>
               </div>
             </div>
           </div>

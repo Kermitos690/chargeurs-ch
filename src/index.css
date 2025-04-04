@@ -145,6 +145,35 @@
     transform: scaleX(1);
     transform-origin: bottom left;
   }
+
+  /* 3D Effect Utilities */
+  .perspective {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  
+  .rotate3d-hover {
+    transition: transform 0.3s ease;
+  }
+  
+  .rotate3d-hover:hover {
+    transform: rotate3d(1, 1, 0, 10deg);
+  }
+
+  .tilt-effect {
+    transition: transform 0.3s ease;
+  }
+  
+  .tilt-effect:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+  }
 }
 
 @font-face {
@@ -154,4 +183,31 @@
   font-style: normal;
   font-named-instance: 'Regular';
   src: url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+}
+
+/* Add keyframes for 3D animations */
+@keyframes float-3d {
+  0%, 100% {
+    transform: translateY(0) rotate3d(1, 1, 0, 0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate3d(1, 1, 0, 5deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
+  }
+  50% {
+    filter: brightness(1.1) drop-shadow(0 0 10px rgba(59, 130, 246, 0.7));
+  }
+}
+
+.animate-float-3d {
+  animation: float-3d 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
 }
