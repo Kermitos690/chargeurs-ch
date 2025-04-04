@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +18,25 @@ import { toast } from 'sonner';
 import CartIcon from './shop/CartIcon';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { auth } from '@/services/firebase';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 
 const Header = () => {
   const { user, userData } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -45,7 +59,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-background border-b">
+    <header className="bg-background border-b sticky top-0 z-50">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center">
           <img 
@@ -109,37 +123,28 @@ const Header = () => {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="outline" size="sm" onClick={() => navigate('/auth/login')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/auth/login')} className="hidden sm:flex">
                 Se connecter
               </Button>
-              <Button size="sm" onClick={() => navigate('/auth/register')}>
+              <Button size="sm" onClick={() => navigate('/auth/register')} className="hidden sm:flex">
                 S'inscrire
               </Button>
             </>
           )}
           
-          {/* Bouton de menu mobile */}
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
-              <div className="flex flex-col h-full">
-                <div className="p-4 border-b">
-                  <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-                    <img 
-                      src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
-                      alt="Chargeurs.ch Logo" 
-                      className="h-10 w-auto" 
-                    />
-                  </Link>
-                </div>
-                <nav className="flex-1 p-4">
-                  <ul className="space-y-2">
+          {/* Menu mobile avec Drawer en bas pour mobile et Sheet sur le côté pour tablette */}
+          {isMobile ? (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="bg-background p-4">
+                <div className="flex flex-col h-full space-y-4">
+                  <nav className="space-y-2">
                     {navItems.map((item) => (
-                      <li key={item.path}>
+                      <DrawerClose key={item.path} asChild>
                         <NavLink 
                           to={item.path} 
                           className={({ isActive }) => 
@@ -151,76 +156,138 @@ const Header = () => {
                         >
                           {item.label}
                         </NavLink>
-                      </li>
+                      </DrawerClose>
                     ))}
-                  </ul>
-                </nav>
-                {user ? (
-                  <div className="p-4 border-t">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
-                        <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
-                    </div>
-                    <div className="space-y-2">
+                  </nav>
+                  
+                  {!user && (
+                    <div className="flex flex-col space-y-2 pt-4">
                       <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
                         onClick={() => {
-                          navigate('/profile');
+                          navigate('/auth/login');
                           setIsMenuOpen(false);
                         }}
                       >
-                        <User className="mr-2 h-4 w-4" />
-                        Profil
+                        Se connecter
                       </Button>
                       <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
+                        variant="outline" 
                         onClick={() => {
-                          navigate('/account');
+                          navigate('/auth/register');
                           setIsMenuOpen(false);
                         }}
                       >
-                        <Settings className="mr-2 h-4 w-4" />
-                        Paramètres
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Se déconnecter
+                        S'inscrire
                       </Button>
                     </div>
+                  )}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b">
+                    <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
+                      <img 
+                        src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+                        alt="Chargeurs.ch Logo" 
+                        className="h-10 w-auto" 
+                      />
+                    </Link>
                   </div>
-                ) : (
-                  <div className="p-4 border-t flex flex-col space-y-2">
-                    <Button 
-                      onClick={() => {
-                        navigate('/auth/login');
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      Se connecter
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        navigate('/auth/register');
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      S'inscrire
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                  <nav className="flex-1 p-4">
+                    <ul className="space-y-2">
+                      {navItems.map((item) => (
+                        <li key={item.path}>
+                          <NavLink 
+                            to={item.path} 
+                            className={({ isActive }) => 
+                              `block p-2 rounded-md ${isActive 
+                                ? "bg-primary text-primary-foreground" 
+                                : "hover:bg-accent"}`
+                            }
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {item.label}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                  {user ? (
+                    <div className="p-4 border-t">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                          <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left" 
+                          onClick={() => {
+                            navigate('/profile');
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Profil
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left" 
+                          onClick={() => {
+                            navigate('/account');
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Paramètres
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left" 
+                          onClick={handleLogout}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Se déconnecter
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border-t flex flex-col space-y-2">
+                      <Button 
+                        onClick={() => {
+                          navigate('/auth/login');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Se connecter
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          navigate('/auth/register');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        S'inscrire
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </div>
     </header>
