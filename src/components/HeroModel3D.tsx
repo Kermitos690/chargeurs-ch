@@ -80,7 +80,7 @@ const HeroModel3D = () => {
       
       {/* Overlay text */}
       <div className="absolute bottom-6 right-6 z-10 glass-panel rounded-xl p-3 text-center backdrop-blur-md shadow-elevation animate-float">
-        <p className="font-medium text-gradient">dxnsmiwur 2025</p>
+        <p className="font-medium text-gradient">Nouvelle génération</p>
         <p className="text-sm text-muted-foreground">Innovation PowerBank</p>
       </div>
     </div>
