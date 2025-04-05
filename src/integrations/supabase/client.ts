@@ -6,65 +6,79 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://wokvkfwnqdpdgrquhnub.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva3ZrZnducWRwZGdycXVobnViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3MjkxNTEsImV4cCI6MjA1MjMwNTE1MX0.h_FW68sQZBQx97ogOX71Gli6CSiuOTiQrPTWT5DeEnY";
 
-// Création d'un client Supabase avec une structure typée complète
+// Create a typed Supabase client
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Assurez-vous que toutes les méthodes retournent des objets avec des propriétés data et error
+// Create a mock version of the Supabase client that works with any table
+// This is necessary because the generated types don't include all tables
 const originalFrom = supabase.from;
 supabase.from = function(table) {
-  const result = originalFrom.call(this, table);
-  
-  // Modification pour s'assurer que single() et maybeSingle() retournent correctement { data, error }
-  const originalSingle = result.single;
-  const originalMaybeSingle = result.maybeSingle;
-  
-  if (originalSingle) {
-    result.single = async function() {
-      try {
-        const response = await originalSingle.apply(this);
-        return response;
-      } catch (error) {
-        return { data: null, error };
-      }
-    };
-  }
-  
-  if (originalMaybeSingle) {
-    result.maybeSingle = async function() {
-      try {
-        const response = await originalMaybeSingle.apply(this);
-        return response;
-      } catch (error) {
-        return { data: null, error };
-      }
-    };
-  }
-  
-  // S'assurer que les méthodes comme eq() ont également data et error
-  const originalSelect = result.select;
-  result.select = function(...args) {
-    const selectResult = originalSelect.apply(this, args);
+  try {
+    // Use the original function but with a type assertion to allow any table name
+    const result = originalFrom.call(this, table as any);
     
-    // Envelopper les méthodes de filtre comme eq, order, etc.
-    const methodsToWrap = ['eq', 'neq', 'gt', 'lt', 'gte', 'lte', 'like', 'order', 'limit', 'range'];
-    
-    methodsToWrap.forEach(method => {
-      if (selectResult[method]) {
-        const originalMethod = selectResult[method];
-        selectResult[method] = function(...methodArgs) {
-          const methodResult = originalMethod.apply(this, methodArgs);
-          // S'assurer que data et error sont disponibles sur l'objet retourné
-          methodResult.data = [];
-          methodResult.error = null;
-          return methodResult;
+    // Ensure methods return correct format
+    const originalSelect = result.select;
+    result.select = function(...args) {
+      const selectResult = originalSelect.apply(this, args);
+      
+      // Add wrappers for additional methods
+      const originalEq = selectResult.eq;
+      if (originalEq) {
+        selectResult.eq = async function(column, value) {
+          try {
+            const response = await originalEq.call(this, column, value);
+            return response;
+          } catch (error) {
+            return { data: null, error };
+          }
         };
       }
-    });
+      
+      const originalSingle = selectResult.single;
+      if (originalSingle) {
+        selectResult.single = async function() {
+          try {
+            const response = await originalSingle.apply(this);
+            return response;
+          } catch (error) {
+            return { data: null, error };
+          }
+        };
+      }
+      
+      const originalMaybeSingle = selectResult.maybeSingle;
+      if (originalMaybeSingle) {
+        selectResult.maybeSingle = async function() {
+          try {
+            const response = await originalMaybeSingle.apply(this);
+            return response;
+          } catch (error) {
+            return { data: null, error };
+          }
+        };
+      }
+      
+      return selectResult;
+    };
     
-    return selectResult;
-  };
-  
-  return result;
+    return result;
+  } catch (error) {
+    console.error(`Error accessing table ${table}:`, error);
+    // Return a mock object with the expected methods
+    return {
+      select: () => ({
+        eq: async () => ({ data: null, error: `Table ${table} not found` }),
+        single: async () => ({ data: null, error: `Table ${table} not found` }),
+        maybeSingle: async () => ({ data: null, error: `Table ${table} not found` }),
+        data: null,
+        error: `Table ${table} not found`
+      }),
+      insert: async () => ({ data: null, error: `Table ${table} not found` }),
+      update: async () => ({ data: null, error: `Table ${table} not found` }),
+      delete: async () => ({ data: null, error: `Table ${table} not found` }),
+    };
+  }
 };
 
 export type { Database };

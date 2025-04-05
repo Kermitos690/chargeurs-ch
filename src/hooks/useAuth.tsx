@@ -33,13 +33,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkAdminRole = async () => {
       if (user) {
         try {
-          const result = await supabase.from('admin_roles')
+          const response = await supabase.from('admin_roles')
             .select('*')
             .eq('user_id', user.uid)
             .maybeSingle();
             
           // Vérifiez si le résultat contient des données
-          if (result && result.data) {
+          if (response && response.data) {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);

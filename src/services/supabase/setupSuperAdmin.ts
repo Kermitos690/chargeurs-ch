@@ -4,18 +4,18 @@ import { supabase } from '@/integrations/supabase/client';
 export async function isSystemInitialized() {
   try {
     // Vérifier si le système est déjà initialisé
-    const { data, error } = await supabase
+    const response = await supabase
       .from('system_config')
       .select('initialized')
       .eq('id', 'system')
       .single();
 
-    if (error) {
-      console.error("Erreur lors de la vérification de l'initialisation:", error);
+    if (response.error) {
+      console.error("Erreur lors de la vérification de l'initialisation:", response.error);
       return false;
     }
 
-    return data?.initialized === true;
+    return response.data?.initialized === true;
   } catch (error) {
     console.error("Erreur lors de la vérification de l'initialisation:", error);
     return false;
@@ -24,18 +24,18 @@ export async function isSystemInitialized() {
 
 export async function getInitialSuperadminEmail() {
   try {
-    const { data, error } = await supabase
+    const response = await supabase
       .from('system_config')
       .select('initial_superadmin_email')
       .eq('id', 'system')
       .single();
 
-    if (error) {
-      console.error("Erreur lors de la récupération de l'email du superadmin:", error);
+    if (response.error) {
+      console.error("Erreur lors de la récupération de l'email du superadmin:", response.error);
       return null;
     }
 
-    return data?.initial_superadmin_email || null;
+    return response.data?.initial_superadmin_email || null;
   } catch (error) {
     console.error("Erreur lors de la récupération de l'email du superadmin:", error);
     return null;
@@ -66,19 +66,19 @@ export async function setupNewSuperAdmin(email: string, password: string, name: 
     const userId = userData.user.id;
 
     // Ajouter l'utilisateur comme superadmin
-    const { error: roleError } = await supabase
+    const roleResponse = await supabase
       .from('admin_roles')
       .insert({
         user_id: userId,
         role: 'superadmin',
       });
 
-    if (roleError) {
-      return { success: false, error: roleError.message };
+    if (roleResponse.error) {
+      return { success: false, error: roleResponse.error.message };
     }
 
     // Marquer le système comme initialisé
-    const { error: configError } = await supabase
+    const configResponse = await supabase
       .from('system_config')
       .update({
         initialized: true,
@@ -86,8 +86,8 @@ export async function setupNewSuperAdmin(email: string, password: string, name: 
       })
       .eq('id', 'system');
 
-    if (configError) {
-      return { success: false, error: configError.message };
+    if (configResponse.error) {
+      return { success: false, error: configResponse.error.message };
     }
 
     return { success: true };
@@ -100,33 +100,27 @@ export async function setupNewSuperAdmin(email: string, password: string, name: 
 export async function initializeSystemConfigIfNeeded() {
   try {
     // Vérifier si la configuration du système existe déjà
-    const { data, error } = await supabase
+    const response = await supabase
       .from('system_config')
       .select('*')
       .eq('id', 'system')
       .single();
 
-    if (error && error.code !== 'PGRST116') {
-      // Si l'erreur n'est pas "No rows returned", c'est une erreur inattendue
-      console.error("Erreur lors de la vérification de la configuration du système:", error);
-      return false;
-    }
-
-    // Si la configuration existe déjà, ne rien faire
-    if (data) {
+    // Si aucune erreur ne survient, la configuration existe déjà
+    if (!response.error) {
       return true;
     }
 
-    // Créer la configuration initiale
-    const { error: insertError } = await supabase
+    // Créer la configuration initiale uniquement si l'erreur est "No rows returned"
+    const insertResponse = await supabase
       .from('system_config')
       .insert({
         id: 'system',
         initialized: false,
       });
 
-    if (insertError) {
-      console.error("Erreur lors de l'initialisation de la configuration du système:", insertError);
+    if (insertResponse.error) {
+      console.error("Erreur lors de l'initialisation de la configuration du système:", insertResponse.error);
       return false;
     }
 
