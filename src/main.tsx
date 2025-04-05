@@ -40,16 +40,16 @@ const addNeonTracer = () => {
 
 // Add dynamic particles effect with softer colors
 const addNeonParticles = () => {
-  const particleCount = 20;
-  // Des couleurs moins vives
-  const colors = ['rgba(30, 174, 219, 0.6)', 'rgba(45, 140, 80, 0.6)', 'rgba(139, 92, 246, 0.6)'];
+  const particleCount = 10; // Reduced particle count
+  // Des couleurs encore moins vives et plus transparentes
+  const colors = ['rgba(30, 174, 219, 0.3)', 'rgba(45, 140, 80, 0.3)', 'rgba(139, 92, 246, 0.3)'];
 
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
     particle.className = 'neon-particle';
     
     // Random position, size, and animation delay
-    const size = Math.random() * 6 + 2; // Size réduite
+    const size = Math.random() * 4 + 1; // Taille encore plus réduite
     const posX = Math.random() * 100;
     const posY = Math.random() * 100;
     const animationDelay = Math.random() * 10;
@@ -60,7 +60,7 @@ const addNeonParticles = () => {
     particle.style.left = `${posX}vw`;
     particle.style.top = `${posY}vh`;
     particle.style.backgroundColor = color;
-    particle.style.boxShadow = `0 0 5px ${color}, 0 0 10px ${color}`; // Glow réduit
+    particle.style.boxShadow = `0 0 3px ${color}, 0 0 5px ${color}`; // Glow encore réduit
     particle.style.animationDelay = `${animationDelay}s`;
     
     document.body.appendChild(particle);
