@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,15 +24,6 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
 
 const Header = () => {
   const { user, userData } = useAuth();
@@ -78,22 +68,22 @@ const Header = () => {
           />
         </Link>
         
-        {/* Navigation pour desktop - Menu déroulant */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            {navItems.map((item) => (
-              <NavigationMenuItem key={item.path}>
-                <NavigationMenuLink
-                  className={navigationMenuTriggerStyle()}
-                  active={location.pathname === item.path}
-                  asChild
-                >
-                  <NavLink to={item.path}>{item.label}</NavLink>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {/* Navigation pour desktop */}
+        <nav className="hidden md:flex items-center space-x-6">
+          {navItems.map((item) => (
+            <NavLink 
+              key={item.path}
+              to={item.path} 
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md ${isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-accent"}`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
         
         <div className="flex items-center space-x-4">
           <CartIcon />
