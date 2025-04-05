@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, User, Settings, HelpCircle, Menu, X } from 'lucide-react';
+import { LogOut, User, Settings, HelpCircle, Menu, X, ChevronDown } from 'lucide-react';
 import { clearCart } from '@/services/cart'; 
 import { toast } from 'sonner';
 import CartIcon from './shop/CartIcon';
@@ -50,11 +51,40 @@ const Header = () => {
   };
 
   const navItems = [
-    { path: '/', label: 'Accueil' },
-    { path: '/features', label: 'Fonctionnalités' },
-    { path: '/about', label: 'À propos' },
-    { path: '/contact', label: 'Contact' },
-    { path: '/produits', label: 'Boutique' },
+    { path: '/', label: 'Accueil', children: [] },
+    { 
+      path: '/features', 
+      label: 'Fonctionnalités', 
+      children: [
+        { path: '/features/charging', label: 'Recharge rapide' },
+        { path: '/features/connectivity', label: 'Connectivité' },
+        { path: '/features/security', label: 'Sécurité' }
+      ] 
+    },
+    { 
+      path: '/about', 
+      label: 'À propos', 
+      children: [
+        { path: '/about/company', label: 'Notre entreprise' },
+        { path: '/about/team', label: 'Équipe' },
+        { path: '/about/history', label: 'Histoire' }
+      ] 
+    },
+    { 
+      path: '/contact', 
+      label: 'Contact',
+      children: [] 
+    },
+    { 
+      path: '/produits', 
+      label: 'Boutique',
+      children: [
+        { path: '/produits/accessoires', label: 'Accessoires' },
+        { path: '/produits/residentiels', label: 'Chargeurs résidentiels' },
+        { path: '/produits/entreprises', label: 'Solutions entreprises' },
+        { path: '/produits/publiques', label: 'Bornes publiques' }
+      ] 
+    },
   ];
 
   return (
@@ -68,22 +98,50 @@ const Header = () => {
           />
         </Link>
         
-        {/* Navigation pour desktop */}
-        <nav className="hidden md:flex items-center space-x-6">
+        {/* Navigation pour desktop avec menu déroulant */}
+        <div className="hidden md:flex items-center space-x-2">
           {navItems.map((item) => (
-            <NavLink 
-              key={item.path}
-              to={item.path} 
-              className={({ isActive }) => 
-                `px-3 py-2 rounded-md ${isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "hover:bg-accent"}`
-              }
-            >
-              {item.label}
-            </NavLink>
+            item.children.length > 0 ? (
+              <DropdownMenu key={item.path}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className={`flex items-center px-3 py-2 rounded-md ${
+                    location.pathname === item.path ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  }`}>
+                    {item.label}
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background border-border shadow-lg">
+                  <DropdownMenuItem asChild>
+                    <NavLink to={item.path} className="w-full">
+                      Tous les {item.label.toLowerCase()}
+                    </NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {item.children.map((child) => (
+                    <DropdownMenuItem key={child.path} asChild>
+                      <NavLink to={child.path} className="w-full">
+                        {child.label}
+                      </NavLink>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <NavLink 
+                key={item.path}
+                to={item.path} 
+                className={({ isActive }) => 
+                  `px-3 py-2 rounded-md ${isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "hover:bg-accent"}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            )
           ))}
-        </nav>
+        </div>
         
         <div className="flex items-center space-x-4">
           <CartIcon />
@@ -143,19 +201,39 @@ const Header = () => {
                 <div className="flex flex-col h-full space-y-4">
                   <nav className="space-y-2">
                     {navItems.map((item) => (
-                      <DrawerClose key={item.path} asChild>
-                        <NavLink 
-                          to={item.path} 
-                          className={({ isActive }) => 
-                            `block p-2 rounded-md ${isActive 
-                              ? "bg-primary text-primary-foreground" 
-                              : "hover:bg-accent"}`
-                          }
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </NavLink>
-                      </DrawerClose>
+                      <div key={item.path} className="space-y-1">
+                        <DrawerClose asChild>
+                          <NavLink 
+                            to={item.path} 
+                            className={({ isActive }) => 
+                              `block p-2 rounded-md font-medium ${isActive 
+                                ? "bg-primary text-primary-foreground" 
+                                : "hover:bg-accent"}`
+                            }
+                          >
+                            {item.label}
+                          </NavLink>
+                        </DrawerClose>
+                        
+                        {item.children.length > 0 && (
+                          <div className="pl-4 space-y-1 border-l-2 border-muted ml-2">
+                            {item.children.map((child) => (
+                              <DrawerClose key={child.path} asChild>
+                                <NavLink 
+                                  to={child.path} 
+                                  className={({ isActive }) => 
+                                    `block p-2 rounded-md text-sm ${isActive 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "hover:bg-accent"}`
+                                  }
+                                >
+                                  {child.label}
+                                </NavLink>
+                              </DrawerClose>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </nav>
                   
@@ -204,11 +282,11 @@ const Header = () => {
                   <nav className="flex-1 p-4">
                     <ul className="space-y-2">
                       {navItems.map((item) => (
-                        <li key={item.path}>
+                        <li key={item.path} className="space-y-1">
                           <NavLink 
                             to={item.path} 
                             className={({ isActive }) => 
-                              `block p-2 rounded-md ${isActive 
+                              `block p-2 rounded-md font-medium ${isActive 
                                 ? "bg-primary text-primary-foreground" 
                                 : "hover:bg-accent"}`
                             }
@@ -216,6 +294,26 @@ const Header = () => {
                           >
                             {item.label}
                           </NavLink>
+                          
+                          {item.children.length > 0 && (
+                            <ul className="pl-4 space-y-1 border-l-2 border-muted ml-2">
+                              {item.children.map((child) => (
+                                <li key={child.path}>
+                                  <NavLink 
+                                    to={child.path} 
+                                    className={({ isActive }) => 
+                                      `block p-2 rounded-md text-sm ${isActive 
+                                        ? "bg-primary text-primary-foreground" 
+                                        : "hover:bg-accent"}`
+                                    }
+                                    onClick={() => setIsMenuOpen(false)}
+                                  >
+                                    {child.label}
+                                  </NavLink>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </li>
                       ))}
                     </ul>
