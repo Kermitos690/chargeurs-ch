@@ -3,7 +3,12 @@ import { createAdminAccount } from './auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-export const setupInitialAdmin = async () => {
+// Type pour le résultat de setupInitialAdmin
+type SetupResult = 
+  | { success: true; message: string; warning?: string }
+  | { success: false; error: string };
+
+export const setupInitialAdmin = async (): Promise<SetupResult> => {
   try {
     // Vérifier si l'administrateur existe déjà
     const { data, error } = await supabase
@@ -29,7 +34,7 @@ export const setupInitialAdmin = async () => {
     );
 
     if (!result.success) {
-      return result;
+      return { success: false, error: result.error || "Erreur inconnue" };
     }
 
     // Mettre à jour la configuration système pour indiquer que le superadmin a été créé
@@ -43,7 +48,11 @@ export const setupInitialAdmin = async () => {
 
     if (configError) {
       console.error("Erreur lors de la mise à jour de la configuration:", configError);
-      return { success: true, warning: "Compte créé mais erreur de configuration système" };
+      return { 
+        success: true, 
+        message: "Compte administrateur créé avec succès",
+        warning: "Erreur de configuration système" 
+      };
     }
 
     return { success: true, message: "Compte administrateur superadmin créé avec succès" };
