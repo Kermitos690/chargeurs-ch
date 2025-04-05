@@ -6,11 +6,13 @@ import type { SystemConfigRow, ProfileRow, AdminRoleRow } from '@/types/supabase
 export const setupInitialSuperAdmin = async (email: string): Promise<boolean> => {
   try {
     // Vérifier si un superadmin a déjà été configuré
-    const { data: configData, error: configError } = await supabase
+    const configResponse = await supabase
       .from('system_config')
       .select('*')
-      .eq('id', 'admin_setup')
-      .single();
+      .eq('id', 'admin_setup');
+    
+    const configData = configResponse.data?.[0] || null;
+    const configError = configResponse.error;
     
     if (configError && configError.code !== 'PGRST116') {
       console.error("Erreur lors de la vérification de la configuration:", configError);
@@ -24,11 +26,13 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
     }
     
     // Récupérer l'utilisateur par email
-    const { data: userData, error: userError } = await supabase
+    const userResponse = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', email)
-      .single();
+      .eq('email', email);
+    
+    const userData = userResponse.data?.[0] || null;
+    const userError = userResponse.error;
     
     if (userError) {
       console.error("Erreur lors de la recherche de l'utilisateur:", userError);
@@ -80,18 +84,20 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
 
 export const isSuperAdminSetupComplete = async (): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
+    const configResponse = await supabase
       .from('system_config')
       .select('initialized')
-      .eq('id', 'admin_setup')
-      .single();
+      .eq('id', 'admin_setup');
     
-    if (error) {
-      console.error("Erreur lors de la vérification de la configuration superadmin:", error);
+    const configData = configResponse.data?.[0] || null;
+    const configError = configResponse.error;
+    
+    if (configError) {
+      console.error("Erreur lors de la vérification de la configuration superadmin:", configError);
       return false;
     }
     
-    const config = data as SystemConfigRow | null;
+    const config = configData as SystemConfigRow | null;
     return config?.initialized || false;
   } catch (error) {
     console.error("Erreur lors de la vérification de la configuration superadmin:", error);

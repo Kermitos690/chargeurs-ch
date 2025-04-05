@@ -6,12 +6,16 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const isUserSuperAdmin = async () => {
   try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
+    const sessionResponse = await supabase.auth.getSession();
+    if (sessionResponse.error) throw sessionResponse.error;
     
-    if (!data.session?.user) return false;
+    const session = sessionResponse.data.session;
+    if (!session?.user) return false;
     
-    const { data: isSuperAdmin, error: roleError } = await supabase.rpc('is_superadmin', data.session.user.id);
+    const { data: isSuperAdmin, error: roleError } = await supabase.rpc('is_superadmin', {
+      _user_id: session.user.id
+    });
+    
     if (roleError) throw roleError;
     
     return isSuperAdmin;
@@ -27,13 +31,15 @@ export const isUserSuperAdmin = async () => {
 export const addAdminRole = async (userId: string, role: 'admin' | 'superadmin' = 'admin') => {
   try {
     // Vérifier si l'utilisateur est déjà admin
-    const { data: existingRole, error: checkError } = await supabase
+    const existingRoleResponse = await supabase
       .from('admin_roles')
       .select('*')
       .eq('user_id', userId)
       .eq('role', role);
       
-    if (checkError) throw checkError;
+    if (existingRoleResponse.error) throw existingRoleResponse.error;
+    
+    const existingRole = existingRoleResponse.data;
     
     // Si l'utilisateur n'a pas encore le rôle, l'ajouter
     if (!existingRole || existingRole.length === 0) {
@@ -58,12 +64,12 @@ export const addAdminRole = async (userId: string, role: 'admin' | 'superadmin' 
  */
 export const removeAdminRole = async (userId: string, role: 'admin' | 'superadmin' = 'admin') => {
   try {
-    const { data, error } = await supabase
+    const deleteResponse = await supabase
       .from('admin_roles')
       .delete()
       .match({ user_id: userId, role });
       
-    if (error) throw error;
+    if (deleteResponse.error) throw deleteResponse.error;
     
     return { success: true };
   } catch (error: any) {

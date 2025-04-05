@@ -49,11 +49,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               const superAdmin = await isSuperAdmin(newSession.user);
               setUserIsSuperAdmin(superAdmin);
               
-              const { data: profileData, error: profileError } = await supabase
+              // Corrigé pour utiliser la syntaxe du mock
+              const profileResponse = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', newSession.user.id)
-                .maybeSingle();
+                .eq('id', newSession.user.id);
+              
+              const profileData = profileResponse.data?.[0] || null;
+              const profileError = profileResponse.error;
               
               if (profileData && !profileError) {
                 const profile = profileData as ProfileRow;
@@ -80,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(({ data: { session: currentSession }, error }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       

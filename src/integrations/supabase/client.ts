@@ -32,7 +32,7 @@ export const supabase = {
     upsert: (values: any) => Promise.resolve({ data: values, error: null }),
   }),
   auth: {
-    getSession: () => Promise.resolve({ data: { session: null } }),
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
     getUser: () => Promise.resolve({ data: { user: null }, error: null }),
     onAuthStateChange: (callback: Function) => ({
       data: {
@@ -41,12 +41,12 @@ export const supabase = {
         }
       }
     }),
-    signIn: () => Promise.resolve({ data: null, error: null }),
-    signUp: () => Promise.resolve({ data: null, error: null }),
+    signIn: (params: any = {}) => Promise.resolve({ data: null, error: null }),
+    signUp: (params: any = {}) => Promise.resolve({ data: null, error: null }),
     signOut: () => Promise.resolve({ error: null }),
-    resetPasswordForEmail: () => Promise.resolve({ error: null }),
-    updateUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: null }),
+    resetPasswordForEmail: (email: string) => Promise.resolve({ error: null }),
+    updateUser: (params: any = {}) => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: (params: any = {}) => Promise.resolve({ data: { user: null, session: null }, error: null }),
   },
   rpc: (func: string, params?: any) => Promise.resolve({ data: false, error: null }),
   functions: {

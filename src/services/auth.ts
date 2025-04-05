@@ -54,9 +54,7 @@ export const resetPassword = async (email: string) => {
   try {
     console.log("Début de la procédure de réinitialisation pour:", email);
     
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/new-password`,
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
     
     if (error) throw error;
     
