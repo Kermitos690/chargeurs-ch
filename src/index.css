@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -55,6 +54,37 @@
   }
 }
 
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes neon-tracer {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.99;
+    filter: drop-shadow(0 0 1px rgba(30, 174, 219, 0.8)) drop-shadow(0 0 4px rgba(30, 174, 219, 0.5));
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 0px rgba(30, 174, 219, 0.2)) drop-shadow(0 0 1px rgba(30, 174, 219, 0.1));
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
 }
@@ -69,6 +99,25 @@
 
 .animate-electric-glow {
   animation: electric-pulse 2s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 15s linear infinite;
+}
+
+.animate-neon-tracer {
+  animation: neon-tracer 2s ease-out forwards;
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 3s linear infinite;
+}
+
+.neon-tracer {
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 8px rgba(30, 174, 219, 0.8));
 }
 
 @layer base {
@@ -176,7 +225,6 @@
   }
 }
 
-/* Nouveaux utilitaires de texte à dégradé */
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-green-dark to-noir-profond;
 }
@@ -197,7 +245,6 @@
   @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium to-blanc-pur;
 }
 
-/* Nouveaux dégradés électriques et lumineux */
 .text-electric-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-bright-blue;
 }
@@ -210,7 +257,6 @@
   @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-green-medium;
 }
 
-/* Nouveaux utilitaires de fond à dégradé */
 .bg-gradient-primary {
   @apply bg-gradient-to-br from-green-medium via-noir-moyen to-noir-profond;
 }
@@ -235,7 +281,6 @@
   @apply bg-gradient-to-br from-green-pale via-blanc-cassé to-blanc-pur;
 }
 
-/* Nouveaux dégradés électriques et lumineux */
 .bg-gradient-electric {
   @apply bg-gradient-to-br from-electric-blue via-bright-blue to-noir-profond;
 }
@@ -252,7 +297,6 @@
   @apply bg-gradient-to-br from-bright-blue via-electric-blue to-blanc-pur;
 }
 
-/* Améliorations des panneaux en verre */
 .glass-panel {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -277,7 +321,6 @@
   box-shadow: 0 8px 32px rgba(10, 10, 10, 0.1);
 }
 
-/* Nouveaux panneaux en verre électriques et lumineux */
 .glass-panel-electric {
   background: rgba(30, 174, 219, 0.08);
   backdrop-filter: blur(8px);
@@ -306,7 +349,6 @@
     0 8px 10px -6px rgba(45, 140, 80, 0.2);
 }
 
-/* Nouvelles ombres électriques et lumineuses */
 .shadow-elevation-electric {
   box-shadow: 
     0 10px 25px -5px rgba(30, 174, 219, 0.3),
@@ -319,7 +361,6 @@
     0 8px 10px -6px rgba(139, 92, 246, 0.2);
 }
 
-/* Nouvelles classes pour le dégradé révolutionnaire */
 .revolutionary-border {
   border-width: 2px;
   border-style: solid;
@@ -334,7 +375,6 @@
   filter: drop-shadow(0 0 8px rgba(45, 140, 80, 0.6));
 }
 
-/* Nouvelles classes pour les bordures et effets électriques/lumineux */
 .electric-border {
   border-width: 2px;
   border-style: solid;

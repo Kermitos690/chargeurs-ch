@@ -22,8 +22,27 @@ const createNeonLines = () => {
   });
 };
 
+// Add mouse tracer effect
+const addNeonTracer = () => {
+  document.addEventListener('mousemove', (e) => {
+    const tracer = document.createElement('div');
+    tracer.className = 'neon-tracer animate-neon-tracer';
+    tracer.style.left = `${e.clientX}px`;
+    tracer.style.top = `${e.clientY}px`;
+    document.body.appendChild(tracer);
+    
+    // Remove the tracer after animation completes
+    setTimeout(() => {
+      document.body.removeChild(tracer);
+    }, 2000);
+  }, { passive: true });
+};
+
 // Create neon lines
 createNeonLines();
+
+// Add neon tracer effect
+addNeonTracer();
 
 // Render the app
 createRoot(rootElement).render(<App />);
