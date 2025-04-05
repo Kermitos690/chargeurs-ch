@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck, Settings } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { getUserProfile } from '@/services/supabase/profile';
+import { getUserProfile, UserProfile } from '@/services/supabase/profile';
 import { getDocument, getCollection } from '@/services/firebase';
-import { Subscription, User as UserType } from '@/types/api';
+import { Subscription } from '@/types/api';
 
 const Account = () => {
   const { user, loading } = useAuth();
@@ -19,7 +20,7 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [userData, setUserData] = useState<UserProfile | null>(null); // Modification ici pour utiliser UserProfile
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,8 +44,7 @@ const Account = () => {
           const userResult = await getDocument('users', user.uid);
           
           if (userResult.success && userResult.data) {
-            const userDataFromFirestore = userResult.data as UserType;
-            setUserData(userDataFromFirestore);
+            const userDataFromFirestore = userResult.data;
             
             // Si l'utilisateur a un abonnement, récupérer les détails
             if (userDataFromFirestore.subscriptionType) {
@@ -96,7 +96,7 @@ const Account = () => {
             {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {user?.displayName || userData?.first_name || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {user?.displayName || userData?.firstName || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -264,7 +264,7 @@ const Account = () => {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Nom</h4>
-                    <p className="text-gray-500">{userData?.first_name || 'Non défini'} {userData?.last_name || ''}</p>
+                    <p className="text-gray-500">{userData?.firstName || 'Non défini'} {userData?.lastName || ''}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>
@@ -280,7 +280,7 @@ const Account = () => {
                       {userData?.address ? (
                         <>
                           {userData.address}<br />
-                          {userData.postal_code} {userData.city}
+                          {userData.postalCode} {userData.city}
                         </>
                       ) : (
                         'Non définie'

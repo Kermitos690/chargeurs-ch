@@ -4,12 +4,12 @@ import { toast } from 'sonner';
 
 export type UserProfile = {
   id: string;
-  first_name?: string | null;
-  last_name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   phone?: string | null;
   address?: string | null;
   city?: string | null;
-  postal_code?: string | null;
+  postalCode?: string | null;
 };
 
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
@@ -26,25 +26,27 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     }
 
     // Récupérer les données détaillées de l'utilisateur
-    const { data: userDetails, error: detailsError } = await supabase
-      .from('user_details')
+    // Note: on utilise la méthode "as any" temporairement pour contourner le problème de type
+    // car la table user_details a été créée après la génération des types
+    const { data: userDetails, error: detailsError } = await (supabase
+      .from('user_details' as any)
       .select('*')
       .eq('id', userId)
-      .single();
+      .single() as any);
 
     if (detailsError && detailsError.code !== 'PGRST116') { // PGRST116 = not found
       console.error("Erreur lors de la récupération des détails de l'utilisateur:", detailsError);
     }
 
-    // Fusionner les données
+    // Fusionner les données avec des noms de propriétés conformes aux conventions camelCase
     return {
       id: userId,
-      first_name: userDetails?.first_name || profileData?.name?.split(' ')[0] || null,
-      last_name: userDetails?.last_name || profileData?.name?.split(' ')[1] || null,
+      firstName: userDetails?.first_name || profileData?.name?.split(' ')[0] || null,
+      lastName: userDetails?.last_name || profileData?.name?.split(' ')[1] || null,
       phone: userDetails?.phone || profileData?.phone || null,
       address: userDetails?.address || null,
       city: userDetails?.city || null,
-      postal_code: userDetails?.postal_code || null,
+      postalCode: userDetails?.postal_code || null,
     };
   } catch (error) {
     console.error("Erreur lors de la récupération du profil utilisateur:", error);
@@ -57,19 +59,19 @@ export const updateUserProfile = async (
   profileData: Partial<UserProfile>
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    // Mise à jour des détails utilisateur
-    const { error: detailsError } = await supabase
-      .from('user_details')
+    // Mise à jour des détails utilisateur - on utilise as any pour contourner le problème de type
+    const { error: detailsError } = await (supabase
+      .from('user_details' as any)
       .upsert({
         id: userId,
-        first_name: profileData.first_name,
-        last_name: profileData.last_name,
+        first_name: profileData.firstName,
+        last_name: profileData.lastName,
         phone: profileData.phone,
         address: profileData.address,
         city: profileData.city,
-        postal_code: profileData.postal_code,
+        postal_code: profileData.postalCode,
         updated_at: new Date().toISOString(),
-      });
+      }) as any);
 
     if (detailsError) {
       console.error("Erreur lors de la mise à jour des détails de l'utilisateur:", detailsError);
@@ -81,7 +83,7 @@ export const updateUserProfile = async (
       .from('profiles')
       .upsert({
         id: userId,
-        name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim(),
+        name: `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim(),
         phone: profileData.phone,
         updated_at: new Date().toISOString(),
       });
