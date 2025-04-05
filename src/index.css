@@ -85,6 +85,33 @@
   }
 }
 
+@keyframes neon-particle-float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes neon-grid-pulse {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
 }
@@ -114,10 +141,38 @@
 }
 
 .neon-tracer {
+  position: absolute;
   pointer-events: none;
   z-index: 9999;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(30, 174, 219, 0.7);
   mix-blend-mode: screen;
   filter: drop-shadow(0 0 8px rgba(30, 174, 219, 0.8));
+}
+
+.neon-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  animation: neon-particle-float 15s ease-in-out infinite;
+}
+
+.neon-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, rgba(30, 174, 219, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 174, 219, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -2;
+  animation: neon-grid-pulse 8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @layer base {
@@ -401,4 +456,160 @@
 
 .luminous-glow {
   filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2D8C50, #1A5F36, #0E3B21, #0A0A0A);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
+  z-index: -2;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(30, 174, 219, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(30, 174, 219, 0.15) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.neon-line {
+  position: fixed;
+  background: rgba(30, 174, 219, 0.8);
+  z-index: -1;
+  animation: neonPulse 2s infinite;
+}
+
+.neon-line-horizontal-top {
+  top: 5%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+.neon-line-horizontal-bottom {
+  bottom: 5%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+.neon-line-vertical-left {
+  top: 0;
+  left: 5%;
+  width: 2px;
+  height: 100%;
+}
+
+.neon-line-vertical-right {
+  top: 0;
+  right: 5%;
+  width: 2px;
+  height: 100%;
+}
+
+.neon-card {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.neon-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  background: linear-gradient(45deg, #1EAEDB, #2D8C50, #8B5CF6, #1EAEDB);
+  background-size: 400% 400%;
+  animation: gradientFlow 3s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.neon-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.neon-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #1EAEDB, #2D8C50);
+  background-size: 200% 200%;
+  animation: gradientFlow 2s linear infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.neon-button:hover::before {
+  opacity: 1;
+}
+
+.neon-text {
+  text-shadow: 0 0 5px rgba(30, 174, 219, 0.5), 0 0 10px rgba(30, 174, 219, 0.3);
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(30, 174, 219, 0.5);
+  border-radius: inherit;
+  box-shadow: 0 0 10px rgba(30, 174, 219, 0.5);
+  pointer-events: none;
+}
+
+.container, header, main, footer, .bg-background {
+  position: relative;
+  z-index: 1;
+}
+
+.main-content {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 174, 219, 0.1);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
 }
