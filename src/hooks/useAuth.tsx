@@ -1,12 +1,12 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Session, User } from '@supabase/supabase-js';
+import { AuthSession, AuthUser } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { isSuperAdmin } from '@/services/supabase/superAdmin';
 import { ProfileRow, UserInfo } from '@/types/supabaseTypes';
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   userData: UserInfo | null;
   loading: boolean;
   isAdmin: boolean;
@@ -24,8 +24,8 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [userData, setUserData] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
