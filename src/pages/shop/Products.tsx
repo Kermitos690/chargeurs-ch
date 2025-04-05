@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/pagination";
 import { Filter, Search, Grid2X2, List, Loader2 } from 'lucide-react';
 import ProductCard from '@/components/shop/ProductCard';
-import { getProducts, getCategories, ProductFilters } from '@/services/products';
+import { getProducts, getCategoriesWithAccessories, ProductFilters } from '@/services/products';
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,7 +46,7 @@ const Products: React.FC = () => {
     // Charger les catégories
     const loadCategories = async () => {
       try {
-        const data = await getCategories();
+        const data = await getCategoriesWithAccessories();
         setCategories(data);
       } catch (error) {
         console.error('Erreur lors du chargement des catégories:', error);

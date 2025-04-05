@@ -1,5 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { accessories } from '@/data/accessories';
 
 // Types pour les paramètres de filtrage
 export interface ProductFilters {
@@ -16,6 +16,73 @@ export interface ProductFilters {
 // Récupérer tous les produits avec filtrage et pagination
 export const getProducts = async (filters: ProductFilters = {}) => {
   try {
+    // Vérifier si la catégorie demandée est "accessoires"
+    if (filters.category === 'accessoires') {
+      // Convertir les accessoires au format produit
+      const accessoryProducts = accessories.map(acc => ({
+        id: acc.id,
+        name: acc.name,
+        slug: `accessoire-${acc.id}`,
+        price: parseFloat(acc.price.replace(/[^0-9.]/g, '')),
+        sale_price: null,
+        image_url: acc.image,
+        short_description: acc.description,
+        description: acc.description,
+        status: 'published',
+        featured: true,
+        stock_quantity: 100,
+        created_at: new Date().toISOString(),
+        product_categories: { name: 'Accessoires', slug: 'accessoires' }
+      }));
+
+      // Appliquer les filtres manuellement
+      let filteredProducts = [...accessoryProducts];
+      
+      // Filtre par recherche
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+          p.name.toLowerCase().includes(searchLower) || 
+          p.description.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Filtre par prix
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!);
+      }
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!);
+      }
+
+      // Tri
+      switch (filters.sort) {
+        case 'price-asc':
+          filteredProducts.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-desc':
+          filteredProducts.sort((a, b) => b.price - a.price);
+          break;
+        // Par défaut, ne pas modifier l'ordre
+      }
+
+      // Pagination
+      const page = filters.page || 1;
+      const limit = filters.limit || 12;
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedProducts = filteredProducts.slice(start, end);
+
+      return {
+        products: paginatedProducts,
+        totalCount: filteredProducts.length,
+        currentPage: page,
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        limit
+      };
+    }
+
+    // Sinon continuer avec la requête Supabase pour les autres produits
     const {
       category,
       search,
@@ -33,7 +100,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
       .eq('status', 'published');
 
     // Filtre par catégorie
-    if (category) {
+    if (category && category !== 'accessoires') {
       query = query.eq('product_categories.slug', category);
     }
 
@@ -66,7 +133,6 @@ export const getProducts = async (filters: ProductFilters = {}) => {
       case 'newest':
         query = query.order('created_at', { ascending: false });
         break;
-      // Pour un tri "populaire", vous auriez besoin d'une colonne supplémentaire comme "sales_count"
       default:
         query = query.order('created_at', { ascending: false });
     }
@@ -96,6 +162,31 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 // Récupérer un produit par son slug
 export const getProductBySlug = async (slug: string) => {
   try {
+    // Vérifier si c'est un accessoire
+    if (slug.startsWith('accessoire-')) {
+      const accId = slug.replace('accessoire-', '');
+      const accessory = accessories.find(acc => acc.id === accId);
+      
+      if (accessory) {
+        return {
+          id: accessory.id,
+          name: accessory.name,
+          slug: slug,
+          price: parseFloat(accessory.price.replace(/[^0-9.]/g, '')),
+          sale_price: null,
+          image_url: accessory.image,
+          description: accessory.description,
+          short_description: accessory.description,
+          stock_quantity: 100,
+          category_id: 'accessoires',
+          product_categories: { id: 'accessoires', name: 'Accessoires', slug: 'accessoires' },
+          product_variants: [],
+          stripeProductId: accessory.stripeProductId
+        };
+      }
+    }
+
+    // Sinon, utiliser Supabase pour les autres produits
     const { data, error } = await supabase
       .from('products')
       .select(`
@@ -191,6 +282,27 @@ export const getFeaturedProducts = async (limit = 4) => {
     return data;
   } catch (error) {
     console.error('Erreur lors de la récupération des produits en vedette:', error);
+    throw error;
+  }
+};
+
+// Ajouter une fonction pour récupérer les catégories avec les accessoires
+export const getCategoriesWithAccessories = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('product_categories')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+
+    // Ajouter la catégorie accessoires
+    return [
+      ...data,
+      { id: 'accessoires', name: 'Accessoires', slug: 'accessoires' }
+    ];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des catégories:', error);
     throw error;
   }
 };
