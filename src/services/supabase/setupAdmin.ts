@@ -34,7 +34,7 @@ export const setupInitialAdmin = async (): Promise<SetupResult> => {
     );
 
     if (!result.success) {
-      // Extraire le message d'erreur du résultat
+      // Vérifie si c'est le cas d'erreur avant d'accéder à error
       return { success: false, error: result.error };
     }
 
@@ -72,6 +72,7 @@ export const createAdminImmediately = async () => {
       toast.success(result.message);
       return { success: true };
     } else {
+      // Ici on sait que result est du type { success: false, error: string }
       toast.error(result.error);
       return { success: false, error: result.error };
     }

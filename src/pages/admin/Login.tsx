@@ -80,7 +80,7 @@ const AdminLogin = () => {
           toast({
             variant: 'destructive',
             title: 'Erreur de connexion',
-            description: errorMessage || firebaseResult.error || 'Vérifiez vos identifiants',
+            description: errorMessage || (firebaseResult.success ? '' : firebaseResult.error) || 'Vérifiez vos identifiants',
           });
         }
       }
