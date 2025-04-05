@@ -38,7 +38,7 @@ const addNeonTracer = () => {
   }, { passive: true });
 };
 
-// Add dynamic particles effect
+// Add dynamic particles effect with softer colors
 const addNeonParticles = () => {
   const particleCount = 20;
   // Des couleurs moins vives
