@@ -52,10 +52,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               // Corrigé pour utiliser la syntaxe du mock
               const profileResponse = await supabase
                 .from('profiles')
-                .select('*')
-                .eq('id', newSession.user.id);
+                .select('*');
               
-              const profileData = profileResponse.data?.[0] || null;
+              // Simuler le comportement de eq() pour le mock
+              const profileData = profileResponse.data?.find(profile => profile.id === newSession.user.id) || null;
               const profileError = profileResponse.error;
               
               if (profileData && !profileError) {

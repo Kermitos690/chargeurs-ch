@@ -8,10 +8,10 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
     // Vérifier si un superadmin a déjà été configuré
     const configResponse = await supabase
       .from('system_config')
-      .select('*')
-      .eq('id', 'admin_setup');
+      .select('*');
     
-    const configData = configResponse.data?.[0] || null;
+    // Simuler le comportement de eq() et single() pour le mock
+    const configData = configResponse.data?.find(config => config.id === 'admin_setup') || null;
     const configError = configResponse.error;
     
     if (configError && configError.code !== 'PGRST116') {
@@ -28,10 +28,10 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
     // Récupérer l'utilisateur par email
     const userResponse = await supabase
       .from('profiles')
-      .select('id')
-      .eq('email', email);
+      .select('id');
     
-    const userData = userResponse.data?.[0] || null;
+    // Simuler le comportement de eq() pour le mock
+    const userData = userResponse.data?.find(profile => profile.email === email) || null;
     const userError = userResponse.error;
     
     if (userError) {
@@ -86,10 +86,10 @@ export const isSuperAdminSetupComplete = async (): Promise<boolean> => {
   try {
     const configResponse = await supabase
       .from('system_config')
-      .select('initialized')
-      .eq('id', 'admin_setup');
+      .select('initialized');
     
-    const configData = configResponse.data?.[0] || null;
+    // Simuler le comportement de eq() et single() pour le mock
+    const configData = configResponse.data?.find(config => config.id === 'admin_setup') || null;
     const configError = configResponse.error;
     
     if (configError) {
