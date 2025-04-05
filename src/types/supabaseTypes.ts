@@ -1,5 +1,11 @@
 
 // Types pour les tables personnalisées Supabase
+import { User, Session } from '@supabase/supabase-js';
+
+// Types personnalisés pour l'utilisateur Supabase
+export type AuthUser = User;
+export type AuthSession = Session;
+
 export interface ProfileRow {
   id: string;
   name: string | null;
