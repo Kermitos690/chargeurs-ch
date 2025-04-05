@@ -1,6 +1,6 @@
 
 // Type declarations for Supabase schema
-export type { User, Session } from '@supabase/supabase-js'
+import type { User, Session } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/types'
 
 // Alias types for better readability
