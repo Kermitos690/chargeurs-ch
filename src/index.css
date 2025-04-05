@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base styles - making all text elements bold */
+@layer base {
+  h1, h2, h3, h4, h5, h6, p, span, a, button, li, label, input, textarea, div {
+    font-weight: 600;
+  }
+}
+
 /* Custom animation classes that might not be in the config */
 @keyframes float-slow {
   0% {
