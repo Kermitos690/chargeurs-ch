@@ -64,8 +64,8 @@ const AdminLogin = () => {
         });
         navigate('/admin/dashboard');
       } else {
-        // Properly access the error property when result.success is false
-        const errorMessage = !result.success ? result.error : "Erreur inconnue";
+        // Maintenant nous savons que result est du type { success: false, error: string }
+        const errorMessage = result.error;
         
         // Fallback to Firebase if Supabase login fails
         const firebaseResult = await loginAdmin(values.email, values.password);

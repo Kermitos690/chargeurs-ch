@@ -1,198 +1,355 @@
 
 import React from 'react';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { CheckCircle, Wrench, Shield, Zap, Clock, ArrowRight } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  BatteryCharging, 
+  Zap, 
+  Home, 
+  Building2, 
+  MapPin, 
+  Wrench, 
+  ShieldCheck, 
+  Sparkles,
+  Clock,
+  CheckCircle,
+  Phone
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Services = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-24 pb-16">
-        {/* Hero Section */}
-        <section className="bg-accent/30 py-20">
-          <div className="container mx-auto px-6">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Nos Services Professionnels</h1>
-              <p className="text-lg text-muted-foreground mb-8">
-                Des solutions complètes pour tous vos besoins en matière de recharge portable et de maintenance d'équipements.
-              </p>
-              <Button size="lg" className="rounded-full" asChild>
-                <Link to="/contact">
-                  Demander un devis gratuit
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Services Overview */}
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold mb-4">Nos Offres de Services</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Nous proposons une gamme complète de services pour répondre à tous vos besoins en matière de recharge portable.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: <Wrench className="h-10 w-10 text-primary" />,
-                  title: "Installation Professionnelle",
-                  description: "Service d'installation de bornes de recharge par des techniciens certifiés pour garantir une mise en service optimale.",
-                  link: "/services/installation"
-                },
-                {
-                  icon: <Shield className="h-10 w-10 text-primary" />,
-                  title: "Maintenance Préventive",
-                  description: "Programme de maintenance régulière pour prévenir les pannes et assurer la durabilité de vos équipements.",
-                  link: "/maintenance"
-                },
-                {
-                  icon: <Clock className="h-10 w-10 text-primary" />,
-                  title: "Assistance 24/7",
-                  description: "Service d'assistance technique disponible 24h/24 et 7j/7 pour répondre à vos urgences.",
-                  link: "/contact"
-                }
-              ].map((service, index) => (
-                <Card key={index} className="border border-border hover:shadow-md transition-all">
-                  <CardHeader>
-                    <div className="mb-4">{service.icon}</div>
-                    <CardTitle>{service.title}</CardTitle>
-                    <CardDescription>{service.description}</CardDescription>
-                  </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" asChild className="w-full">
-                      <Link to={service.link}>
-                        En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Premium Service */}
-        <section className="py-20 bg-secondary/20">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-3xl font-bold mb-6">Service Premium de Consultation</h2>
-                <p className="text-lg text-muted-foreground mb-6">
-                  Notre équipe d'experts est à votre disposition pour vous accompagner dans la définition et la mise en œuvre de votre stratégie de recharge.
-                </p>
-                <ul className="space-y-4 mb-8">
-                  {[
-                    "Étude de faisabilité et dimensionnement",
-                    "Conception sur mesure pour votre établissement",
-                    "Analyse de rentabilité et modèle économique",
-                    "Formation du personnel à l'utilisation",
-                    "Suivi et optimisation continue"
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
-                      <span>{item}</span>
+      
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6 bg-gradient-to-b from-white to-gray-50">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-black">
+            Nos Services de Recharge Électrique
+          </h1>
+          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-10">
+            Des solutions complètes pour répondre à tous vos besoins en matière de recharge de véhicules électriques
+          </p>
+          <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+            <Link to="/contact">Demander un devis</Link>
+          </Button>
+        </div>
+      </section>
+      
+      {/* Services Grid */}
+      <section className="py-20 px-6 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-black">
+            Solutions Adaptées à Chaque Besoin
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Résidentiel */}
+            <Card className="border border-gray-200 hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <Home className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-black">Installation Résidentielle</h3>
+                  <p className="text-gray-600 mb-4">
+                    Solutions de recharge optimisées pour les maisons individuelles et les immeubles résidentiels.
+                  </p>
+                  <ul className="text-left space-y-2 mb-6">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Installation de bornes domestiques</span>
                     </li>
-                  ))}
-                </ul>
-                <Button size="lg" asChild>
-                  <Link to="/contact">Prendre rendez-vous</Link>
-                </Button>
-              </div>
-              <div className="bg-white p-8 rounded-xl shadow-md">
-                <h3 className="text-xl font-semibold mb-6">Témoignage Client</h3>
-                <blockquote className="text-lg italic mb-6">
-                  "Grâce aux conseils experts de l'équipe de chargeurs.ch, nous avons pu optimiser notre installation et augmenter notre taux de satisfaction client de 30% dès le premier mois."
-                </blockquote>
-                <div className="flex items-center">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold mr-4">
-                    JD
-                  </div>
-                  <div>
-                    <p className="font-medium">Jean Dupont</p>
-                    <p className="text-sm text-muted-foreground">Directeur, Bar Le Central</p>
-                  </div>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Configuration Wi-Fi et smart charging</span>
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Intégration avec panneaux solaires</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                    En savoir plus
+                  </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+            
+            {/* Entreprises */}
+            <Card className="border border-gray-200 hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <Building2 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-black">Solutions Entreprises</h3>
+                  <p className="text-gray-600 mb-4">
+                    Équipez votre entreprise de bornes de recharge pour vos employés et visiteurs.
+                  </p>
+                  <ul className="text-left space-y-2 mb-6">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Bornes multi-utilisateurs</span>
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Système de paiement intégré</span>
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Gestion de flotte électrique</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                    En savoir plus
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Publique */}
+            <Card className="border border-gray-200 hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <MapPin className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-black">Infrastructures Publiques</h3>
+                  <p className="text-gray-600 mb-4">
+                    Déployez des stations de recharge dans les espaces publics ou commerciaux.
+                  </p>
+                  <ul className="text-left space-y-2 mb-6">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Bornes rapides et ultra-rapides</span>
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Solutions de monétisation</span>
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-gray-700">Intégration aux réseaux nationaux</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                    En savoir plus
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </section>
-
-        {/* Process Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold mb-4">Notre Processus</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Une approche méthodique pour assurer la qualité et la satisfaction client à chaque étape.
+        </div>
+      </section>
+      
+      {/* Process Section */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-16 text-black">
+            Notre Processus d'Installation
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Step 1 */}
+            <div className="flex flex-col items-center text-center relative">
+              <div className="h-20 w-20 bg-primary text-white rounded-full flex items-center justify-center mb-6 z-10">
+                <span className="text-2xl font-bold">1</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-black">Consultation</h3>
+              <p className="text-gray-600">
+                Évaluation de vos besoins et analyse technique de votre installation électrique existante.
+              </p>
+              
+              {/* Connector line */}
+              <div className="hidden lg:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-200 -z-0"></div>
+            </div>
+            
+            {/* Step 2 */}
+            <div className="flex flex-col items-center text-center relative">
+              <div className="h-20 w-20 bg-primary text-white rounded-full flex items-center justify-center mb-6 z-10">
+                <span className="text-2xl font-bold">2</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-black">Proposition</h3>
+              <p className="text-gray-600">
+                Recommandation des meilleures solutions adaptées à vos besoins et budget.
+              </p>
+              
+              {/* Connector line */}
+              <div className="hidden lg:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-200 -z-0"></div>
+            </div>
+            
+            {/* Step 3 */}
+            <div className="flex flex-col items-center text-center relative">
+              <div className="h-20 w-20 bg-primary text-white rounded-full flex items-center justify-center mb-6 z-10">
+                <span className="text-2xl font-bold">3</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-black">Installation</h3>
+              <p className="text-gray-600">
+                Mise en place professionnelle par nos techniciens certifiés avec respect des normes.
+              </p>
+              
+              {/* Connector line */}
+              <div className="hidden lg:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-200 -z-0"></div>
+            </div>
+            
+            {/* Step 4 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="h-20 w-20 bg-primary text-white rounded-full flex items-center justify-center mb-6 z-10">
+                <span className="text-2xl font-bold">4</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-black">Suivi</h3>
+              <p className="text-gray-600">
+                Maintenance et assistance technique continue pour assurer un fonctionnement optimal.
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  step: "01",
-                  title: "Consultation",
-                  description: "Analyse de vos besoins et de votre environnement spécifique"
-                },
-                {
-                  step: "02",
-                  title: "Planification",
-                  description: "Élaboration d'un plan d'action détaillé et personnalisé"
-                },
-                {
-                  step: "03",
-                  title: "Exécution",
-                  description: "Mise en œuvre professionnelle par des techniciens certifiés"
-                },
-                {
-                  step: "04",
-                  title: "Suivi",
-                  description: "Évaluation continue et support après installation"
-                }
-              ].map((process, index) => (
-                <div key={index} className="relative">
-                  <div className="bg-primary/10 rounded-xl p-6 h-full">
-                    <div className="text-3xl font-bold text-primary mb-4">{process.step}</div>
-                    <h3 className="text-xl font-semibold mb-2">{process.title}</h3>
-                    <p className="text-muted-foreground">{process.description}</p>
+          </div>
+        </div>
+      </section>
+      
+      {/* Key Benefits */}
+      <section className="py-20 px-6 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-black">
+            Pourquoi Choisir Nos Services
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="flex flex-col items-center text-center">
+              <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <ShieldCheck className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-black">Expertise Certifiée</h3>
+              <p className="text-gray-600">
+                Nos techniciens sont formés et certifiés pour toutes les installations électriques selon les normes suisses.
+              </p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center">
+              <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Clock className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-black">Service Rapide</h3>
+              <p className="text-gray-600">
+                Installation rapide et efficace avec des délais respectés et une planification adaptée à vos contraintes.
+              </p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center">
+              <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-black">Solutions Innovantes</h3>
+              <p className="text-gray-600">
+                Nous proposons les technologies les plus récentes pour une recharge intelligente et économique.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-black">
+            Ce Que Disent Nos Clients
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-0 shadow-md">
+              <CardContent className="pt-6">
+                <div className="flex flex-col">
+                  <div className="flex items-center space-x-1 mb-4">
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
                   </div>
-                  {index < 3 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                      <ArrowRight className="h-8 w-8 text-primary" />
-                    </div>
-                  )}
+                  <p className="text-gray-600 italic mb-6">
+                    "Installation parfaite pour ma Tesla Model 3. L'équipe a été très professionnelle et l'installation a été faite en moins de 3 heures."
+                  </p>
+                  <div className="mt-auto">
+                    <p className="font-semibold text-black">Marc Dupont</p>
+                    <p className="text-gray-500 text-sm">Genève</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md">
+              <CardContent className="pt-6">
+                <div className="flex flex-col">
+                  <div className="flex items-center space-x-1 mb-4">
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                  </div>
+                  <p className="text-gray-600 italic mb-6">
+                    "Nous avons équipé notre entreprise de 5 bornes pour notre flotte. Service impeccable et conseils précieux pour optimiser notre installation."
+                  </p>
+                  <div className="mt-auto">
+                    <p className="font-semibold text-black">Sophie Laurent</p>
+                    <p className="text-gray-500 text-sm">Directrice, Eco Solutions SA</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md">
+              <CardContent className="pt-6">
+                <div className="flex flex-col">
+                  <div className="flex items-center space-x-1 mb-4">
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                  </div>
+                  <p className="text-gray-600 italic mb-6">
+                    "La borne de recharge installée dans notre copropriété fonctionne parfaitement. Le service client est très réactif quand nous avons des questions."
+                  </p>
+                  <div className="mt-auto">
+                    <p className="font-semibold text-black">Jean Muller</p>
+                    <p className="text-gray-500 text-sm">Lausanne</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 bg-primary text-white">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold mb-6">Prêt à améliorer votre infrastructure de recharge ?</h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Contactez-nous dès aujourd'hui pour discuter de vos besoins spécifiques et découvrir comment nous pouvons vous aider.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
-                <Link to="/contact">Nous contacter</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10" asChild>
-                <Link to="/services/installation">En savoir plus</Link>
-              </Button>
-            </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-primary">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4 text-white">
+            Prêt à Passer à l'Électrique ?
+          </h2>
+          <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
+            Contactez-nous dès aujourd'hui pour discuter de vos besoins en matière de recharge électrique
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button asChild size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
+              <Link to="/contact">
+                <Phone className="mr-2 h-5 w-5" />
+                Nous contacter
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="text-white border-white hover:bg-primary/80">
+              <Link to="/services/installation">
+                En savoir plus
+              </Link>
+            </Button>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+      
       <Footer />
     </div>
   );
