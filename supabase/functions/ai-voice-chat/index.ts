@@ -25,6 +25,8 @@ serve(async (req) => {
       );
     }
 
+    console.log("Requête reçue:", audio ? "Avec audio" : "Avec texte:", prompt);
+
     // Comportement différent selon si on a un audio ou un texte
     if (audio) {
       // Traitement de l'audio
@@ -42,6 +44,8 @@ serve(async (req) => {
       formData.append('file', blob, 'audio.webm');
       formData.append('model', 'whisper-1');
 
+      console.log("Envoi de l'audio à OpenAI pour transcription...");
+
       const transcriptResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
@@ -52,15 +56,18 @@ serve(async (req) => {
 
       if (!transcriptResponse.ok) {
         const errorData = await transcriptResponse.json();
+        console.error("Erreur de transcription:", errorData);
         throw new Error(`Erreur de transcription: ${errorData.error?.message || transcriptResponse.statusText}`);
       }
 
       const { text: transcribedText } = await transcriptResponse.json();
+      console.log("Texte transcrit:", transcribedText);
       
       // Envoi du texte transcrit à l'API ChatGPT avec contexte sur chargeurs.ch
       return await processText(transcribedText);
     } else {
       // Traitement direct du texte
+      console.log("Traitement direct du texte:", prompt);
       return await processText(prompt);
     }
   } catch (error) {
@@ -73,6 +80,8 @@ serve(async (req) => {
 
   async function processText(text) {
     try {
+      console.log("Traitement du texte par ChatGPT:", text);
+      
       // Requête ChatGPT avec contexte sur chargeurs.ch
       const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -103,13 +112,16 @@ serve(async (req) => {
 
       if (!chatResponse.ok) {
         const errorData = await chatResponse.json();
+        console.error("Erreur ChatGPT:", errorData);
         throw new Error(`Erreur ChatGPT: ${errorData.error?.message || chatResponse.statusText}`);
       }
 
       const chatData = await chatResponse.json();
       const textResponse = chatData.choices[0].message.content;
+      console.log("Réponse textuelle générée:", textResponse.substring(0, 100) + "...");
       
       // Maintenant, convertir cette réponse en audio avec TTS
+      console.log("Conversion en audio avec TTS...");
       const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: {
@@ -125,12 +137,14 @@ serve(async (req) => {
 
       if (!ttsResponse.ok) {
         const errorData = await ttsResponse.json();
+        console.error("Erreur TTS:", errorData);
         throw new Error(`Erreur TTS: ${errorData.error?.message || ttsResponse.statusText}`);
       }
 
       // Convertir l'audio en base64
       const audioBuffer = await ttsResponse.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+      console.log("Audio généré avec succès");
 
       return new Response(
         JSON.stringify({ 

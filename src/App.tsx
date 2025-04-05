@@ -22,6 +22,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
 import VoiceChat from "./components/VoiceChat";
+import AIChat from "./components/AIChat";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -130,6 +131,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <VoiceChat />
+          <AIChat />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
