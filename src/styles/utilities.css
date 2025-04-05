@@ -1,0 +1,260 @@
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-dark to-noir-profond;
+}
+
+.text-gradient-green {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-light to-green-dark;
+}
+
+.text-gradient-black {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-noir-moyen to-noir-profond;
+}
+
+.text-gradient-contrast {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium via-noir-profond to-blanc-pur;
+}
+
+.text-green-white-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium to-blanc-pur;
+}
+
+.text-electric-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-bright-blue;
+}
+
+.text-vivid-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-vivid-purple to-magenta-pink;
+}
+
+.text-electric-green-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-green-medium;
+}
+
+.bg-gradient-primary {
+  @apply bg-gradient-to-br from-green-medium via-noir-moyen to-noir-profond;
+}
+
+.bg-gradient-vert-noir {
+  @apply bg-gradient-to-br from-green-light via-green-dark to-noir-profond;
+}
+
+.bg-gradient-vert-blanc {
+  @apply bg-gradient-to-br from-green-medium via-green-pale to-blanc-pur;
+}
+
+.bg-gradient-noir-blanc {
+  @apply bg-gradient-to-br from-noir-profond via-noir-moyen to-blanc-pur;
+}
+
+.bg-gradient-revolution {
+  @apply bg-gradient-to-br from-green-dark via-noir-profond to-blanc-pur;
+}
+
+.bg-gradient-soft {
+  @apply bg-gradient-to-br from-green-pale via-blanc-cassé to-blanc-pur;
+}
+
+.bg-gradient-electric {
+  @apply bg-gradient-to-br from-electric-blue via-bright-blue to-noir-profond;
+}
+
+.bg-gradient-electric-vivid {
+  @apply bg-gradient-to-br from-electric-blue via-vivid-purple to-magenta-pink;
+}
+
+.bg-gradient-electric-green {
+  @apply bg-gradient-to-br from-electric-blue via-green-medium to-noir-profond;
+}
+
+.bg-gradient-luminous {
+  @apply bg-gradient-to-br from-bright-blue via-electric-blue to-blanc-pur;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel-green {
+  background: rgba(45, 140, 80, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(45, 140, 80, 0.18);
+  box-shadow: 0 8px 32px rgba(45, 140, 80, 0.1);
+}
+
+.glass-panel-dark {
+  background: rgba(10, 10, 10, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(33, 33, 33, 0.18);
+  box-shadow: 0 8px 32px rgba(10, 10, 10, 0.1);
+}
+
+.glass-panel-electric {
+  background: rgba(30, 174, 219, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 174, 219, 0.18);
+  box-shadow: 0 8px 32px rgba(30, 174, 219, 0.1);
+}
+
+.glass-panel-purple {
+  background: rgba(139, 92, 246, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+}
+
+.shadow-elevation {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-elevation-colored {
+  box-shadow: 
+    0 10px 25px -5px rgba(45, 140, 80, 0.3),
+    0 8px 10px -6px rgba(45, 140, 80, 0.2);
+}
+
+.shadow-elevation-electric {
+  box-shadow: 
+    0 10px 25px -5px rgba(30, 174, 219, 0.3),
+    0 8px 10px -6px rgba(30, 174, 219, 0.2);
+}
+
+.shadow-elevation-purple {
+  box-shadow: 
+    0 10px 25px -5px rgba(139, 92, 246, 0.3),
+    0 8px 10px -6px rgba(139, 92, 246, 0.2);
+}
+
+.revolutionary-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #2D8C50, #0A0A0A, #FFFFFF) 1;
+}
+
+.revolutionary-text-shadow {
+  text-shadow: 1px 1px 3px rgba(45, 140, 80, 0.5);
+}
+
+.revolutionary-glow {
+  filter: drop-shadow(0 0 8px rgba(45, 140, 80, 0.6));
+}
+
+.electric-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #1EAEDB, #33C3F0, #FFFFFF) 1;
+}
+
+.electric-text-shadow {
+  text-shadow: 1px 1px 3px rgba(30, 174, 219, 0.5);
+}
+
+.electric-glow {
+  filter: drop-shadow(0 0 8px rgba(30, 174, 219, 0.6));
+}
+
+.luminous-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #8B5CF6, #D946EF, #FFFFFF) 1;
+}
+
+.luminous-text-shadow {
+  text-shadow: 1px 1px 3px rgba(139, 92, 246, 0.5);
+}
+
+.luminous-glow {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+}
+
+.neon-card {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.neon-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  background: linear-gradient(45deg, rgba(30, 174, 219, 0.6), rgba(45, 140, 80, 0.6), rgba(139, 92, 246, 0.6), rgba(30, 174, 219, 0.6));
+  background-size: 400% 400%;
+  animation: gradientFlow 4s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.neon-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.neon-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(30, 174, 219, 0.6), rgba(45, 140, 80, 0.6));
+  background-size: 200% 200%;
+  animation: gradientFlow 2s linear infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.neon-button:hover::before {
+  opacity: 0.8;
+}
+
+.neon-text {
+  text-shadow: 0 0 3px rgba(30, 174, 219, 0.3), 0 0 6px rgba(30, 174, 219, 0.2);
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(30, 174, 219, 0.3);
+  border-radius: inherit;
+  box-shadow: 0 0 5px rgba(30, 174, 219, 0.3);
+  pointer-events: none;
+}
+
+.container, header, main, footer, .bg-background {
+  position: relative;
+  z-index: 1;
+}
+
+.main-content {
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 174, 219, 0.05);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
