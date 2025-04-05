@@ -2,7 +2,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-export const loginWithSupabase = async (email: string, password: string) => {
+type AuthResult = 
+  | { success: true; message?: string; user?: any; role?: string }
+  | { success: false; error: string };
+
+export const loginWithSupabase = async (email: string, password: string): Promise<AuthResult> => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -61,7 +65,7 @@ export const isAdminUser = async (userId: string): Promise<boolean> => {
   }
 };
 
-export const logoutFromSupabase = async () => {
+export const logoutFromSupabase = async (): Promise<AuthResult> => {
   try {
     const { error } = await supabase.auth.signOut();
     
@@ -78,7 +82,7 @@ export const logoutFromSupabase = async () => {
   }
 };
 
-export const createAdminAccount = async (email: string, password: string, role: 'admin' | 'superadmin' = 'admin') => {
+export const createAdminAccount = async (email: string, password: string, role: 'admin' | 'superadmin' = 'admin'): Promise<AuthResult> => {
   try {
     // Créer un nouvel utilisateur
     const { data, error } = await supabase.auth.signUp({

@@ -68,10 +68,10 @@ export const createAdminImmediately = async () => {
     const result = await setupInitialAdmin();
     
     if (result.success) {
-      toast.success(result.message || "Compte administrateur créé avec succès");
+      toast.success(result.message);
       return { success: true };
     } else {
-      toast.error(result.error || "Erreur lors de la création du compte");
+      toast.error(result.error);
       return { success: false, error: result.error };
     }
   } catch (error: any) {
