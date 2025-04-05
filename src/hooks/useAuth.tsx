@@ -2,6 +2,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User } from 'firebase/auth';
 import { useFirebaseAuth } from './useFirebaseAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -29,19 +30,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Check if user has admin role
-    if (user) {
-      user.getIdTokenResult()
-        .then((idTokenResult) => {
-          // Check if admin custom claim exists
-          setIsAdmin(!!idTokenResult.claims.admin);
-        })
-        .catch((error) => {
-          console.error("Error getting token claims:", error);
+    const checkAdminRole = async () => {
+      if (user) {
+        try {
+          const result = await supabase.from('admin_roles')
+            .select('*')
+            .eq('user_id', user.uid)
+            .maybeSingle();
+            
+          // Vérifiez si le résultat contient des données
+          if (result && result.data) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+        } catch (error) {
+          console.error("Error checking admin role:", error);
           setIsAdmin(false);
-        });
-    } else {
-      setIsAdmin(false);
-    }
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminRole();
   }, [user]);
 
   return (
