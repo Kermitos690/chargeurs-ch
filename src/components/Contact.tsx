@@ -1,9 +1,69 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Phone } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Message envoyé",
+        description: "Nous vous répondrons dans les plus brefs délais.",
+      });
+      
+      // Réinitialiser le formulaire
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" className="py-24 bg-secondary/30 relative">
       {/* Background decoration */}
@@ -42,8 +102,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-medium">Email</p>
-                    <a href="mailto:info@chargeurs.ch" className="text-primary hover:underline">
-                      info@chargeurs.ch
+                    <a href="mailto:chargeurs@proton.me" className="text-primary hover:underline">
+                      chargeurs@proton.me
                     </a>
                   </div>
                 </div>
@@ -83,7 +143,7 @@ const Contact = () => {
             <div className="lg:col-span-3 bg-white rounded-2xl p-6 md:p-8 border border-border/60 shadow-subtle animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <h3 className="text-2xl font-semibold mb-6">Envoyez-nous un message</h3>
               
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="block text-sm font-medium">
@@ -94,6 +154,9 @@ const Contact = () => {
                       id="name"
                       placeholder="Votre nom"
                       className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
                     />
                   </div>
                   
@@ -106,6 +169,9 @@ const Contact = () => {
                       id="email"
                       placeholder="Votre email"
                       className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
                     />
                   </div>
                 </div>
@@ -119,6 +185,8 @@ const Contact = () => {
                     id="subject"
                     placeholder="Sujet de votre message"
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                    value={formData.subject}
+                    onChange={handleChange}
                   />
                 </div>
                 
@@ -131,12 +199,20 @@ const Contact = () => {
                     placeholder="Votre message"
                     rows={6}
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-none"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
                   ></textarea>
                 </div>
                 
                 <div>
-                  <Button type="submit" className="w-full md:w-auto" size="lg">
-                    Envoyer le message
+                  <Button 
+                    type="submit" 
+                    className="w-full md:w-auto" 
+                    size="lg"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
                   </Button>
                 </div>
               </form>

@@ -3,11 +3,13 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
   FormControl,
@@ -31,6 +33,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,17 +45,33 @@ const Contact = () => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Form data:', data);
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Envoyer l'email via la fonction edge
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: data
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "Message envoyé",
         description: "Nous vous répondrons dans les plus brefs délais.",
       });
+      
       form.reset();
-    }, 1000);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -68,7 +88,7 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6 text-primary" />,
       title: "Email",
-      details: ["info@chargeurs.ch", "support@chargeurs.ch"]
+      details: ["chargeurs@proton.me"]
     }
   ];
 
@@ -162,8 +182,8 @@ const Contact = () => {
                     )}
                   />
                   
-                  <Button type="submit" className="w-full">
-                    Envoyer
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Envoi en cours..." : "Envoyer"}
                   </Button>
                 </form>
               </Form>
@@ -220,12 +240,16 @@ const Contact = () => {
           </div>
           
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-6">FAQ</h2>
+            <h2 className="text-2xl font-bold mb-6">Besoin d'un rendez-vous ?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Vous avez des questions fréquemment posées ? Consultez notre page FAQ pour trouver rapidement des réponses.
+              Vous préférez discuter directement avec un de nos conseillers ? Prenez rendez-vous pour un appel téléphonique ou une visioconférence.
             </p>
-            <Button size="lg" className="rounded-full">
-              Voir les FAQ
+            <Button 
+              size="lg" 
+              className="rounded-full"
+              onClick={() => window.location.href = '/appointment'}
+            >
+              Prendre rendez-vous
             </Button>
           </div>
         </section>
