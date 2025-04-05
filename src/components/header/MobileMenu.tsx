@@ -23,7 +23,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
           <Menu className="h-5 w-5" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="bg-background p-4">
+      <DrawerContent className="bg-gradient-to-b from-green-dark to-noir-profond p-4">
         <div className="flex flex-col h-full space-y-4">
           <nav className="space-y-2">
             {navItems.map((item) => (
@@ -32,8 +32,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
                   to={item.path} 
                   className={({ isActive }) => 
                     `block p-2 rounded-md ${isActive 
-                      ? "bg-primary text-primary-foreground" 
-                      : "hover:bg-accent"}`
+                      ? "bg-green-medium/70 text-white shadow-[0_0_8px_rgba(45,140,80,0.7)]" 
+                      : "text-white hover:bg-green-dark/50 hover:shadow-[0_0_5px_rgba(45,140,80,0.5)]"}`
                   }
                 >
                   {item.label}
@@ -43,11 +43,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
           </nav>
           
           {!user && (
-            <div className="flex flex-col space-y-2 pt-4">
+            <div className="flex flex-col space-y-3 pt-4">
               <Button 
                 onClick={() => {
                   navigate('/auth/login');
                 }}
+                className="bg-green-medium hover:bg-green-dark hover:shadow-[0_0_8px_rgba(45,140,80,0.7)]"
               >
                 Se connecter
               </Button>
@@ -56,6 +57,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
                 onClick={() => {
                   navigate('/auth/register');
                 }}
+                className="border-green-medium text-white hover:bg-green-dark/50 hover:shadow-[0_0_5px_rgba(45,140,80,0.5)]"
               >
                 S'inscrire
               </Button>
@@ -64,17 +66,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
 
           {user && (
             <div className="pt-4">
-              <div className="flex items-center space-x-3 mb-4">
-                <Avatar className="h-8 w-8">
+              <div className="flex items-center space-x-3 mb-4 bg-green-dark/40 p-3 rounded-lg">
+                <Avatar className="h-8 w-8 border border-green-light/30 shadow-[0_0_5px_rgba(45,140,80,0.3)]">
                   <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
                   <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
-                <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
+                <span className="font-medium text-white">{userData?.name || 'Utilisateur'}</span>
               </div>
               <div className="space-y-2">
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-left" 
+                  className="w-full justify-start text-left text-white hover:bg-green-dark/50 hover:shadow-[0_0_5px_rgba(45,140,80,0.5)]" 
                   onClick={() => {
                     navigate('/profile');
                   }}
@@ -84,7 +86,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-left" 
+                  className="w-full justify-start text-left text-white hover:bg-green-dark/50 hover:shadow-[0_0_5px_rgba(45,140,80,0.5)]" 
                   onClick={() => {
                     navigate('/account');
                   }}
@@ -94,7 +96,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems, handleLogout }) => {
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-left" 
+                  className="w-full justify-start text-left text-white hover:bg-green-dark/50 hover:shadow-[0_0_5px_rgba(45,140,80,0.5)]" 
                   onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
