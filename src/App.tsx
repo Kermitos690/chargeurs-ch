@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +21,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
 import VoiceChat from "./components/VoiceChat";
-import AIChat from "./components/AIChat";
+import AIChat from "./components/ai-chat";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";

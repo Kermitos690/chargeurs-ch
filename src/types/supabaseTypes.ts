@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/types'
 
-// Définir les types PostgrestError, User et Session à partir de ce qui est disponible
+// Define PostgrestError, User and Session types from what's available
 export type PostgrestError = ReturnType<typeof createClient>['from']['select']['catch']['parameters'][0]['error']
 export type User = ReturnType<typeof createClient>['auth']['getUser']['then']['parameters'][0]['data']['user']
 export type Session = ReturnType<typeof createClient>['auth']['getSession']['then']['parameters'][0]['data']['session']
