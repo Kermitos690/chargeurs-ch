@@ -21,6 +21,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
+import VoiceChat from "./components/VoiceChat";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -128,6 +129,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <VoiceChat />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

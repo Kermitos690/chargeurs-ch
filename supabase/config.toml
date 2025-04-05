@@ -39,3 +39,6 @@ verify_jwt = true
 
 [functions.webhook-rental]
 verify_jwt = false
+
+[functions.ai-voice-chat]
+verify_jwt = false
