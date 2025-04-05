@@ -77,3 +77,45 @@ export const logoutFromSupabase = async () => {
     return { success: false, error: error.message || "Erreur de déconnexion" };
   }
 };
+
+export const createAdminAccount = async (email: string, password: string, role: 'admin' | 'superadmin' = 'admin') => {
+  try {
+    // Créer un nouvel utilisateur
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Erreur lors de la création du compte:", error);
+      return { success: false, error: error.message };
+    }
+
+    if (!data.user) {
+      return { success: false, error: "Erreur lors de la création de l'utilisateur" };
+    }
+
+    // Attribuer le rôle d'admin
+    const { error: roleError } = await supabase
+      .from('admin_roles')
+      .insert({
+        user_id: data.user.id,
+        role: role
+      });
+
+    if (roleError) {
+      console.error("Erreur lors de l'attribution du rôle:", roleError);
+      // Suppression de l'utilisateur si l'attribution du rôle échoue
+      await supabase.auth.admin.deleteUser(data.user.id);
+      return { success: false, error: "Erreur lors de l'attribution du rôle d'administrateur" };
+    }
+
+    return { 
+      success: true, 
+      message: "Compte administrateur créé avec succès. Veuillez vérifier votre email pour confirmer votre compte."
+    };
+  } catch (error: any) {
+    console.error("Erreur critique lors de la création du compte:", error);
+    return { success: false, error: error.message || "Erreur lors de la création du compte" };
+  }
+};

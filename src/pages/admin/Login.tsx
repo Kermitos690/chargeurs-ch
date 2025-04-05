@@ -16,9 +16,11 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Battery, Lock, Loader2 } from 'lucide-react';
+import { Battery, Lock, Loader2, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { loginWithSupabase } from '@/services/supabase/auth';
+import { createAdminImmediately } from '@/services/supabase/setupAdmin';
 
 const formSchema = z.object({
   email: z.string().email('Adresse email invalide'),
@@ -29,6 +31,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
 
   useEffect(() => {
@@ -51,36 +54,22 @@ const AdminLogin = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // Try login with Supabase first
-      const { data: superAdminData, error: superAdminError } = await supabase.from('admin_roles')
-        .select('*')
-        .eq('role', 'superadmin')
-        .maybeSingle();
-
-      if (superAdminData || !superAdminError) {
-        // Supabase admin login logic
-        const { success, error } = await loginAdmin(values.email, values.password);
+      // Try login with Supabase
+      const { success, error } = await loginWithSupabase(values.email, values.password);
         
-        if (success) {
-          toast({
-            title: 'Connexion réussie',
-            description: 'Bienvenue dans l\'interface d\'administration',
-          });
-          navigate('/admin/dashboard');
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Erreur de connexion',
-            description: error || 'Vérifiez vos identifiants',
-          });
-        }
+      if (success) {
+        toast({
+          title: 'Connexion réussie',
+          description: 'Bienvenue dans l\'interface d\'administration',
+        });
+        navigate('/admin/dashboard');
       } else {
-        // Fallback to Firebase if Supabase isn't set up
-        const { success, error } = await loginAdmin(values.email, values.password);
+        // Fallback to Firebase if Supabase login fails
+        const firebaseResult = await loginAdmin(values.email, values.password);
         
-        if (success) {
+        if (firebaseResult.success) {
           toast({
-            title: 'Connexion réussie',
+            title: 'Connexion réussie (Firebase)',
             description: 'Bienvenue dans l\'interface d\'administration',
           });
           navigate('/admin/dashboard');
@@ -88,11 +77,11 @@ const AdminLogin = () => {
           toast({
             variant: 'destructive',
             title: 'Erreur de connexion',
-            description: error || 'Vérifiez vos identifiants',
+            description: error || firebaseResult.error || 'Vérifiez vos identifiants',
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Erreur',
@@ -100,6 +89,22 @@ const AdminLogin = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateAdmin = async () => {
+    setIsCreatingAdmin(true);
+    try {
+      const result = await createAdminImmediately();
+      if (result.success) {
+        // Préremplir le formulaire avec les identifiants créés
+        form.setValue('email', 'chargeurs@proton.me');
+        form.setValue('password', 'mdr 11111111');
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création du compte admin:", error);
+    } finally {
+      setIsCreatingAdmin(false);
     }
   };
 
@@ -233,6 +238,29 @@ const AdminLogin = () => {
               </Button>
             </form>
           </Form>
+          
+          <div className="mt-4 flex justify-center">
+            <Button
+              type="button"
+              onClick={handleCreateAdmin}
+              className="text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 focus:ring-1 focus:ring-gray-400"
+              variant="outline"
+              size="sm"
+              disabled={isCreatingAdmin}
+            >
+              {isCreatingAdmin ? (
+                <>
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  Création...
+                </>
+              ) : (
+                <>
+                  <Settings className="mr-1 h-3 w-3" />
+                  Créer compte admin
+                </>
+              )}
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div 
