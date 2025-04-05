@@ -32,20 +32,16 @@ const Account = () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          // Récupérer les données utilisateur depuis Supabase
           const profile = await getUserProfile(user.uid);
           if (profile) {
             setUserData(profile);
           }
           
-          // Code existant pour récupérer l'abonnement
-          // Si l'utilisateur a un abonnement, récupérer les détails
           const userResult = await getDocument('users', user.uid);
           
           if (userResult.success && userResult.data) {
             const userDataFromFirestore = userResult.data;
             
-            // Si l'utilisateur a un abonnement, récupérer les détails
             if (userDataFromFirestore.subscriptionType) {
               const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
               if (subResult.success && subResult.data) {
@@ -68,6 +64,16 @@ const Account = () => {
 
     fetchUserData();
   }, [user, toast]);
+
+  const getSubscriptionBadge = (profile: UserProfile | { id: string; }) => {
+    if (!profile || !('subscriptionType' in profile)) return null;
+    
+    return (
+      <span className={`px-2 py-1 text-xs rounded-full ${profile.subscriptionType === 'premium' ? 'bg-gold-100 text-gold-800' : 'bg-blue-100 text-blue-800'}`}>
+        {profile.subscriptionType === 'premium' ? 'Premium' : 'Basique'}
+      </span>
+    );
+  };
 
   if (loading) {
     return (
