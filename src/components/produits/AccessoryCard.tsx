@@ -18,12 +18,13 @@ const AccessoryCard: React.FC<AccessoryCardProps> = ({ accessory }) => {
   const handleAddToCart = async () => {
     setIsLoading(true);
     try {
+      // Extraire le prix numérique (enlever 'CHF' et autres caractères non numériques)
+      const numericPrice = parseFloat(accessory.price.replace(/[^0-9.]/g, ''));
+      
       const success = await addToCart(
         accessory.id, 
         1, 
-        parseFloat(accessory.price.replace(/[^0-9.]/g, '')), 
-        undefined,
-        accessory.stripeProductId
+        numericPrice
       );
       
       if (success) {

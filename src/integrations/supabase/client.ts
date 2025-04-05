@@ -7,33 +7,43 @@ export const supabase = {
         single: () => Promise.resolve({ data: null, error: null }),
         maybeSingle: () => Promise.resolve({ data: null, error: null }),
         range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+        limit: (limit: number) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null }),
+        }),
+        order: (column: string, { ascending }: { ascending: boolean }) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
+        or: (query: string) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
+        gte: (column: string, value: any) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
+        lte: (column: string, value: any) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
+        neq: (column: string, value: any) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
+      }),
+      or: (query: string) => ({
+        range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
         limit: (limit: number) => Promise.resolve({ data: [], error: null }),
-        order: (column: string, { ascending }: { ascending: boolean }) => 
-          Promise.resolve({ data: [], error: null, count: 0 }),
-        or: (query: string) => Promise.resolve({ data: [], error: null, count: 0 }),
-        gte: (column: string, value: any) => Promise.resolve({ data: [], error: null }),
-        lte: (column: string, value: any) => Promise.resolve({ data: [], error: null }),
-        neq: (column: string, value: any) => Promise.resolve({ data: [], error: null })
       }),
       eq: (column: string, value: any) => ({
         single: () => Promise.resolve({ data: null, error: null }),
         maybeSingle: () => Promise.resolve({ data: null, error: null }),
         range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
         limit: (limit: number) => Promise.resolve({ data: [], error: null }),
-        order: (column: string, { ascending }: { ascending: boolean }) => 
-          Promise.resolve({ data: [], error: null, count: 0 }),
-      }),
-      order: (column: string, { ascending }: { ascending: boolean }) => ({
-        range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
-        limit: (limit: number) => Promise.resolve({ data: [], error: null }),
-      }),
-      limit: (limit: number) => ({
-        range: (from: number, to: number) => Promise.resolve({ data: [], error: null }),
-      }),
-      range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
-      or: (query: string) => ({
-        range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
-        limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        order: (column: string, { ascending }: { ascending: boolean }) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+        }),
       }),
       gte: (column: string, value: any) => ({
         range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
@@ -43,6 +53,21 @@ export const supabase = {
         range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
         limit: (limit: number) => Promise.resolve({ data: [], error: null }),
       }),
+      neq: (column: string, value: any) => ({
+        range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+        limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+      }),
+      order: (column: string, { ascending }: { ascending: boolean }) => ({
+        range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+        limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+      }),
+      limit: (limit: number) => ({
+        range: (from: number, to: number) => Promise.resolve({ data: [], error: null }),
+        order: (column: string, { ascending }: { ascending: boolean }) => ({
+          range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
+        }),
+      }),
+      range: (from: number, to: number) => Promise.resolve({ data: [], error: null, count: 0 }),
       single: () => Promise.resolve({ data: null, error: null }),
       maybeSingle: () => Promise.resolve({ data: null, error: null }),
     }),

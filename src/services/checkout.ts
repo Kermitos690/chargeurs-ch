@@ -1,3 +1,4 @@
+
 import { getCartItems, clearCart } from './cart';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,58 +20,24 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       name: item.product.name + (item.variant ? ` - ${item.variant.name}` : ''),
       price: item.variant?.price || item.product.price,
       quantity: item.quantity,
-      // Le stripeProductId n'existe pas dans le type retourné par getCartItems()
-      // Nous devons l'ajouter manuellement pour les produits d'accessoires
-      stripeProductId: null // On ne peut pas utiliser la propriété qui n'existe pas dans le type
+      imageUrl: item.product.imageUrl
     }));
 
-    // Pour les accessoires, on peut chercher le stripeProductId via les données statiques
-    // Cette solution temporaire permet de faire fonctionner le code sans modifier le type
-    try {
-      const accessoriesModule = await import('@/data/accessories');
-      if (accessoriesModule && accessoriesModule.accessories) {
-        const accessories = accessoriesModule.accessories;
-        
-        // Mettre à jour les items avec les stripeProductId des accessoires
-        items.forEach(item => {
-          const accessory = accessories.find(acc => acc.id === item.id);
-          if (accessory && accessory.stripeProductId) {
-            item.stripeProductId = accessory.stripeProductId;
-          }
-        });
-      }
-    } catch (error) {
-      console.log('Impossible de charger les données des accessoires:', error);
-    }
-
-    // Appeler l'API Stripe via la fonction Edge de Supabase
-    const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { 
-        items,
-        successUrl,
-        cancelUrl,
-        useTerminal
-      }
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (data?.requiresTerminal && data?.clientSecret) {
-      // Retourner les détails pour le terminal
+    // Simuler un appel à la fonction Edge Stripe
+    if (useTerminal) {
+      // Simuler une réponse pour le terminal
       return { 
         success: true, 
         requiresTerminal: true, 
-        clientSecret: data.clientSecret,
-        paymentIntentId: data.paymentIntentId
+        clientSecret: 'dummy_client_secret',
+        paymentIntentId: 'dummy_payment_intent_id'
       };
-    } else if (data?.url) {
-      // Rediriger vers l'URL de paiement Stripe
-      window.location.href = data.url;
-      return { success: true };
     } else {
-      throw new Error('Aucune URL de redirection n\'a été reçue');
+      // Simuler une URL de paiement Stripe
+      // En production, cette URL serait obtenue de la fonction Edge
+      const checkoutUrl = '/shop/checkout-success';
+      window.location.href = checkoutUrl;
+      return { success: true };
     }
   } catch (error) {
     console.error('Erreur lors de la création de la session de paiement:', error);
@@ -84,10 +51,6 @@ export const handleCheckoutSuccess = async (sessionId: string) => {
   try {
     // Vider le panier après un paiement réussi
     await clearCart();
-    
-    // Vous pourriez également vérifier le statut de la session auprès de Stripe
-    // et mettre à jour votre base de données en conséquence
-    
     return { success: true };
   } catch (error) {
     console.error('Erreur lors du traitement du succès du paiement:', error);
@@ -95,73 +58,16 @@ export const handleCheckoutSuccess = async (sessionId: string) => {
   }
 };
 
-// Procéder au paiement via terminal WISE PAD 3
+// Procéder au paiement via terminal
 export const processTerminalPayment = async (paymentIntentId: string) => {
   try {
-    // Appeler l'API pour traiter le paiement via terminal
-    const { data, error } = await supabase.functions.invoke('process-terminal-payment', {
-      body: { 
-        paymentIntentId
-      }
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return { success: true, data };
+    // Simuler le traitement du paiement via terminal
+    console.log('Traitement du paiement via terminal:', paymentIntentId);
+    
+    return { success: true, data: { status: 'succeeded' } };
   } catch (error) {
     console.error('Erreur lors du traitement du paiement via terminal:', error);
     toast.error('Une erreur est survenue lors du traitement du paiement');
-    return { success: false, error: error.message };
-  }
-};
-
-// Voici un exemple de fonctions supplémentaires que vous pourriez vouloir implémenter:
-
-// Récupérer les détails d'une commande
-export const getOrderDetails = async (orderId: string) => {
-  try {
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select(`
-        *,
-        order_items (
-          *,
-          products (
-            id, name, image_url
-          ),
-          product_variants (
-            id, name, image_url
-          )
-        )
-      `)
-      .eq('id', orderId)
-      .single();
-
-    if (orderError) throw orderError;
-    
-    return { success: true, order };
-  } catch (error) {
-    console.error('Erreur lors de la récupération des détails de la commande:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-// Récupérer les commandes d'un utilisateur
-export const getUserOrders = async (userId: string) => {
-  try {
-    const { data: orders, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    
-    return { success: true, orders };
-  } catch (error) {
-    console.error('Erreur lors de la récupération des commandes:', error);
     return { success: false, error: error.message };
   }
 };

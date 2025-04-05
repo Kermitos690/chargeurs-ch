@@ -100,7 +100,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
               </SheetClose>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {cartItems.map((item) => (
                 <CartItem key={item.id} item={item} onUpdate={fetchCart} />
               ))}

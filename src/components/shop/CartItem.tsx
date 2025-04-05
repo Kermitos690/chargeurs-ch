@@ -1,8 +1,7 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, X } from 'lucide-react';
+import { Minus, Plus, Trash2, Loader2 } from 'lucide-react';
 import { updateCartItemQuantity, removeCartItem } from '@/services/cart';
 
 interface CartItemProps {
@@ -10,99 +9,111 @@ interface CartItemProps {
     id: string;
     quantity: number;
     product: {
-      id: string;
       name: string;
-      slug: string;
       imageUrl?: string;
       price: number;
+      regularPrice?: number;
     };
     variant?: {
-      id: string;
       name: string;
       imageUrl?: string;
-      price?: number;
-      attributes?: Record<string, any>;
+      price: number;
     } | null;
   };
-  onUpdate?: () => void;
+  onUpdate: () => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
-  const { id, quantity, product, variant } = item;
-  const price = variant?.price || product.price;
-  const name = product.name + (variant ? ` - ${variant.name}` : '');
-  const imageUrl = variant?.imageUrl || product.imageUrl;
-  const subtotal = price * quantity;
-
-  const handleUpdateQuantity = async (newQuantity: number) => {
-    if (newQuantity === 0) {
-      await removeCartItem(id);
-    } else {
-      await updateCartItemQuantity(id, newQuantity);
+  const [loading, setLoading] = useState(false);
+  
+  const handleQuantityChange = async (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    
+    setLoading(true);
+    try {
+      await updateCartItemQuantity(item.id, newQuantity);
+      onUpdate();
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la quantité:', error);
+    } finally {
+      setLoading(false);
     }
-    if (onUpdate) onUpdate();
   };
-
+  
   const handleRemove = async () => {
-    await removeCartItem(id);
-    if (onUpdate) onUpdate();
+    setLoading(true);
+    try {
+      await removeCartItem(item.id);
+      onUpdate();
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'article:', error);
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
+  const price = item.variant?.price || item.product.price;
+  const totalPrice = price * item.quantity;
+  const imageUrl = item.variant?.imageUrl || item.product.imageUrl;
+  
   return (
-    <div className="flex py-4 border-b">
-      <div className="w-20 h-20 flex-shrink-0 bg-gray-100 overflow-hidden rounded">
+    <div className="flex items-start gap-3 pb-3 border-b">
+      <div className="w-16 h-16 flex-shrink-0 bg-muted rounded overflow-hidden">
         {imageUrl ? (
-          <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+          <img src={imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-            Pas d'image
+          <div className="w-full h-full flex items-center justify-center bg-slate-100 text-muted-foreground text-xs">
+            Image non disponible
           </div>
         )}
       </div>
       
-      <div className="ml-4 flex-grow">
-        <div className="flex justify-between">
-          <Link to={`/produits/${product.slug}`} className="font-medium hover:text-primary">
-            {name}
-          </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-7 w-7 text-gray-500 hover:text-red-500"
-            onClick={handleRemove}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="text-muted-foreground text-sm mt-1">
-          {price.toFixed(2)} CHF
-        </div>
+      <div className="flex-grow">
+        <h4 className="font-medium line-clamp-1">{item.product.name}</h4>
+        {item.variant && (
+          <p className="text-sm text-muted-foreground">{item.variant.name}</p>
+        )}
         
         <div className="flex justify-between items-center mt-2">
-          <div className="flex items-center border rounded">
+          <div className="flex items-center">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="icon" 
-              className="h-8 w-8 rounded-none"
-              onClick={() => handleUpdateQuantity(quantity - 1)}
-              disabled={quantity <= 1}
+              className="h-7 w-7" 
+              onClick={() => handleQuantityChange(item.quantity - 1)}
+              disabled={item.quantity <= 1 || loading}
             >
               <Minus className="h-3 w-3" />
             </Button>
-            <span className="w-8 text-center text-sm">{quantity}</span>
+            <span className="mx-2 w-5 text-center">{item.quantity}</span>
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="icon" 
-              className="h-8 w-8 rounded-none"
-              onClick={() => handleUpdateQuantity(quantity + 1)}
+              className="h-7 w-7" 
+              onClick={() => handleQuantityChange(item.quantity + 1)}
+              disabled={loading}
             >
               <Plus className="h-3 w-3" />
             </Button>
           </div>
           
-          <div className="font-bold">
-            {subtotal.toFixed(2)} CHF
+          <div className="flex items-center">
+            <span className="font-medium text-right">
+              {totalPrice.toFixed(2)} CHF
+            </span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7 ml-2 text-muted-foreground hover:text-destructive" 
+              onClick={handleRemove}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Trash2 className="h-3 w-3" />
+              )}
+            </Button>
           </div>
         </div>
       </div>
