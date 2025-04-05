@@ -2,7 +2,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { isSuperAdmin } from '@/services/supabase/superAdmin';
-import type { ProfileRow, UserInfo, AuthUser, AuthSession } from '@/types/supabaseTypes';
+import type { ProfileRow, UserInfo, AuthUser, AuthSession } from '@/types/supabaseTypes.d';
 
 interface AuthContextType {
   user: AuthUser | null;

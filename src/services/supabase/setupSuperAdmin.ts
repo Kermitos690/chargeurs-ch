@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { SystemConfigRow, ProfileRow, AdminRoleRow } from '@/types/supabaseTypes';
+import type { SystemConfigRow, ProfileRow, AdminRoleRow } from '@/types/supabaseTypes.d';
 
 // Cette fonction permet d'initialiser un superadmin dans le système
 export const setupInitialSuperAdmin = async (email: string): Promise<boolean> => {

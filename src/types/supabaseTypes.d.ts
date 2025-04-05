@@ -1,9 +1,9 @@
 
-import type { User, Session } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types'
 
 // Types personnalisés pour l'utilisateur Supabase
-export type AuthUser = User;
-export type AuthSession = Session;
+export type AuthUser = import('@supabase/supabase-js').User;
+export type AuthSession = import('@supabase/supabase-js').Session;
 
 // Types pour les tables personnalisées Supabase
 export interface ProfileRow {
@@ -39,3 +39,6 @@ export interface UserInfo {
   phone?: string;
   subscriptionType?: string;
 }
+
+// Réexporter Database pour pouvoir l'utiliser
+export { Database }

@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AdminRoleRow } from '@/types/supabaseTypes';
+import type { AdminRoleRow } from '@/types/supabaseTypes.d';
 
 // Service de connexion pour l'administration
 export const loginAdmin = async (email: string, password: string) => {
