@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +19,7 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userData, setUserData] = useState<UserProfile | null>(null); // Modification ici pour utiliser UserProfile
+  const [userData, setUserData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -93,14 +92,12 @@ const Account = () => {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
-            {/* Informations générales */}
             <Card>
               <CardHeader>
                 <CardTitle>Bienvenue, {user?.displayName || userData?.firstName || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
@@ -125,7 +122,6 @@ const Account = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Autres cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Factures récentes</CardTitle>
@@ -167,7 +163,6 @@ const Account = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Carte du profil modifiée pour inclure un lien vers la page de profil */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Profile</CardTitle>

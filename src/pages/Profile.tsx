@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -86,13 +85,13 @@ const Profile = () => {
             setUserData(profile);
             
             profileForm.reset({
-              firstName: profile.first_name || '',
-              lastName: profile.last_name || '',
+              firstName: profile.firstName || '',
+              lastName: profile.lastName || '',
               email: user.email || '',
               phone: profile.phone || '',
               address: profile.address || '',
               city: profile.city || '',
-              postalCode: profile.postal_code || '',
+              postalCode: profile.postalCode || '',
             });
           }
         } catch (error) {
@@ -117,12 +116,12 @@ const Profile = () => {
     setSavingProfile(true);
     try {
       const result = await updateUserProfile(user.uid, {
-        first_name: data.firstName,
-        last_name: data.lastName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         phone: data.phone,
         address: data.address,
         city: data.city,
-        postal_code: data.postalCode,
+        postalCode: data.postalCode,
       });
 
       if (result.success) {
