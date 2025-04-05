@@ -1,13 +1,24 @@
 
-// Type declarations for Supabase schema
-import type { User, Session } from '@supabase/supabase-js'
+// Types simplifiés pour l'intégration Supabase
 import type { Database } from '@/integrations/supabase/types'
 
-// Alias types for better readability
-export type AuthUser = User;
-export type AuthSession = Session;
+// Types simplifiés pour l'utilisateur Supabase
+export type AuthUser = {
+  id: string;
+  app_metadata?: Record<string, any>;
+  user_metadata?: Record<string, any>;
+  aud?: string;
+  email?: string;
+};
 
-// Types for the tables in Supabase
+export type AuthSession = {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number;
+  user: AuthUser;
+};
+
+// Types pour les tables dans Supabase
 export interface ProfileRow {
   id: string;
   name: string | null;
@@ -33,7 +44,7 @@ export interface SystemConfigRow {
   updated_at: string;
 }
 
-// Type auxiliary for the user Supabase
+// Type auxiliaire pour l'utilisateur Supabase
 export interface UserInfo {
   id: string;
   email?: string;
@@ -42,5 +53,5 @@ export interface UserInfo {
   subscriptionType?: string;
 }
 
-// Re-export Database for use
+// Ré-exporter Database pour l'utiliser
 export { Database }
