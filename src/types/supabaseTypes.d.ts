@@ -1,10 +1,9 @@
 
-import { Database } from '@/integrations/supabase/types';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 
 // Types personnalisés pour l'utilisateur Supabase
 export type AuthUser = User;
-export type AuthSession = any;
+export type AuthSession = Session;
 
 // Types pour les tables personnalisées Supabase
 export interface ProfileRow {

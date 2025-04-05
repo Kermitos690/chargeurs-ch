@@ -1,9 +1,7 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
-import { AuthSession, AuthUser } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { isSuperAdmin } from '@/services/supabase/superAdmin';
-import { ProfileRow, UserInfo } from '@/types/supabaseTypes';
+import { ProfileRow, UserInfo, AuthUser, AuthSession } from '@/types/supabaseTypes';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -32,7 +30,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userIsSuperAdmin, setUserIsSuperAdmin] = useState(false);
 
   useEffect(() => {
-    // Première étape : définir le listener pour les changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         setSession(newSession);
@@ -40,10 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(true);
 
         if (newSession?.user) {
-          // Vérifier les rôles après un délai pour éviter une boucle infinie
           setTimeout(async () => {
             try {
-              // Vérifier si l'utilisateur est admin
               const { data: adminData, error: adminError } = await supabase.rpc('has_role', { 
                 _user_id: newSession.user.id,
                 _role: 'admin'
@@ -51,11 +46,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               
               setIsAdmin(adminData || false);
               
-              // Vérifier si l'utilisateur est superadmin
               const superAdmin = await isSuperAdmin(newSession.user);
               setUserIsSuperAdmin(superAdmin);
               
-              // Récupérer les données du profil utilisateur
               const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
@@ -87,7 +80,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Deuxième étape : vérifier la session existante
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
