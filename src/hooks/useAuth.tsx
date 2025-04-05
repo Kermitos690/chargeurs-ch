@@ -1,5 +1,6 @@
+
 import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSuperAdmin } from '@/integrations/supabase/client';
 import type { ProfileRow, UserInfo, AuthUser, AuthSession } from '@/types/supabaseTypes';
 
 interface AuthContextType {
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .from('profiles')
                 .select('*')
                 .eq('id', newSession.user.id)
-                .single();
+                .maybeSingle();
               
               if (profileData && !profileError) {
                 const profile = profileData as ProfileRow;
