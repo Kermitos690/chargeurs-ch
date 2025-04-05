@@ -22,6 +22,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
 import Services from "./pages/Services";
+import Chat from "./pages/Chat"; // Nouvelle page de chat
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/chat" element={<Chat />} /> {/* Nouvelle route de chat */}
             
             {/* Routes d'authentification */}
             <Route path="/auth/login" element={<Login />} />

@@ -33,6 +33,7 @@ const Header = () => {
     { label: 'Services', path: '/services' },
     { label: 'Produits', path: '/produits' },
     { label: 'Stations', path: '/stations' },
+    { label: 'Chat', path: '/chat' }, // Nouvel élément de menu pour le chat
     { label: 'Contact', path: '/contact' },
   ];
 
