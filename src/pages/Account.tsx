@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,13 +12,13 @@ import { getDocument, getCollection } from '@/services/firebase';
 import { Subscription, User as UserType } from '@/types/api';
 
 const Account = () => {
-  const { user, loading } = useAuth();
+  const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [profileData, setProfileData] = useState<UserType | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -33,11 +32,11 @@ const Account = () => {
         setLoadingSubscription(true);
         try {
           // Récupérer les données utilisateur complètes
-          const userResult = await getDocument('users', user.uid);
+          const userResult = await getDocument('users', user.id);
           
           if (userResult.success && userResult.data) {
             const userDataFromFirestore = userResult.data as UserType;
-            setUserData(userDataFromFirestore);
+            setProfileData(userDataFromFirestore);
             
             // Si l'utilisateur a un abonnement, récupérer les détails
             if (userDataFromFirestore.subscriptionType) {
@@ -89,7 +88,7 @@ const Account = () => {
             {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {user?.displayName || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {userData?.name || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -248,7 +247,7 @@ const Account = () => {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Nom d'utilisateur</h4>
-                    <p className="text-gray-500">{user?.displayName || 'Non défini'}</p>
+                    <p className="text-gray-500">{userData?.name || 'Non défini'}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>

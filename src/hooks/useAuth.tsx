@@ -3,16 +3,11 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { isSuperAdmin } from '@/services/supabase/superAdmin';
+import { ProfileRow, UserInfo } from '@/types/supabaseTypes';
 
 interface AuthContextType {
   user: User | null;
-  userData: {
-    id: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    subscriptionType?: string;
-  } | null;
+  userData: UserInfo | null;
   loading: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
@@ -31,7 +26,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [userData, setUserData] = useState<AuthContextType['userData']>(null);
+  const [userData, setUserData] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userIsSuperAdmin, setUserIsSuperAdmin] = useState(false);
@@ -68,12 +63,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .single();
               
               if (profileData && !profileError) {
+                const profile = profileData as ProfileRow;
                 setUserData({
-                  id: profileData.id,
-                  name: profileData.name,
-                  email: profileData.email,
-                  phone: profileData.phone,
-                  subscriptionType: profileData.subscription_type
+                  id: profile.id,
+                  name: profile.name || undefined,
+                  email: profile.email || undefined,
+                  phone: profile.phone || undefined,
+                  subscriptionType: profile.subscription_type || undefined
                 });
               }
             } catch (error) {

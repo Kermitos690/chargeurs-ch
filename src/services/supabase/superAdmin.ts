@@ -1,6 +1,7 @@
 
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { AdminRoleRow } from '@/types/supabaseTypes';
 
 // Vérifie si un utilisateur a le rôle de superadmin
 export const isSuperAdmin = async (user: User | null): Promise<boolean> => {
@@ -32,8 +33,8 @@ export const setSuperAdminRole = async (userId: string, isSuperAdmin: boolean): 
         .upsert({ 
           user_id: userId, 
           role: 'superadmin',
-          updated_at: new Date()
-        });
+          updated_at: new Date().toISOString()
+        } as Partial<AdminRoleRow>);
       
       if (error) throw error;
     } else {

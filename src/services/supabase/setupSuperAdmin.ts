@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SystemConfigRow, ProfileRow, AdminRoleRow } from '@/types/supabaseTypes';
 
 // Cette fonction permet d'initialiser un superadmin dans le système
 export const setupInitialSuperAdmin = async (email: string): Promise<boolean> => {
@@ -16,7 +17,8 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
       return false;
     }
     
-    if (configData?.initialized) {
+    const config = configData as SystemConfigRow | null;
+    if (config?.initialized) {
       console.log("Configuration des superadmins déjà initialisée");
       return false;
     }
@@ -33,7 +35,8 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
       return false;
     }
     
-    if (!userData?.id) {
+    const profile = userData as ProfileRow | null;
+    if (!profile?.id) {
       console.error("Aucun utilisateur trouvé avec cet email:", email);
       return false;
     }
@@ -42,10 +45,10 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
     const { error: roleError } = await supabase
       .from('admin_roles')
       .upsert({ 
-        user_id: userData.id, 
+        user_id: profile.id, 
         role: 'superadmin',
-        updated_at: new Date()
-      });
+        updated_at: new Date().toISOString()
+      } as Partial<AdminRoleRow>);
     
     if (roleError) {
       console.error("Erreur lors de la définition du rôle superadmin:", roleError);
@@ -59,8 +62,8 @@ export const setupInitialSuperAdmin = async (email: string): Promise<boolean> =>
         id: 'admin_setup',
         initialized: true,
         initial_superadmin_email: email,
-        updated_at: new Date()
-      });
+        updated_at: new Date().toISOString()
+      } as Partial<SystemConfigRow>);
     
     if (updateError) {
       console.error("Erreur lors de la mise à jour de la configuration:", updateError);
@@ -88,7 +91,8 @@ export const isSuperAdminSetupComplete = async (): Promise<boolean> => {
       return false;
     }
     
-    return data?.initialized || false;
+    const config = data as SystemConfigRow | null;
+    return config?.initialized || false;
   } catch (error) {
     console.error("Erreur lors de la vérification de la configuration superadmin:", error);
     return false;
