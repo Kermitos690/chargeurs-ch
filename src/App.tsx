@@ -28,6 +28,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminPowerBanks from "./pages/admin/PowerBanks";
 import AdminLayout from "./components/AdminLayout";
+import ManelCRM from "./pages/admin/ManelCRM"; // Ajout du Manel CRM
 
 // Produits
 import ProduitsResidentiels from "./pages/produits/Residentiels";
@@ -114,6 +115,7 @@ const App = () => (
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="powerbanks" element={<AdminPowerBanks />} />
+              <Route path="manel-crm" element={<ManelCRM />} /> {/* Nouvelle route pour Manel CRM */}
               {/* Autres routes admin protégées peuvent être ajoutées ici */}
             </Route>
             
