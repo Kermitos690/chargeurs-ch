@@ -1,14 +1,46 @@
 
-import { createClient } from '@supabase/supabase-js'
+// Type declarations for Supabase schema
+export type { User, Session } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/types'
 
-// Define PostgrestError, User and Session types from what's available
-export type PostgrestError = ReturnType<typeof createClient>['from']['select']['catch']['parameters'][0]['error']
-export type User = ReturnType<typeof createClient>['auth']['getUser']['then']['parameters'][0]['data']['user']
-export type Session = ReturnType<typeof createClient>['auth']['getSession']['then']['parameters'][0]['data']['session']
+// Alias types for better readability
+export type AuthUser = User;
+export type AuthSession = Session;
 
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
-export type DbResult<T> = T extends PromiseLike<infer U> ? U : never
-export type DbResultOk<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
-export type DbResultErr = PostgrestError
+// Types for the tables in Supabase
+export interface ProfileRow {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  subscription_type: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminRoleRow {
+  id: string;
+  user_id: string;
+  role: 'admin' | 'superadmin';
+  updated_at: string;
+}
+
+export interface SystemConfigRow {
+  id: string;
+  initialized: boolean;
+  initial_superadmin_email: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Type auxiliary for the user Supabase
+export interface UserInfo {
+  id: string;
+  email?: string;
+  name?: string;
+  phone?: string;
+  subscriptionType?: string;
+}
+
+// Re-export Database for use
+export { Database }
