@@ -21,6 +21,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
+import Services from "./pages/Services";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/features" element={<Features />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/services" element={<Services />} />
             
             {/* Routes d'authentification */}
             <Route path="/auth/login" element={<Login />} />
