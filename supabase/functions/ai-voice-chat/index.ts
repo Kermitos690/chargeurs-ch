@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') || '';
+const OPENAI_API_KEY = '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';
 
 serve(async (req) => {
   // Handle CORS preflight requests

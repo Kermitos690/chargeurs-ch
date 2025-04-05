@@ -1,41 +1,10 @@
 
-// Types pour les tables personnalisées Supabase
-import type { User, Session } from '@supabase/supabase-js';
+import type { PostgrestError } from '@supabase/supabase-js'
+import type { Database } from './supabaseTypes.d'
+import type { User, Session } from '@supabase/supabase-js'
 
-// Types personnalisés pour l'utilisateur Supabase
-export type AuthUser = User;
-export type AuthSession = Session;
-
-export interface ProfileRow {
-  id: string;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  subscription_type: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AdminRoleRow {
-  id: string;
-  user_id: string;
-  role: 'admin' | 'superadmin';
-  updated_at: string;
-}
-
-export interface SystemConfigRow {
-  id: string;
-  initialized: boolean;
-  initial_superadmin_email: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-// Type auxiliaire pour l'utilisateur Supabase
-export interface UserInfo {
-  id: string;
-  email?: string;
-  name?: string;
-  phone?: string;
-  subscriptionType?: string;
-}
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
+export type DbResult<T> = T extends PromiseLike<infer U> ? U : never
+export type DbResultOk<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
+export type DbResultErr = PostgrestError
