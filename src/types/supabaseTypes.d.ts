@@ -1,5 +1,5 @@
 
-import { User, Session } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
 // Types personnalisés pour l'utilisateur Supabase
 export type AuthUser = User;

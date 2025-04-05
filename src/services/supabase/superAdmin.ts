@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AdminRoleRow, AuthUser } from '@/types/supabaseTypes';
+import type { AdminRoleRow, AuthUser } from '@/types/supabaseTypes';
 
 // Vérifie si un utilisateur a le rôle de superadmin
 export const isSuperAdmin = async (user: AuthUser | null): Promise<boolean> => {
