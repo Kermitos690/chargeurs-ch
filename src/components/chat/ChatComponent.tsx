@@ -21,10 +21,11 @@ const ChatComponent = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        // Utiliser le client non typé pour accéder à la table 'messages'
         const { data, error } = await supabase
           .from('messages')
           .select('*')
-          .order('created_at', { ascending: true });
+          .order('created_at', { ascending: true }) as { data: Message[] | null, error: any };
 
         if (error) {
           console.error('Error fetching messages:', error);
@@ -32,7 +33,9 @@ const ChatComponent = () => {
           return;
         }
 
-        setMessages(data || []);
+        if (data) {
+          setMessages(data as Message[]);
+        }
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast.error('Erreur lors du chargement des messages');
@@ -83,13 +86,14 @@ const ChatComponent = () => {
     setSending(true);
     
     try {
+      // Utiliser le client non typé pour insérer dans la table 'messages'
       const { error } = await supabase
         .from('messages')
         .insert({
           content: newMessage.trim(),
           user_id: user.uid,
           room_id: 'general'
-        });
+        }) as { error: any };
 
       if (error) {
         console.error('Error sending message:', error);
