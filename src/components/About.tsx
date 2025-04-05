@@ -12,7 +12,7 @@ const About = () => {
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
     "Compatibilité avec tous les smartphones modernes USB-C / Lightning / Micro-USB",
-    "Powerbanks Fast Charge de 8000 mAh pour une recharge rapide et efficace",
+    "Powerbanks Charge efficiente de 6000 mAh pour une recharge optimale",
   ];
 
   return (
