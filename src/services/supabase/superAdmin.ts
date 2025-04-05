@@ -1,55 +1,73 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { AdminRoleRow, AuthUser } from '@/types/supabaseTypes.d';
 
-// Vérifie si un utilisateur a le rôle de superadmin
-export const isSuperAdmin = async (user: AuthUser | null): Promise<boolean> => {
-  if (!user) return false;
-  
+/**
+ * Vérifie si l'utilisateur actuel a le rôle de superadmin
+ */
+export const isUserSuperAdmin = async () => {
   try {
-    // Utiliser la fonction SQL is_superadmin pour vérifier si l'utilisateur est superadmin
-    const { data, error } = await supabase.rpc('is_superadmin', { _user_id: user.id });
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
     
-    if (error) {
-      console.error("Erreur lors de la vérification des droits superadmin:", error);
-      return false;
-    }
+    if (!data.session?.user) return false;
     
-    return data || false;
+    const { data: isSuperAdmin, error: roleError } = await supabase.rpc('is_superadmin', data.session.user.id);
+    if (roleError) throw roleError;
+    
+    return isSuperAdmin;
   } catch (error) {
-    console.error("Erreur lors de la vérification des droits superadmin:", error);
+    console.error('Erreur lors de la vérification du statut de superadmin:', error);
     return false;
   }
 };
 
-// Définit le rôle superadmin pour un utilisateur
-export const setSuperAdminRole = async (userId: string, isSuperAdmin: boolean): Promise<boolean> => {
+/**
+ * Ajoute un rôle d'administrateur à un utilisateur
+ */
+export const addAdminRole = async (userId: string, role: 'admin' | 'superadmin' = 'admin') => {
   try {
-    if (isSuperAdmin) {
-      // Ajouter le rôle superadmin
-      const { error } = await supabase
-        .from('admin_roles')
-        .upsert({ 
-          user_id: userId, 
-          role: 'superadmin',
-          updated_at: new Date().toISOString()
-        } as Partial<AdminRoleRow>);
+    // Vérifier si l'utilisateur est déjà admin
+    const { data: existingRole, error: checkError } = await supabase
+      .from('admin_roles')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('role', role);
       
-      if (error) throw error;
-    } else {
-      // Supprimer le rôle superadmin
-      const { error } = await supabase
+    if (checkError) throw checkError;
+    
+    // Si l'utilisateur n'a pas encore le rôle, l'ajouter
+    if (!existingRole || existingRole.length === 0) {
+      const { data, error } = await supabase
         .from('admin_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role', 'superadmin');
-      
+        .insert([
+          { user_id: userId, role }
+        ]);
+        
       if (error) throw error;
     }
     
-    return true;
-  } catch (error) {
-    console.error("Erreur lors de la définition du rôle superadmin:", error);
-    return false;
+    return { success: true };
+  } catch (error: any) {
+    console.error('Erreur lors de l\'ajout du rôle admin:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Retire un rôle d'administrateur à un utilisateur
+ */
+export const removeAdminRole = async (userId: string, role: 'admin' | 'superadmin' = 'admin') => {
+  try {
+    const { data, error } = await supabase
+      .from('admin_roles')
+      .delete()
+      .match({ user_id: userId, role });
+      
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Erreur lors du retrait du rôle admin:', error);
+    return { success: false, error: error.message };
   }
 };

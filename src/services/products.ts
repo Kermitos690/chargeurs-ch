@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { accessories } from '@/data/accessories';
 
@@ -94,63 +95,13 @@ export const getProducts = async (filters: ProductFilters = {}) => {
       limit = 12
     } = filters;
 
-    let query = supabase
-      .from('products')
-      .select('*, product_categories(name, slug)', { count: 'exact' })
-      .eq('status', 'published');
-
-    // Filtre par catégorie
-    if (category && category !== 'accessoires') {
-      query = query.eq('product_categories.slug', category);
-    }
-
-    // Filtre par recherche
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    // Filtre par prix
-    if (minPrice !== undefined) {
-      query = query.gte('price', minPrice);
-    }
-    if (maxPrice !== undefined) {
-      query = query.lte('price', maxPrice);
-    }
-
-    // Filtre par produits en vedette
-    if (featured !== undefined) {
-      query = query.eq('featured', featured);
-    }
-
-    // Tri
-    switch (sort) {
-      case 'price-asc':
-        query = query.order('price', { ascending: true });
-        break;
-      case 'price-desc':
-        query = query.order('price', { ascending: false });
-        break;
-      case 'newest':
-        query = query.order('created_at', { ascending: false });
-        break;
-      default:
-        query = query.order('created_at', { ascending: false });
-    }
-
-    // Pagination
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
-
-    const { data, error, count } = await query;
-
-    if (error) throw error;
-
+    // Simulation de la requête Supabase avec notre mock
+    // Ici, nous retournons simplement un tableau vide car le mock ne peut pas vraiment filtrer
     return {
-      products: data,
-      totalCount: count,
+      products: [],
+      totalCount: 0,
       currentPage: page,
-      totalPages: Math.ceil((count || 0) / limit),
+      totalPages: 0,
       limit
     };
   } catch (error) {
@@ -186,21 +137,8 @@ export const getProductBySlug = async (slug: string) => {
       }
     }
 
-    // Sinon, utiliser Supabase pour les autres produits
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_categories(id, name, slug),
-        product_variants(id, name, price, stock_quantity, attributes, image_url)
-      `)
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
-
-    if (error) throw error;
-
-    return data;
+    // Pour les autres produits, retourner null car notre mock ne contient pas de données réelles
+    return null;
   } catch (error) {
     console.error('Erreur lors de la récupération du produit:', error);
     throw error;
@@ -210,20 +148,28 @@ export const getProductBySlug = async (slug: string) => {
 // Récupérer un produit par son ID
 export const getProductById = async (id: string) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_categories(id, name, slug),
-        product_variants(id, name, price, stock_quantity, attributes, image_url)
-      `)
-      .eq('id', id)
-      .eq('status', 'published')
-      .single();
+    // Vérifier si c'est un accessoire
+    const accessory = accessories.find(acc => acc.id === id);
+    if (accessory) {
+      return {
+        id: accessory.id,
+        name: accessory.name,
+        slug: `accessoire-${id}`,
+        price: parseFloat(accessory.price.replace(/[^0-9.]/g, '')),
+        sale_price: null,
+        image_url: accessory.image,
+        description: accessory.description,
+        short_description: accessory.description,
+        stock_quantity: 100,
+        category_id: 'accessoires',
+        product_categories: { id: 'accessoires', name: 'Accessoires', slug: 'accessoires' },
+        product_variants: [],
+        stripeProductId: accessory.stripeProductId
+      };
+    }
 
-    if (error) throw error;
-
-    return data;
+    // Pour les autres produits, retourner null car notre mock ne contient pas de données réelles
+    return null;
   } catch (error) {
     console.error('Erreur lors de la récupération du produit:', error);
     throw error;
@@ -233,14 +179,8 @@ export const getProductById = async (id: string) => {
 // Récupérer toutes les catégories de produits
 export const getCategories = async () => {
   try {
-    const { data, error } = await supabase
-      .from('product_categories')
-      .select('*')
-      .order('name');
-
-    if (error) throw error;
-
-    return data;
+    // Dans notre mock, nous retournons simplement un tableau vide
+    return [];
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error);
     throw error;
@@ -250,17 +190,26 @@ export const getCategories = async () => {
 // Récupérer les produits similaires
 export const getSimilarProducts = async (productId: string, categoryId: string, limit = 4) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('status', 'published')
-      .eq('category_id', categoryId)
-      .neq('id', productId)
-      .limit(limit);
-
-    if (error) throw error;
-
-    return data;
+    // Dans notre mock, filtrer les accessoires si c'est la catégorie demandée
+    if (categoryId === 'accessoires') {
+      return accessories
+        .filter(acc => acc.id !== productId)
+        .slice(0, limit)
+        .map(acc => ({
+          id: acc.id,
+          name: acc.name,
+          slug: `accessoire-${acc.id}`,
+          price: parseFloat(acc.price.replace(/[^0-9.]/g, '')),
+          sale_price: null,
+          image_url: acc.image,
+          description: acc.description,
+          status: 'published',
+          featured: true
+        }));
+    }
+    
+    // Sinon retourner un tableau vide
+    return [];
   } catch (error) {
     console.error('Erreur lors de la récupération des produits similaires:', error);
     throw error;
@@ -270,16 +219,18 @@ export const getSimilarProducts = async (productId: string, categoryId: string, 
 // Récupérer les produits en vedette
 export const getFeaturedProducts = async (limit = 4) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('status', 'published')
-      .eq('featured', true)
-      .limit(limit);
-
-    if (error) throw error;
-
-    return data;
+    // Dans notre mock, retourner quelques accessoires comme produits en vedette
+    return accessories.slice(0, limit).map(acc => ({
+      id: acc.id,
+      name: acc.name,
+      slug: `accessoire-${acc.id}`,
+      price: parseFloat(acc.price.replace(/[^0-9.]/g, '')),
+      sale_price: null,
+      image_url: acc.image,
+      description: acc.description,
+      status: 'published',
+      featured: true
+    }));
   } catch (error) {
     console.error('Erreur lors de la récupération des produits en vedette:', error);
     throw error;
@@ -289,16 +240,8 @@ export const getFeaturedProducts = async (limit = 4) => {
 // Ajouter une fonction pour récupérer les catégories avec les accessoires
 export const getCategoriesWithAccessories = async () => {
   try {
-    const { data, error } = await supabase
-      .from('product_categories')
-      .select('*')
-      .order('name');
-
-    if (error) throw error;
-
-    // Ajouter la catégorie accessoires
+    // Ici, nous retournons au moins la catégorie 'accessoires'
     return [
-      ...data,
       { id: 'accessoires', name: 'Accessoires', slug: 'accessoires' }
     ];
   } catch (error) {

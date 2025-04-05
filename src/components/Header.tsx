@@ -26,7 +26,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       if (user) {
-        await clearCart(user.id); 
+        await clearCart();
       }
       await supabase.auth.signOut();
       toast.success("Déconnexion réussie !");
