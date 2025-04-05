@@ -1,7 +1,8 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User } from 'firebase/auth';
-import { useFirebaseAuth } from './useFirebaseAuth';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { isSuperAdmin } from '@/services/supabase/superAdmin';
 
 interface AuthContextType {
   user: User | null;
@@ -12,9 +13,10 @@ interface AuthContextType {
     phone?: string;
     subscriptionType?: string;
   } | null;
-  loading: boolean;  // Renamed from 'isLoading' to match actual usage
+  loading: boolean;
   isAdmin: boolean;
-  isLoading: boolean; // Added to match the expected property in RentPowerBank
+  isSuperAdmin: boolean;
+  isLoading: boolean; // Added for compatibility
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,29 +24,87 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   isAdmin: false,
-  isLoading: true  // Added with default value
+  isSuperAdmin: false,
+  isLoading: true
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, userData, loading } = useFirebaseAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [userData, setUserData] = useState<AuthContextType['userData']>(null);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userIsSuperAdmin, setUserIsSuperAdmin] = useState(false);
 
   useEffect(() => {
-    // Check if user has admin role
-    if (user) {
-      user.getIdTokenResult()
-        .then((idTokenResult) => {
-          // Check if admin custom claim exists
-          setIsAdmin(!!idTokenResult.claims.admin);
-        })
-        .catch((error) => {
-          console.error("Error getting token claims:", error);
+    // Première étape : définir le listener pour les changements d'état d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        setLoading(true);
+
+        if (newSession?.user) {
+          // Vérifier les rôles après un délai pour éviter une boucle infinie
+          setTimeout(async () => {
+            try {
+              // Vérifier si l'utilisateur est admin
+              const { data: adminData, error: adminError } = await supabase.rpc('has_role', { 
+                _user_id: newSession.user.id,
+                _role: 'admin'
+              });
+              
+              setIsAdmin(adminData || false);
+              
+              // Vérifier si l'utilisateur est superadmin
+              const superAdmin = await isSuperAdmin(newSession.user);
+              setUserIsSuperAdmin(superAdmin);
+              
+              // Récupérer les données du profil utilisateur
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', newSession.user.id)
+                .single();
+              
+              if (profileData && !profileError) {
+                setUserData({
+                  id: profileData.id,
+                  name: profileData.name,
+                  email: profileData.email,
+                  phone: profileData.phone,
+                  subscriptionType: profileData.subscription_type
+                });
+              }
+            } catch (error) {
+              console.error("Erreur lors de la vérification des rôles:", error);
+            } finally {
+              setLoading(false);
+            }
+          }, 0);
+        } else {
+          setUserData(null);
           setIsAdmin(false);
-        });
-    } else {
-      setIsAdmin(false);
-    }
-  }, [user]);
+          setUserIsSuperAdmin(false);
+          setLoading(false);
+        }
+      }
+    );
+
+    // Deuxième étape : vérifier la session existante
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      
+      if (!currentSession) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ 
@@ -52,7 +112,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       userData, 
       loading, 
       isAdmin, 
-      isLoading: loading // Map loading to isLoading for compatibility
+      isSuperAdmin: userIsSuperAdmin,
+      isLoading: loading
     }}>
       {children}
     </AuthContext.Provider>

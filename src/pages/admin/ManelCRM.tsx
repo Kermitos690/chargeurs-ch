@@ -1,9 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import AdminLayout from '@/components/AdminLayout';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -31,34 +28,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 const ManelCRM = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isSuperAdmin, loading } = useAuth();
 
-  useEffect(() => {
-    // Vérifier si l'utilisateur a le rôle de superadmin
-    const checkSuperAdminRole = async () => {
-      if (user) {
-        try {
-          // Dans un environnement réel, vous utiliseriez les custom claims Firebase
-          // ou récupéreriez cette information depuis Firestore
-          const tokenResult = await user.getIdTokenResult();
-          setIsSuperAdmin(!!tokenResult.claims.superadmin);
-        } catch (error) {
-          console.error("Erreur lors de la vérification des permissions:", error);
-          setIsSuperAdmin(false);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    checkSuperAdminRole();
-  }, [user]);
-
-  if (loading || isLoading) {
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -275,7 +247,6 @@ const ManelCRM = () => {
   );
 };
 
-// Composant pour les cartes statistiques
 const StatCard = ({ title, value, description, icon }: { 
   title: string; 
   value: string; 
@@ -294,7 +265,6 @@ const StatCard = ({ title, value, description, icon }: {
   </Card>
 );
 
-// Composant pour les éléments de performance
 const PerformanceItem = ({ label, value, percentage, improvement }: { 
   label: string; 
   value: string; 

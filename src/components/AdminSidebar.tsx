@@ -12,28 +12,15 @@ import {
   LogOut,
   Shield
 } from 'lucide-react';
-import { logoutAdmin } from '@/services/firebase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { isSuperAdmin } from '@/services/firebase/superAdmin';
+import { logoutAdmin } from '@/services/auth';
 
 const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [isUserSuperAdmin, setIsUserSuperAdmin] = useState(false);
-  
-  useEffect(() => {
-    const checkSuperAdminStatus = async () => {
-      if (user) {
-        const superAdminStatus = await isSuperAdmin(user);
-        setIsUserSuperAdmin(superAdminStatus);
-      }
-    };
-    
-    checkSuperAdminStatus();
-  }, [user]);
+  const { user, isSuperAdmin } = useAuth();
   
   const menuItems = [
     { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Tableau de bord' },
@@ -81,7 +68,7 @@ const AdminSidebar = () => {
           ))}
           
           {/* Section spéciale Superadmin */}
-          {isUserSuperAdmin && (
+          {isSuperAdmin && (
             <>
               <li className="mt-6 mb-2">
                 <div className="text-xs uppercase text-muted-foreground font-semibold tracking-wider px-2">

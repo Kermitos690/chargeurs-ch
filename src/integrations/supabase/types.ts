@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -335,15 +356,81 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          subscription_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+          subscription_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          subscription_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      system_config: {
+        Row: {
+          created_at: string | null
+          id: string
+          initial_superadmin_email: string | null
+          initialized: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          initial_superadmin_email?: string | null
+          initialized?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          initial_superadmin_email?: string | null
+          initialized?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      is_superadmin: {
+        Args: {
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin" | "superadmin"
     }
     CompositeTypes: {
       [_ in never]: never
