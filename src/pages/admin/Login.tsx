@@ -55,15 +55,18 @@ const AdminLogin = () => {
     setIsLoading(true);
     try {
       // Try login with Supabase
-      const { success, error } = await loginWithSupabase(values.email, values.password);
+      const result = await loginWithSupabase(values.email, values.password);
         
-      if (success) {
+      if (result.success) {
         toast({
           title: 'Connexion réussie',
           description: 'Bienvenue dans l\'interface d\'administration',
         });
         navigate('/admin/dashboard');
       } else {
+        // Properly access the error property when result.success is false
+        const errorMessage = !result.success ? result.error : "Erreur inconnue";
+        
         // Fallback to Firebase if Supabase login fails
         const firebaseResult = await loginAdmin(values.email, values.password);
         
@@ -77,7 +80,7 @@ const AdminLogin = () => {
           toast({
             variant: 'destructive',
             title: 'Erreur de connexion',
-            description: error || firebaseResult.error || 'Vérifiez vos identifiants',
+            description: errorMessage || firebaseResult.error || 'Vérifiez vos identifiants',
           });
         }
       }

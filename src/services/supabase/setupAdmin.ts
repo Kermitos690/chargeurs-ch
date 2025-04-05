@@ -34,7 +34,8 @@ export const setupInitialAdmin = async (): Promise<SetupResult> => {
     );
 
     if (!result.success) {
-      return { success: false, error: result.error || "Erreur inconnue" };
+      // Vérifier si result a une propriété 'error' (cas de succès = false)
+      return { success: false, error: 'success' in result && !result.success && 'error' in result ? result.error : "Erreur inconnue" };
     }
 
     // Mettre à jour la configuration système pour indiquer que le superadmin a été créé
