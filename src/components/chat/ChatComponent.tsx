@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, User, Loader2 } from 'lucide-react';
+import { Send, User, Loader2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import MessageList from './MessageList';
 import { Message } from '@/types/chat';
+import { sendChatMessage, getChatMessages, setupChatTables } from '@/services/supabase/chat';
 
 const ChatComponent = () => {
   const { user } = useAuth();
@@ -17,24 +18,22 @@ const ChatComponent = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch initial messages
+  // Configure les tables de chat si nécessaire
+  useEffect(() => {
+    const setup = async () => {
+      await setupChatTables();
+    };
+    setup();
+  }, []);
+
+  // Récupère les messages initiaux
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        // Utiliser le client non typé pour accéder à la table 'messages'
-        const { data, error } = await supabase
-          .from('messages')
-          .select('*')
-          .order('created_at', { ascending: true }) as { data: Message[] | null, error: any };
-
-        if (error) {
-          console.error('Error fetching messages:', error);
-          toast.error('Erreur lors du chargement des messages');
-          return;
-        }
-
-        if (data) {
-          setMessages(data as Message[]);
+        setLoading(true);
+        const messagesData = await getChatMessages('general');
+        if (messagesData) {
+          setMessages(messagesData);
         }
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -47,7 +46,7 @@ const ChatComponent = () => {
     fetchMessages();
   }, []);
 
-  // Subscribe to new messages
+  // S'abonne aux nouveaux messages
   useEffect(() => {
     const channel = supabase
       .channel('public:messages')
@@ -68,7 +67,7 @@ const ChatComponent = () => {
     };
   }, []);
 
-  // Scroll to bottom when messages change
+  // Défile vers le bas quand les messages changent
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -86,17 +85,9 @@ const ChatComponent = () => {
     setSending(true);
     
     try {
-      // Utiliser le client non typé pour insérer dans la table 'messages'
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          content: newMessage.trim(),
-          user_id: user.uid,
-          room_id: 'general'
-        }) as { error: any };
-
-      if (error) {
-        console.error('Error sending message:', error);
+      const result = await sendChatMessage(newMessage.trim(), user.uid);
+      
+      if (!result.success) {
         toast.error('Erreur lors de l\'envoi du message');
         return;
       }
@@ -129,11 +120,14 @@ const ChatComponent = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-      <div className="bg-gray-50 p-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium">Chat général</h2>
-        <p className="text-sm text-gray-500">
-          {messages.length} messages
-        </p>
+      <div className="bg-gray-50 p-4 border-b border-gray-200 flex items-center">
+        <MessageSquare className="h-5 w-5 text-blue-500 mr-2" />
+        <div>
+          <h2 className="text-lg font-medium">Chat général</h2>
+          <p className="text-sm text-gray-500">
+            {messages.length} messages
+          </p>
+        </div>
       </div>
 
       <div className="h-[500px] flex flex-col">

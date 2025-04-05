@@ -1,122 +1,94 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
-export type UserProfile = {
+export interface UserProfile {
   id: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  phone?: string | null;
-  address?: string | null;
-  city?: string | null;
-  postalCode?: string | null;
-};
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
+/**
+ * Récupère le profil utilisateur depuis Supabase
+ * @param userId ID de l'utilisateur
+ * @returns Profil utilisateur ou null
+ */
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
   try {
-    // Récupérer les données du profil de base
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
+    // Utiliser le client Supabase pour accéder à la table user_details
+    const { data, error } = await supabase
+      .from('user_details' as any)
       .select('*')
       .eq('id', userId)
       .single();
 
-    if (profileError) {
-      console.error('Erreur lors de la récupération du profil:', profileError);
+    if (error) {
+      console.error('Erreur lors de la récupération du profil:', error);
+      return null;
     }
 
-    // Récupérer les données détaillées de l'utilisateur
-    // Note: on utilise la méthode "as any" temporairement pour contourner le problème de type
-    // car la table user_details a été créée après la génération des types
-    const { data: userDetails, error: detailsError } = await (supabase
-      .from('user_details' as any)
-      .select('*')
-      .eq('id', userId)
-      .single() as any);
-
-    if (detailsError && detailsError.code !== 'PGRST116') { // PGRST116 = not found
-      console.error("Erreur lors de la récupération des détails de l'utilisateur:", detailsError);
+    if (!data) {
+      return null;
     }
 
-    // Fusionner les données avec des noms de propriétés conformes aux conventions camelCase
+    // Convertir les noms de champs snake_case en camelCase pour l'interface TypeScript
     return {
-      id: userId,
-      firstName: userDetails?.first_name || profileData?.name?.split(' ')[0] || null,
-      lastName: userDetails?.last_name || profileData?.name?.split(' ')[1] || null,
-      phone: userDetails?.phone || profileData?.phone || null,
-      address: userDetails?.address || null,
-      city: userDetails?.city || null,
-      postalCode: userDetails?.postal_code || null,
+      id: data.id,
+      firstName: data.first_name,
+      lastName: data.last_name,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      postalCode: data.postal_code,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération du profil utilisateur:", error);
+    console.error('Erreur lors de la récupération du profil:', error);
     return null;
   }
 };
 
+/**
+ * Met à jour le profil utilisateur dans Supabase
+ * @param userId ID de l'utilisateur
+ * @param profile Données du profil à mettre à jour
+ * @returns Résultat de l'opération
+ */
 export const updateUserProfile = async (
-  userId: string, 
-  profileData: Partial<UserProfile>
-): Promise<{ success: boolean; error?: string }> => {
+  userId: string,
+  profile: Partial<UserProfile>
+): Promise<{ success: boolean; error?: any }> => {
   try {
-    // Mise à jour des détails utilisateur - on utilise as any pour contourner le problème de type
-    const { error: detailsError } = await (supabase
+    // Convertir les noms de champs camelCase en snake_case pour la base de données
+    const dbProfile = {
+      first_name: profile.firstName,
+      last_name: profile.lastName,
+      phone: profile.phone,
+      address: profile.address,
+      city: profile.city,
+      postal_code: profile.postalCode,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase
       .from('user_details' as any)
-      .upsert({
-        id: userId,
-        first_name: profileData.firstName,
-        last_name: profileData.lastName,
-        phone: profileData.phone,
-        address: profileData.address,
-        city: profileData.city,
-        postal_code: profileData.postalCode,
-        updated_at: new Date().toISOString(),
-      }) as any);
-
-    if (detailsError) {
-      console.error("Erreur lors de la mise à jour des détails de l'utilisateur:", detailsError);
-      return { success: false, error: detailsError.message };
-    }
-
-    // Mise à jour du profil de base
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        name: `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim(),
-        phone: profileData.phone,
-        updated_at: new Date().toISOString(),
-      });
-
-    if (profileError) {
-      console.error("Erreur lors de la mise à jour du profil:", profileError);
-      return { success: false, error: profileError.message };
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    console.error("Erreur lors de la mise à jour du profil:", error);
-    return { success: false, error: error.message };
-  }
-};
-
-export const updateUserPassword = async (
-  currentPassword: string,
-  newPassword: string
-): Promise<{ success: boolean; error?: string }> => {
-  try {
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    });
+      .update(dbProfile)
+      .eq('id', userId);
 
     if (error) {
-      console.error("Erreur lors de la mise à jour du mot de passe:", error);
-      return { success: false, error: error.message };
+      console.error('Erreur lors de la mise à jour du profil:', error);
+      return { success: false, error };
     }
 
     return { success: true };
-  } catch (error: any) {
-    console.error("Erreur lors de la mise à jour du mot de passe:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+    return { success: false, error };
   }
 };
