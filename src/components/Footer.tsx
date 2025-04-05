@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronUp } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const Footer = () => {
@@ -69,6 +69,21 @@ const Footer = () => {
                   </li>
                 </ul>
               </div>
+            </div>
+          </div>
+          
+          <div className="md:w-1/3">
+            <div className="flex flex-col space-y-3">
+              <h4 className="text-sm font-semibold">Trouvez nos bornes</h4>
+              <p className="text-xs text-muted-foreground mb-2">
+                Localisez toutes nos bornes de location de powerbanks
+              </p>
+              <Button asChild size="sm" className="rounded-md w-full md:w-auto">
+                <Link to="/stations" className="flex items-center justify-center">
+                  <MapPin className="mr-1 h-4 w-4" />
+                  Voir la carte des bornes
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

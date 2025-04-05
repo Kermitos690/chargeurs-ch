@@ -56,7 +56,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// Update Rental interface with additional fields needed for the rental system
+// Update Rental interface with station-related fields
 export interface Rental {
   id: string;
   userId: string;
@@ -70,9 +70,6 @@ export interface Rental {
   endStationId?: string;   // For backward compatibility
   cost?: number;           // For backward compatibility
   amount?: number;
-  maxAmount?: number;      // Added for pre-authorization amount
-  finalAmount?: number;    // Added for final charged amount
-  rentalReference?: string;
 }
 
 // Add Payment interface

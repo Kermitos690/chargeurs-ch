@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Battery, Loader2, LogIn, AlertCircle } from 'lucide-react';
-import { loginUser } from '@/services/auth';
+import { loginUser } from '@/services/firebase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 

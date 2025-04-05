@@ -1,111 +1,51 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase, isSuperAdmin } from '@/integrations/supabase/client';
-import type { ProfileRow, UserInfo, AuthUser, AuthSession } from '@/types/supabaseTypes';
+import { User } from 'firebase/auth';
+import { useFirebaseAuth } from './useFirebaseAuth';
 
 interface AuthContextType {
-  user: AuthUser | null;
-  userData: UserInfo | null;
+  user: User | null;
+  userData: {
+    id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    subscriptionType?: string;
+  } | null;
   loading: boolean;
   isAdmin: boolean;
-  isSuperAdmin: boolean;
-  isLoading: boolean; // Added for compatibility
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
-  isAdmin: false,
-  isSuperAdmin: false,
-  isLoading: true
+  isAdmin: false
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [userData, setUserData] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, userData, loading } = useFirebaseAuth();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userIsSuperAdmin, setUserIsSuperAdmin] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        setLoading(true);
-
-        if (newSession?.user) {
-          setTimeout(async () => {
-            try {
-              const { data: adminData, error: adminError } = await supabase.rpc('has_role', { 
-                _user_id: newSession.user.id,
-                _role: 'admin'
-              });
-              
-              setIsAdmin(adminData || false);
-              
-              const superAdmin = await isSuperAdmin(newSession.user);
-              setUserIsSuperAdmin(superAdmin);
-              
-              // Corrigé pour utiliser la syntaxe du mock
-              const profileResponse = await supabase
-                .from('profiles')
-                .select('*');
-              
-              // Simuler le comportement de eq() pour le mock
-              const profileData = profileResponse.data?.find(profile => profile.id === newSession.user.id) || null;
-              const profileError = profileResponse.error;
-              
-              if (profileData && !profileError) {
-                const profile = profileData as ProfileRow;
-                setUserData({
-                  id: profile.id,
-                  name: profile.name || undefined,
-                  email: profile.email || undefined,
-                  phone: profile.phone || undefined,
-                  subscriptionType: profile.subscription_type || undefined
-                });
-              }
-            } catch (error) {
-              console.error("Erreur lors de la vérification des rôles:", error);
-            } finally {
-              setLoading(false);
-            }
-          }, 0);
-        } else {
-          setUserData(null);
+    // Check if user has admin role
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          // Check if admin custom claim exists
+          setIsAdmin(!!idTokenResult.claims.admin);
+        })
+        .catch((error) => {
+          console.error("Error getting token claims:", error);
           setIsAdmin(false);
-          setUserIsSuperAdmin(false);
-          setLoading(false);
-        }
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session: currentSession }, error }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      
-      if (!currentSession) {
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+        });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      userData, 
-      loading, 
-      isAdmin, 
-      isSuperAdmin: userIsSuperAdmin,
-      isLoading: loading
-    }}>
+    <AuthContext.Provider value={{ user, userData, loading, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

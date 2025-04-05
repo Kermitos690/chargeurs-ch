@@ -5,11 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
   FormControl,
@@ -27,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AvailableTimeSlot, Appointment } from '@/types/api';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const formSchema = z.object({
   name: z.string().min(3, "Le nom doit contenir au moins 3 caractères"),
@@ -51,11 +51,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   selectedDate,
   selectedTimeSlot,
   onSubmit,
-  isSubmitting: parentIsSubmitting = false,
+  isSubmitting = false,
   onAppointmentCreated
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,7 +66,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     },
   });
 
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = (values: FormValues) => {
     if (!selectedDate || !selectedTimeSlot) {
       toast({
         title: "Erreur",
@@ -78,66 +76,29 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       return;
     }
     
-    setIsSubmitting(true);
-    
-    try {
-      // Formater les données de rendez-vous pour l'email
-      const formattedDate = format(selectedDate, 'EEEE dd MMMM yyyy', { locale: fr });
-      
-      const emailData = {
-        ...values,
-        appointmentDate: formattedDate,
-        appointmentTime: `${selectedTimeSlot.startTime} - ${selectedTimeSlot.endTime}`,
-        subject: `Demande de rendez-vous - ${values.establishmentName}`
-      };
-      
-      // Envoyer l'email via la fonction edge
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: emailData
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Rendez-vous confirmé",
-        description: "Votre demande de rendez-vous a été envoyée avec succès. Nous vous contacterons pour confirmation.",
-      });
-      
-      // Créer un mock de rendez-vous pour l'affichage local
-      if (onAppointmentCreated) {
-        const mockAppointment: Appointment = {
-          id: `appointment-${Date.now()}`,
-          userId: "mock-user-id",
-          userName: values.name,
-          userEmail: values.email,
-          userPhone: values.phone,
-          establishmentName: values.establishmentName,
-          date: selectedDate,
-          startTime: selectedTimeSlot?.startTime || "00:00",
-          endTime: selectedTimeSlot?.endTime || "00:00",
-          status: "scheduled",
-          notes: values.notes,
-          type: values.type,
-          createdAt: new Date()
-        };
-        
-        onAppointmentCreated(mockAppointment);
-      }
-      
-      form.reset();
-    } catch (error) {
-      console.error("Erreur lors de la réservation du rendez-vous:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la réservation du rendez-vous. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-    
     if (onSubmit) {
       onSubmit(values);
+    }
+    
+    // Create a mock appointment for the onAppointmentCreated callback
+    if (onAppointmentCreated) {
+      const mockAppointment: Appointment = {
+        id: `appointment-${Date.now()}`,
+        userId: "mock-user-id",
+        userName: values.name,
+        userEmail: values.email,
+        userPhone: values.phone,
+        establishmentName: values.establishmentName,
+        date: selectedDate,
+        startTime: selectedTimeSlot?.startTime || "00:00",
+        endTime: selectedTimeSlot?.endTime || "00:00",
+        status: "scheduled",
+        notes: values.notes,
+        type: values.type,
+        createdAt: new Date()
+      };
+      
+      onAppointmentCreated(mockAppointment);
     }
   };
 
@@ -263,9 +224,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isSubmitting || parentIsSubmitting || !selectedDate || !selectedTimeSlot}
+            disabled={isSubmitting || !selectedDate || !selectedTimeSlot}
           >
-            {isSubmitting || parentIsSubmitting ? "Réservation en cours..." : "Réserver le rendez-vous"}
+            {isSubmitting ? "Réservation en cours..." : "Réserver le rendez-vous"}
           </Button>
         </form>
       </Form>

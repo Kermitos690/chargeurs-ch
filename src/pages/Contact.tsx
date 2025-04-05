@@ -3,13 +3,11 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
   FormControl,
@@ -33,8 +31,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Contact = () => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,33 +41,17 @@ const Contact = () => {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
+  const onSubmit = (data: FormValues) => {
+    console.log('Form data:', data);
     
-    try {
-      // Envoyer l'email via la fonction edge
-      const { error } = await supabase.functions.invoke('send-contact-email', {
-        body: data
-      });
-      
-      if (error) throw error;
-      
+    // Simulate API call
+    setTimeout(() => {
       toast({
         title: "Message envoyé",
         description: "Nous vous répondrons dans les plus brefs délais.",
       });
-      
       form.reset();
-    } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   const contactInfo = [
@@ -88,7 +68,7 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6 text-primary" />,
       title: "Email",
-      details: ["chargeurs@proton.me"]
+      details: ["info@chargeurs.ch", "support@chargeurs.ch"]
     }
   ];
 
@@ -182,8 +162,8 @@ const Contact = () => {
                     )}
                   />
                   
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Envoi en cours..." : "Envoyer"}
+                  <Button type="submit" className="w-full">
+                    Envoyer
                   </Button>
                 </form>
               </Form>
@@ -240,16 +220,12 @@ const Contact = () => {
           </div>
           
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-6">Besoin d'un rendez-vous ?</h2>
+            <h2 className="text-2xl font-bold mb-6">FAQ</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Vous préférez discuter directement avec un de nos conseillers ? Prenez rendez-vous pour un appel téléphonique ou une visioconférence.
+              Vous avez des questions fréquemment posées ? Consultez notre page FAQ pour trouver rapidement des réponses.
             </p>
-            <Button 
-              size="lg" 
-              className="rounded-full"
-              onClick={() => window.location.href = '/appointment'}
-            >
-              Prendre rendez-vous
+            <Button size="lg" className="rounded-full">
+              Voir les FAQ
             </Button>
           </div>
         </section>

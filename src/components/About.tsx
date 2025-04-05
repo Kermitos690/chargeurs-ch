@@ -7,12 +7,10 @@ const About = () => {
   const benefits = [
     "Installation professionnelle par des experts certifiés",
     "Support technique 7j/7",
-    "Garantie de 24 mois sur toutes nos bornes et 12 mois sur les powerbanks",
-    "Prolongation de garantie à partir de 99.-",
+    "Garantie de 5 ans sur tout notre matériel",
     "Solutions personnalisées pour chaque besoin",
     "Mises à jour logicielles automatiques",
-    "Compatibilité avec tous les smartphones modernes USB-C / Lightning / Micro-USB",
-    "Powerbanks Charge efficiente de 6000 mAh pour une recharge optimale",
+    "Compatibilité avec tous les smartphones modernes",
   ];
 
   return (

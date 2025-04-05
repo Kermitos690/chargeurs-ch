@@ -11,13 +11,13 @@ const ProduitsResidentiels = () => {
   const products = [
     {
       id: 1,
-      name: "EcoPower Mini",
-      description: "Notre powerbank la plus populaire, idéale pour une utilisation quotidienne.",
-      price: "129 CHF",
+      name: "EcoCharge Home",
+      description: "Notre borne de recharge domestique la plus populaire, idéale pour les maisons individuelles.",
+      price: "1'290 CHF",
       features: [
-        "Capacité de 10'000 mAh",
-        "Compatible USB-C et USB-A",
-        "Design compact et léger",
+        "Puissance de 7.4 kW",
+        "Compatible Type 2",
+        "Installation simple",
         "Contrôle via application mobile",
         "Design élégant et compact"
       ],
@@ -25,29 +25,29 @@ const ProduitsResidentiels = () => {
     },
     {
       id: 2,
-      name: "EcoPower Plus",
+      name: "EcoCharge Home Plus",
       description: "Solution avancée avec fonctionnalités intelligentes pour optimiser votre consommation d'énergie.",
-      price: "189 CHF",
+      price: "1'890 CHF",
       features: [
-        "Capacité de 20'000 mAh",
-        "Compatible USB-C et USB-A",
-        "Charge rapide 30W",
-        "Recharge sans fil intégrée",
-        "Indicateur LED de charge"
+        "Puissance de 11 kW",
+        "Compatible Type 2",
+        "Gestion intelligente de l'énergie",
+        "Intégration photovoltaïque",
+        "Équilibrage de charge"
       ],
       image: "https://images.unsplash.com/photo-1621692943864-55c7e56256d6?w=800&auto=format&fit=crop&q=60"
     },
     {
       id: 3,
-      name: "EcoPower Premium",
-      description: "Notre solution haut de gamme pour les utilisateurs exigeants avec plusieurs appareils à charger.",
-      price: "249 CHF",
+      name: "EcoCharge Home Premium",
+      description: "Notre solution haut de gamme pour les propriétaires exigeants avec plusieurs véhicules électriques.",
+      price: "2'490 CHF",
       features: [
-        "Capacité de 30'000 mAh",
-        "Compatible USB-C, USB-A et Lightning",
-        "Charge rapide 60W",
-        "Plusieurs appareils simultanément",
-        "Écran LCD intégré"
+        "Puissance de 22 kW",
+        "Compatible Type 2",
+        "Double point de charge",
+        "Analyse de consommation détaillée",
+        "Design personnalisable"
       ],
       image: "https://images.unsplash.com/photo-1622390550274-1f0100cd9ae2?w=800&auto=format&fit=crop&q=60"
     }
@@ -55,12 +55,12 @@ const ProduitsResidentiels = () => {
 
   const benefits = [
     {
-      title: "Garantie qualité",
-      description: "Toutes nos powerbanks sont couvertes par une garantie complète de 2 ans."
+      title: "Installation professionnelle",
+      description: "Nos techniciens certifiés assurent une installation conforme aux normes suisses de sécurité."
     },
     {
-      title: "Livraison rapide",
-      description: "Livraison en 24h en Suisse et remboursement si vous n'êtes pas satisfait."
+      title: "Garantie 5 ans",
+      description: "Toutes nos bornes résidentielles sont couvertes par une garantie complète de 5 ans."
     },
     {
       title: "Support 24/7",
@@ -68,7 +68,7 @@ const ProduitsResidentiels = () => {
     },
     {
       title: "Mise à jour automatique",
-      description: "Nos powerbanks connectées reçoivent régulièrement des mises à jour logicielles gratuites."
+      description: "Nos bornes connectées reçoivent régulièrement des mises à jour logicielles gratuites."
     }
   ];
 
@@ -78,10 +78,10 @@ const ProduitsResidentiels = () => {
       <main className="flex-grow pt-24 pb-16">
         <section className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Powerbanks pour Particuliers</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">Bornes de Recharge Résidentielles</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Nos solutions de powerbanks pour particuliers combinent simplicité d'utilisation, 
-              fiabilité et technologies avancées pour une expérience optimale au quotidien.
+              Nos solutions de recharge pour particuliers combinent simplicité d'utilisation, 
+              fiabilité et technologies avancées pour une expérience optimale à domicile.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ const ProduitsResidentiels = () => {
           </div>
 
           <div className="bg-card border rounded-xl p-8 mb-20">
-            <h2 className="text-2xl font-bold mb-8 text-center">Les avantages de nos powerbanks</h2>
+            <h2 className="text-2xl font-bold mb-8 text-center">Les avantages de nos solutions résidentielles</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex gap-4">
@@ -141,7 +141,7 @@ const ProduitsResidentiels = () => {
           </div>
 
           <div className="text-center mb-20">
-            <h2 className="text-2xl font-bold mb-6">Vous ne savez pas quelle powerbank choisir ?</h2>
+            <h2 className="text-2xl font-bold mb-6">Vous ne savez pas quelle borne choisir ?</h2>
             <p className="text-muted-foreground max-w-3xl mx-auto mb-8">
               Nos conseillers sont à votre disposition pour vous aider à sélectionner 
               la solution qui correspond le mieux à vos besoins et à votre budget.
@@ -159,44 +159,45 @@ const ProduitsResidentiels = () => {
           <div className="bg-muted p-8 rounded-xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-2xl font-bold mb-4">Service client premium</h2>
+                <h2 className="text-2xl font-bold mb-4">Installation professionnelle</h2>
                 <p className="mb-4">
-                  L'achat d'une powerbank n'est que le début. Notre équipe de support client est là pour vous 
-                  accompagner tout au long de votre expérience avec nos produits.
+                  L'installation d'une borne de recharge nécessite des compétences techniques spécifiques 
+                  et doit respecter les normes de sécurité en vigueur. Nos techniciens certifiés 
+                  garantissent une installation conforme et sécurisée.
                 </p>
                 <p className="mb-6">
-                  Notre service client comprend :
+                  Le service d'installation comprend :
                 </p>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-start gap-2">
                     <span className="h-2 w-2 rounded-full bg-primary mt-1.5"></span>
-                    <span>Assistance technique par téléphone ou email</span>
+                    <span>Étude technique préalable</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="h-2 w-2 rounded-full bg-primary mt-1.5"></span>
-                    <span>Tutoriels vidéo et guides d'utilisation</span>
+                    <span>Installation et raccordement électrique</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="h-2 w-2 rounded-full bg-primary mt-1.5"></span>
-                    <span>Programme de remplacement en cas de défaut</span>
+                    <span>Configuration et mise en service</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="h-2 w-2 rounded-full bg-primary mt-1.5"></span>
-                    <span>Conseils pour optimiser l'utilisation</span>
+                    <span>Tests de sécurité</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="h-2 w-2 rounded-full bg-primary mt-1.5"></span>
-                    <span>Service après-vente réactif</span>
+                    <span>Formation à l'utilisation</span>
                   </li>
                 </ul>
-                <Link to="/services/support">
-                  <Button>En savoir plus sur notre support</Button>
+                <Link to="/services/installation">
+                  <Button>En savoir plus sur l'installation</Button>
                 </Link>
               </div>
               <div className="h-80 bg-accent rounded-xl overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1621364525332-f9fa7fdea8d1?w=800&auto=format&fit=crop&q=60" 
-                  alt="Service client powerbank" 
+                  alt="Installation d'une borne de recharge" 
                   className="w-full h-full object-cover"
                 />
               </div>

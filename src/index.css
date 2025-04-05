@@ -1,5 +1,364 @@
 
-/* Import modular CSS files */
-@import './styles/theme.css';
-@import './styles/animations.css';
-@import './styles/utilities.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animation classes that might not be in the config */
+@keyframes float-slow {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.1;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.1;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes green-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(45, 140, 80, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(45, 140, 80, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(45, 140, 80, 0.5);
+  }
+}
+
+@keyframes electric-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(30, 174, 219, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(30, 174, 219, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(30, 174, 219, 0.5);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-green-glow {
+  animation: green-pulse 2s ease-in-out infinite;
+}
+
+.animate-electric-glow {
+  animation: electric-pulse 2s ease-in-out infinite;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Nouveau thème vert-noir-blanc */
+    --primary: 140 54% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Tons secondaires complémentaires */
+    --secondary: 140 12% 96%;
+    --secondary-foreground: 140 54% 20%;
+
+    --muted: 140 10% 96%;
+    --muted-foreground: 140 10% 40%;
+
+    /* Accent subtil pour l'intérêt visuel */
+    --accent: 140 20% 95%;
+    --accent-foreground: 140 54% 20%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 140 5% 90%;
+    --input: 140 5% 90%;
+    --ring: 140 54% 36%;
+
+    --radius: 0.5rem;
+    
+    /* Couleurs de dégradé */
+    --gradient-start: 140 54% 36%;
+    --gradient-mid: 140 30% 20%;
+    --gradient-end: 0 0% 10%;
+    
+    /* Couleurs d'accent supplémentaires pour les dégradés */
+    --accent-green-dark: 140 60% 15%;
+    --accent-green-light: 140 50% 70%;
+    --accent-noir: 0 0% 5%;
+    --accent-blanc: 0 0% 98%;
+    
+    /* Nouvelles couleurs électriques et lumineuses */
+    --electric-blue: 196 71% 49%;
+    --bright-blue: 199 82% 58%;
+    --vivid-purple: 260 75% 64%;
+    --magenta-pink: 292 91% 61%;
+  }
+
+  .dark {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Thème sombre vert-noir-blanc */
+    --primary: 140 54% 36%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 140 15% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 140 15% 15%;
+    --muted-foreground: 140 10% 70%;
+
+    --accent: 140 15% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 140 15% 15%;
+    --input: 140 15% 15%;
+    --ring: 140 54% 36%;
+    
+    /* Couleurs de dégradé pour le mode sombre */
+    --gradient-start: 140 54% 40%;
+    --gradient-mid: 140 30% 20%;
+    --gradient-end: 0 0% 5%;
+    
+    /* Nouvelles couleurs électriques et lumineuses pour le mode sombre */
+    --electric-blue: 196 71% 40%;
+    --bright-blue: 199 82% 45%;
+    --vivid-purple: 260 75% 50%;
+    --magenta-pink: 292 91% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Nouveaux utilitaires de texte à dégradé */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-dark to-noir-profond;
+}
+
+.text-gradient-green {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-light to-green-dark;
+}
+
+.text-gradient-black {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-noir-moyen to-noir-profond;
+}
+
+.text-gradient-contrast {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium via-noir-profond to-blanc-pur;
+}
+
+.text-green-white-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-medium to-blanc-pur;
+}
+
+/* Nouveaux dégradés électriques et lumineux */
+.text-electric-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-bright-blue;
+}
+
+.text-vivid-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-vivid-purple to-magenta-pink;
+}
+
+.text-electric-green-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-green-medium;
+}
+
+/* Nouveaux utilitaires de fond à dégradé */
+.bg-gradient-primary {
+  @apply bg-gradient-to-br from-green-medium via-noir-moyen to-noir-profond;
+}
+
+.bg-gradient-vert-noir {
+  @apply bg-gradient-to-br from-green-light via-green-dark to-noir-profond;
+}
+
+.bg-gradient-vert-blanc {
+  @apply bg-gradient-to-br from-green-medium via-green-pale to-blanc-pur;
+}
+
+.bg-gradient-noir-blanc {
+  @apply bg-gradient-to-br from-noir-profond via-noir-moyen to-blanc-pur;
+}
+
+.bg-gradient-revolution {
+  @apply bg-gradient-to-br from-green-dark via-noir-profond to-blanc-pur;
+}
+
+.bg-gradient-soft {
+  @apply bg-gradient-to-br from-green-pale via-blanc-cassé to-blanc-pur;
+}
+
+/* Nouveaux dégradés électriques et lumineux */
+.bg-gradient-electric {
+  @apply bg-gradient-to-br from-electric-blue via-bright-blue to-noir-profond;
+}
+
+.bg-gradient-electric-vivid {
+  @apply bg-gradient-to-br from-electric-blue via-vivid-purple to-magenta-pink;
+}
+
+.bg-gradient-electric-green {
+  @apply bg-gradient-to-br from-electric-blue via-green-medium to-noir-profond;
+}
+
+.bg-gradient-luminous {
+  @apply bg-gradient-to-br from-bright-blue via-electric-blue to-blanc-pur;
+}
+
+/* Améliorations des panneaux en verre */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel-green {
+  background: rgba(45, 140, 80, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(45, 140, 80, 0.18);
+  box-shadow: 0 8px 32px rgba(45, 140, 80, 0.1);
+}
+
+.glass-panel-dark {
+  background: rgba(10, 10, 10, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(33, 33, 33, 0.18);
+  box-shadow: 0 8px 32px rgba(10, 10, 10, 0.1);
+}
+
+/* Nouveaux panneaux en verre électriques et lumineux */
+.glass-panel-electric {
+  background: rgba(30, 174, 219, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(30, 174, 219, 0.18);
+  box-shadow: 0 8px 32px rgba(30, 174, 219, 0.1);
+}
+
+.glass-panel-purple {
+  background: rgba(139, 92, 246, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+}
+
+.shadow-elevation {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-elevation-colored {
+  box-shadow: 
+    0 10px 25px -5px rgba(45, 140, 80, 0.3),
+    0 8px 10px -6px rgba(45, 140, 80, 0.2);
+}
+
+/* Nouvelles ombres électriques et lumineuses */
+.shadow-elevation-electric {
+  box-shadow: 
+    0 10px 25px -5px rgba(30, 174, 219, 0.3),
+    0 8px 10px -6px rgba(30, 174, 219, 0.2);
+}
+
+.shadow-elevation-purple {
+  box-shadow: 
+    0 10px 25px -5px rgba(139, 92, 246, 0.3),
+    0 8px 10px -6px rgba(139, 92, 246, 0.2);
+}
+
+/* Nouvelles classes pour le dégradé révolutionnaire */
+.revolutionary-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #2D8C50, #0A0A0A, #FFFFFF) 1;
+}
+
+.revolutionary-text-shadow {
+  text-shadow: 1px 1px 3px rgba(45, 140, 80, 0.5);
+}
+
+.revolutionary-glow {
+  filter: drop-shadow(0 0 8px rgba(45, 140, 80, 0.6));
+}
+
+/* Nouvelles classes pour les bordures et effets électriques/lumineux */
+.electric-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #1EAEDB, #33C3F0, #FFFFFF) 1;
+}
+
+.electric-text-shadow {
+  text-shadow: 1px 1px 3px rgba(30, 174, 219, 0.5);
+}
+
+.electric-glow {
+  filter: drop-shadow(0 0 8px rgba(30, 174, 219, 0.6));
+}
+
+.luminous-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #8B5CF6, #D946EF, #FFFFFF) 1;
+}
+
+.luminous-text-shadow {
+  text-shadow: 1px 1px 3px rgba(139, 92, 246, 0.5);
+}
+
+.luminous-glow {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+}

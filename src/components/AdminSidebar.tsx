@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
@@ -9,18 +9,15 @@ import {
   MapPin, 
   CreditCard, 
   Settings, 
-  LogOut,
-  Shield
+  LogOut 
 } from 'lucide-react';
+import { logoutAdmin } from '@/services/firebase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { logoutAdmin } from '@/services/auth';
 
 const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isSuperAdmin } = useAuth();
   
   const menuItems = [
     { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Tableau de bord' },
@@ -29,11 +26,6 @@ const AdminSidebar = () => {
     { path: '/admin/stations', icon: <MapPin size={20} />, label: 'Stations' },
     { path: '/admin/payments', icon: <CreditCard size={20} />, label: 'Paiements' },
     { path: '/admin/settings', icon: <Settings size={20} />, label: 'Paramètres' },
-  ];
-  
-  // Élément de menu pour Manel CRM, visible uniquement pour les superadmins
-  const superAdminMenuItems = [
-    { path: '/admin/manel-crm', icon: <Shield size={20} />, label: 'Manel CRM', superadminOnly: true }
   ];
 
   const handleLogout = async () => {
@@ -66,30 +58,6 @@ const AdminSidebar = () => {
               </Link>
             </li>
           ))}
-          
-          {/* Section spéciale Superadmin */}
-          {isSuperAdmin && (
-            <>
-              <li className="mt-6 mb-2">
-                <div className="text-xs uppercase text-muted-foreground font-semibold tracking-wider px-2">
-                  Superadmin
-                </div>
-              </li>
-              {superAdminMenuItems.map((item) => (
-                <li key={item.path}>
-                  <Link to={item.path}>
-                    <Button
-                      variant={location.pathname === item.path ? 'default' : 'ghost'}
-                      className="w-full justify-start"
-                    >
-                      {item.icon}
-                      <span className="ml-2">{item.label}</span>
-                    </Button>
-                  </Link>
-                </li>
-              ))}
-            </>
-          )}
         </ul>
       </nav>
       <div className="p-4 border-t">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -125,48 +126,6 @@ const ProduitsEntreprises = () => {
                 </CardFooter>
               </Card>
             ))}
-          </div>
-
-          <div className="bg-accent p-8 rounded-xl mb-20">
-            <h2 className="text-2xl font-bold mb-6 text-center">Garantie et support</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-background p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-3">Garantie des produits</h3>
-                <p className="text-muted-foreground mb-4">
-                  Tous nos produits sont couverts par une garantie dans le respect des précautions d'usage et de bonne utilisation:
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <p><span className="font-medium">Bornes de recharge:</span> garantie de 24 mois</p>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <p><span className="font-medium">Powerbanks:</span> garantie de 12 mois</p>
-                  </li>
-                </ul>
-              </div>
-              <div className="bg-background p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-3">Support technique</h3>
-                <p className="text-muted-foreground mb-4">
-                  Une équipe de techniciens expérimentés à votre service:
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <p>Support téléphonique disponible 7j/7</p>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <p>Intervention sur site sous 48h ouvrées</p>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <p>Maintenance préventive et vérifications régulières</p>
-                  </li>
-                </ul>
-              </div>
-            </div>
           </div>
 
           <div className="bg-accent p-8 rounded-xl mb-20">
