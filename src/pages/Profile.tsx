@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,15 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useQuery } from '@tanstack/react-query';
-import { getUserProfile, updateUserProfile } from '@/services/api';
-import { ArrowLeft, Save } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { getUserProfile, updateUserProfile, updateUserPassword } from '@/services/supabase/profile';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const profileFormSchema = z.object({
-  firstName: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }),
-  lastName: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
-  email: z.string().email({ message: 'Adresse email invalide' }),
+  firstName: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }).optional().or(z.literal('')),
+  lastName: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }).optional().or(z.literal('')),
+  email: z.string().email({ message: 'Adresse email invalide' }).optional(),
   phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
@@ -47,14 +48,11 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 const Profile = () => {
   const { toast } = useToast();
-  
-  // Mock user ID for demo - would come from auth in a real app
-  const userId = "user123";
-
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => getUserProfile(userId),
-  });
+  const { user } = useAuth();
+  const [loading, setLoading] = React.useState(true);
+  const [savingProfile, setSavingProfile] = React.useState(false);
+  const [savingPassword, setSavingPassword] = React.useState(false);
+  const [userData, setUserData] = React.useState<any>(null);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -78,54 +76,113 @@ const Profile = () => {
     },
   });
 
-  // Update form values when user data is loaded
-  React.useEffect(() => {
-    if (userData?.data) {
-      profileForm.reset({
-        firstName: userData.data.firstName || '',
-        lastName: userData.data.lastName || '',
-        email: userData.data.email || '',
-        phone: userData.data.phone || '',
-        address: userData.data.address || '',
-        city: userData.data.city || '',
-        postalCode: userData.data.postalCode || '',
-      });
-    }
-  }, [userData, profileForm]);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        setLoading(true);
+        try {
+          const profile = await getUserProfile(user.uid);
+          if (profile) {
+            setUserData(profile);
+            
+            profileForm.reset({
+              firstName: profile.first_name || '',
+              lastName: profile.last_name || '',
+              email: user.email || '',
+              phone: profile.phone || '',
+              address: profile.address || '',
+              city: profile.city || '',
+              postalCode: profile.postal_code || '',
+            });
+          }
+        } catch (error) {
+          console.error("Erreur lors de la récupération des données utilisateur:", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger les données du profil",
+            variant: "destructive"
+          });
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user, profileForm, toast]);
 
   const onSubmitProfile = async (data: ProfileFormValues) => {
+    if (!user) return;
+    
+    setSavingProfile(true);
     try {
-      await updateUserProfile(userId, data);
-      toast({
-        title: "Profile mis à jour",
-        description: "Vos informations ont été mises à jour avec succès."
+      const result = await updateUserProfile(user.uid, {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        postal_code: data.postalCode,
       });
-    } catch (error) {
+
+      if (result.success) {
+        toast({
+          title: "Profile mis à jour",
+          description: "Vos informations ont été mises à jour avec succès."
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: result.error || "Une erreur est survenue lors de la mise à jour de votre profil.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour de votre profil.",
+        description: error.message || "Une erreur est survenue lors de la mise à jour de votre profil.",
         variant: "destructive"
       });
+    } finally {
+      setSavingProfile(false);
     }
   };
 
-  const onSubmitPassword = (data: PasswordFormValues) => {
-    // In a real app, this would call an API to update the password
-    console.log('Password update data:', data);
-    
-    toast({
-      title: "Mot de passe mis à jour",
-      description: "Votre mot de passe a été changé avec succès."
-    });
-    
-    passwordForm.reset({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
+  const onSubmitPassword = async (data: PasswordFormValues) => {
+    setSavingPassword(true);
+    try {
+      const result = await updateUserPassword(data.currentPassword, data.newPassword);
+      
+      if (result.success) {
+        toast({
+          title: "Mot de passe mis à jour",
+          description: "Votre mot de passe a été changé avec succès."
+        });
+        
+        passwordForm.reset({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: result.error || "Une erreur est survenue lors de la mise à jour de votre mot de passe.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la mise à jour de votre mot de passe.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -207,7 +264,7 @@ const Profile = () => {
                           <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input placeholder="Votre email" {...field} />
+                              <Input placeholder="Votre email" {...field} readOnly disabled />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -276,9 +333,18 @@ const Profile = () => {
                         </div>
                       </div>
                       
-                      <Button type="submit" className="w-full md:w-auto">
-                        <Save className="mr-2 h-4 w-4" />
-                        Enregistrer les modifications
+                      <Button type="submit" className="w-full md:w-auto" disabled={savingProfile}>
+                        {savingProfile ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enregistrement...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Enregistrer les modifications
+                          </>
+                        )}
                       </Button>
                     </form>
                   </Form>
@@ -339,8 +405,15 @@ const Profile = () => {
                         )}
                       />
                       
-                      <Button type="submit" className="w-full">
-                        Mettre à jour le mot de passe
+                      <Button type="submit" className="w-full" disabled={savingPassword}>
+                        {savingPassword ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Mise à jour...
+                          </>
+                        ) : (
+                          "Mettre à jour le mot de passe"
+                        )}
                       </Button>
                     </form>
                   </Form>
@@ -361,7 +434,7 @@ const Profile = () => {
                       <p className="text-sm text-muted-foreground">Recevoir un email de confirmation pour chaque location</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked />
+                      <input type="checkbox" className="sr-only peer" defaultChecked />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
@@ -372,7 +445,7 @@ const Profile = () => {
                       <p className="text-sm text-muted-foreground">Rappels pour les locations de longue durée</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked />
+                      <input type="checkbox" className="sr-only peer" defaultChecked />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>

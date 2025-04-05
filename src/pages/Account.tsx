@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,9 +5,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 'lucide-react';
+import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck, Settings } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
+import { getUserProfile } from '@/services/supabase/profile';
 import { getDocument, getCollection } from '@/services/firebase';
 import { Subscription, User as UserType } from '@/types/api';
 
@@ -28,11 +28,18 @@ const Account = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    const fetchUserSubscription = async () => {
+    const fetchUserData = async () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          // Récupérer les données utilisateur complètes
+          // Récupérer les données utilisateur depuis Supabase
+          const profile = await getUserProfile(user.uid);
+          if (profile) {
+            setUserData(profile);
+          }
+          
+          // Code existant pour récupérer l'abonnement
+          // Si l'utilisateur a un abonnement, récupérer les détails
           const userResult = await getDocument('users', user.uid);
           
           if (userResult.success && userResult.data) {
@@ -48,10 +55,10 @@ const Account = () => {
             }
           }
         } catch (error) {
-          console.error('Erreur lors de la récupération des données d\'abonnement:', error);
+          console.error('Erreur lors de la récupération des données utilisateur:', error);
           toast({
             title: 'Erreur',
-            description: 'Impossible de charger les informations d\'abonnement.',
+            description: 'Impossible de charger les informations utilisateur.',
             variant: 'destructive',
           });
         } finally {
@@ -60,7 +67,7 @@ const Account = () => {
       }
     };
 
-    fetchUserSubscription();
+    fetchUserData();
   }, [user, toast]);
 
   if (loading) {
@@ -89,11 +96,11 @@ const Account = () => {
             {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {user?.displayName || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {user?.displayName || userData?.first_name || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Carte d'abonnement */}
+                {/* Cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
@@ -159,6 +166,8 @@ const Account = () => {
                     </p>
                   </CardContent>
                 </Card>
+                
+                {/* Carte du profil modifiée pour inclure un lien vers la page de profil */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Profile</CardTitle>
@@ -166,6 +175,14 @@ const Account = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{user?.email}</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2 text-primary flex items-center"
+                      onClick={() => navigate('/profile')}
+                    >
+                      <Settings className="h-4 w-4 mr-1" /> Gérer le profil
+                    </Button>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -235,29 +252,45 @@ const Account = () => {
             )}
           </TabsContent>
           
-          {/* Profile tab content */}
           <TabsContent value="profile">
             <Card>
               <CardHeader>
                 <CardTitle>Informations du profil</CardTitle>
                 <CardDescription>
-                  Modifiez vos informations personnelles
+                  Consultez et modifiez vos informations personnelles
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
                   <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Nom d'utilisateur</h4>
-                    <p className="text-gray-500">{user?.displayName || 'Non défini'}</p>
+                    <h4 className="text-sm font-medium">Nom</h4>
+                    <p className="text-gray-500">{userData?.first_name || 'Non défini'} {userData?.last_name || ''}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>
                     <p className="text-gray-500">{user?.email || 'Non défini'}</p>
                   </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Téléphone</h4>
+                    <p className="text-gray-500">{userData?.phone || 'Non défini'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Adresse</h4>
+                    <p className="text-gray-500">
+                      {userData?.address ? (
+                        <>
+                          {userData.address}<br />
+                          {userData.postal_code} {userData.city}
+                        </>
+                      ) : (
+                        'Non définie'
+                      )}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button>Modifier le profil</Button>
+                <Button onClick={() => navigate('/profile')}>Modifier le profil</Button>
               </CardFooter>
             </Card>
           </TabsContent>
