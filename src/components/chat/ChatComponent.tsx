@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import MessageList from './MessageList';
 import { Message } from '@/types/chat';
-import { sendChatMessage, getChatMessages, setupChatTables } from '@/services/supabase/chat';
+import { fetchMessages, sendMessage, setupChatTables, subscribeToMessages } from '@/services/supabase/chat';
 
 const ChatComponent = () => {
   const { user } = useAuth();
@@ -28,10 +28,10 @@ const ChatComponent = () => {
 
   // Récupère les messages initiaux
   useEffect(() => {
-    const fetchMessages = async () => {
+    const getInitialMessages = async () => {
       try {
         setLoading(true);
-        const messagesData = await getChatMessages('general');
+        const messagesData = await fetchMessages('general');
         if (messagesData) {
           setMessages(messagesData);
         }
@@ -43,7 +43,7 @@ const ChatComponent = () => {
       }
     };
 
-    fetchMessages();
+    getInitialMessages();
   }, []);
 
   // S'abonne aux nouveaux messages
@@ -85,9 +85,13 @@ const ChatComponent = () => {
     setSending(true);
     
     try {
-      const result = await sendChatMessage(newMessage.trim(), user.uid);
+      const result = await sendMessage(
+        newMessage.trim(), 
+        user.uid, 
+        user.displayName || 'Utilisateur'
+      );
       
-      if (!result.success) {
+      if (!result) {
         toast.error('Erreur lors de l\'envoi du message');
         return;
       }

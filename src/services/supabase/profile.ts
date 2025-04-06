@@ -48,7 +48,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       address: data.address,
       city: data.city,
       postalCode: data.postal_code,
-      createdAt: data.created_at,
+      createdAt: data.updated_at, // Using updated_at as a fallback since created_at might not exist
       updatedAt: data.updated_at,
       subscriptionType: 'basic' // Default value if not available
     };
@@ -137,8 +137,7 @@ export const updateUserPassword = async (
     
     return { 
       success: false, 
-      error: errorMessage,
-      code: error.code
+      error: errorMessage
     };
   }
 };

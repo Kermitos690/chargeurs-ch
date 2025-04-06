@@ -56,8 +56,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAdminRole();
   }, [user]);
 
+  // Ensure userData always has a subscriptionType
+  const augmentedUserData = userData ? {
+    ...userData,
+    subscriptionType: userData.subscriptionType || 'basic'
+  } : null;
+
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isAdmin }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userData: augmentedUserData, 
+      loading, 
+      isAdmin 
+    }}>
       {children}
     </AuthContext.Provider>
   );
