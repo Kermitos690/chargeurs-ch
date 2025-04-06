@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -65,8 +66,8 @@ const Account = () => {
     fetchUserData();
   }, [user, toast]);
 
-  const getSubscriptionBadge = (profile: UserProfile | { id: string; }) => {
-    if (!profile || !('subscriptionType' in profile)) return null;
+  const getSubscriptionBadge = (profile: UserProfile | null) => {
+    if (!profile || !profile.subscriptionType) return null;
     
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${profile.subscriptionType === 'premium' ? 'bg-gold-100 text-gold-800' : 'bg-blue-100 text-blue-800'}`}>
