@@ -50,7 +50,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       postalCode: data.postal_code,
       createdAt: data.updated_at, // Using updated_at as a fallback since created_at might not exist
       updatedAt: data.updated_at,
-      subscriptionType: 'basic' // Default value if not available
+      subscriptionType: data.subscription_type || 'basic' // Ensure we provide a default value
     };
   } catch (error) {
     console.error('Erreur lors de la récupération du profil:', error);
