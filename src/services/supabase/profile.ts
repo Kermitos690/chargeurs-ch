@@ -77,6 +77,7 @@ export const updateUserProfile = async (
       address: profile.address,
       city: profile.city,
       postal_code: profile.postalCode,
+      subscription_type: profile.subscriptionType,
       updated_at: new Date().toISOString()
     };
 

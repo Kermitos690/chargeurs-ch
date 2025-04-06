@@ -23,6 +23,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
 import Services from "./pages/Services";
 import Chat from "./pages/Chat"; // Nouvelle page de chat
+import AppPage from "./pages/App"; // Nouvelle page d'application pour le porcher
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
             <Route path="/chat" element={<Chat />} /> {/* Nouvelle route de chat */}
+            <Route path="/app" element={<AppPage />} /> {/* Nouvelle route pour l'application de porcher */}
             
             {/* Routes d'authentification */}
             <Route path="/auth/login" element={<Login />} />
