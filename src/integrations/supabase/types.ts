@@ -114,6 +114,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          is_assistant: boolean | null
           room_id: string
           user_id: string
         }
@@ -121,6 +122,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          is_assistant?: boolean | null
           room_id?: string
           user_id: string
         }
@@ -128,6 +130,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          is_assistant?: boolean | null
           room_id?: string
           user_id?: string
         }
