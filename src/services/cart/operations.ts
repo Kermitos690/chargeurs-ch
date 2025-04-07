@@ -4,6 +4,11 @@ import { toast } from 'sonner';
 import { CartItem } from './types';
 import { getOrCreateSessionId, initializeCart } from './session';
 
+// Helper pour déclencher l'événement de mise à jour du panier
+const triggerCartUpdate = () => {
+  window.dispatchEvent(new Event('cart-updated'));
+};
+
 // Ajouter un article au panier
 export const addToCart = async (
   productId: string, 
@@ -37,6 +42,7 @@ export const addToCart = async (
       if (updateError) throw updateError;
       
       toast.success('Article ajouté au panier');
+      triggerCartUpdate();
       return true;
     } else {
       // Ajouter un nouvel article sinon
@@ -53,6 +59,7 @@ export const addToCart = async (
       if (insertError) throw insertError;
       
       toast.success('Article ajouté au panier');
+      triggerCartUpdate();
       return true;
     }
   } catch (error) {
@@ -78,6 +85,7 @@ export const updateCartItemQuantity = async (itemId: string, quantity: number) =
     if (error) throw error;
     
     toast.success('Panier mis à jour');
+    triggerCartUpdate();
     return true;
   } catch (error) {
     console.error('Erreur lors de la mise à jour du panier:', error);
@@ -97,6 +105,7 @@ export const removeCartItem = async (itemId: string) => {
     if (error) throw error;
     
     toast.success('Article supprimé du panier');
+    triggerCartUpdate();
     return true;
   } catch (error) {
     console.error('Erreur lors de la suppression de l\'article:', error);

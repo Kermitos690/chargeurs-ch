@@ -89,3 +89,14 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
     return [];
   }
 };
+
+// Ajouter d'autres fonctions de requête si nécessaire
+export const getCartItemCount = async (userId?: string): Promise<number> => {
+  try {
+    const items = await getCartItems(userId);
+    return items.length;
+  } catch (error) {
+    console.error('Erreur lors du comptage des articles:', error);
+    return 0;
+  }
+};

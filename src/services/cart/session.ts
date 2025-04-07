@@ -30,6 +30,7 @@ export const initializeCart = async (userId?: string) => {
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       // PGRST116 est le code d'erreur pour "No rows returned" - ce n'est pas vraiment une erreur dans notre cas
+      console.error('Erreur lors de la récupération du panier:', fetchError);
       throw fetchError;
     }
 
@@ -43,7 +44,10 @@ export const initializeCart = async (userId?: string) => {
         .select('id')
         .single();
 
-      if (createError) throw createError;
+      if (createError) {
+        console.error('Erreur lors de la création du panier:', createError);
+        throw createError;
+      }
       return newCart.id;
     }
 
