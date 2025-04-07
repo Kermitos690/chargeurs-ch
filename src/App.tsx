@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -41,6 +42,16 @@ import Entreprises from './pages/produits/Entreprises';
 import Accessoires from './pages/produits/Accessoires';
 import ProductSeed from './pages/admin/ProductSeed';
 
+// Nouvelles pages de fonctionnalités
+import Charging from './pages/features/Charging';
+import Connectivity from './pages/features/Connectivity';
+import Security from './pages/features/Security';
+
+// Nouvelles pages à propos
+import Company from './pages/about/Company'; 
+import Team from './pages/about/Team';
+import History from './pages/about/History';
+
 // Créer une instance de QueryClient
 const queryClient = new QueryClient();
 
@@ -58,6 +69,16 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/features" element={<Features />} />
+          
+          {/* Feature Sub-pages */}
+          <Route path="/features/charging" element={<Charging />} />
+          <Route path="/features/connectivity" element={<Connectivity />} />
+          <Route path="/features/security" element={<Security />} />
+          
+          {/* About Sub-pages */}
+          <Route path="/about/company" element={<Company />} />
+          <Route path="/about/team" element={<Team />} />
+          <Route path="/about/history" element={<History />} />
           
           {/* Shop Routes */}
           <Route path="/produits" element={<ProductsPage />} />
