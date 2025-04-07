@@ -12,15 +12,16 @@ export const createCheckoutSession = async () => {
       return { success: false };
     }
     
-    // Get cart items
+    // Get cart items - specify explicit type to avoid deep type instantiation
     const { data: cartItems, error: cartError } = await supabase
       .from('cart_items')
       .select(`
-        *,
-        product:products(*),
-        variant:product_variants(*)
+        id,
+        quantity,
+        product:products(id, name, price),
+        variant:product_variants(id, name, price)
       `)
-      .eq('user_id', user.id);
+      .eq('cart_id', await getCartIdForUser(user.id));
       
     if (cartError) throw cartError;
     
@@ -46,8 +47,8 @@ export const createCheckoutSession = async () => {
     // Create order items
     const orderItems = cartItems.map(item => ({
       order_id: order.id,
-      product_id: item.product_id,
-      variant_id: item.variant_id,
+      product_id: item.product.id,
+      variant_id: item.variant?.id || null,
       quantity: item.quantity,
       price: item.variant ? item.variant.price : item.product.price
     }));
@@ -59,10 +60,12 @@ export const createCheckoutSession = async () => {
     if (itemsError) throw itemsError;
     
     // Clear cart
-    await supabase
+    const { error: clearCartError } = await supabase
       .from('cart_items')
       .delete()
-      .eq('user_id', user.id);
+      .eq('cart_id', await getCartIdForUser(user.id));
+      
+    if (clearCartError) throw clearCartError;
       
     // Redirect to success page (this would normally go to stripe)
     window.location.href = '/checkout/success';
@@ -74,6 +77,33 @@ export const createCheckoutSession = async () => {
     return { success: false };
   }
 };
+
+// Helper function to get or create a cart for a user
+async function getCartIdForUser(userId: string): Promise<string> {
+  // Check if user already has a cart
+  const { data: existingCart } = await supabase
+    .from('carts')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+    
+  if (existingCart) {
+    return existingCart.id;
+  }
+  
+  // Create new cart if none exists
+  const { data: newCart, error } = await supabase
+    .from('carts')
+    .insert({ user_id: userId })
+    .select('id')
+    .single();
+    
+  if (error || !newCart) {
+    throw new Error('Failed to create cart');
+  }
+  
+  return newCart.id;
+}
 
 // Add the function that was causing an error in CheckoutSuccess.tsx
 export const handleCheckoutSuccess = async (sessionId: string) => {
