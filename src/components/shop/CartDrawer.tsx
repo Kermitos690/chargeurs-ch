@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -49,16 +48,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
     setCartItems([]);
   };
 
-  const handleCheckout = async () => {
-    setCheckoutLoading(true);
-    try {
-      await createCheckoutSession();
-      // La redirection sera gérée par createCheckoutSession
-    } catch (error) {
-      console.error('Erreur lors du checkout:', error);
-    } finally {
-      setCheckoutLoading(false);
-    }
+  const handleCheckout = () => {
+    onOpenChange(false);
+    navigate('/checkout');
   };
 
   const handleGoToCart = () => {
@@ -66,7 +58,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
     navigate('/panier');
   };
 
-  // Calcul du total du panier
   const total = calculateCartTotal(cartItems);
 
   return (

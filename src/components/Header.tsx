@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from 'lucide-react';
+import CartIcon from '@/components/shop/CartIcon';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +18,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -33,46 +32,49 @@ const Header = () => {
     { label: 'Services', path: '/services' },
     { label: 'Produits', path: '/produits' },
     { label: 'Stations', path: '/stations' },
-    { label: 'Chat', path: '/chat' }, // Nouvel élément de menu pour le chat
+    { label: 'Chat', path: '/chat' },
     { label: 'Contact', path: '/contact' },
   ];
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-black">
-          chargeurs.ch
-        </Link>
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {menuItems.map((item, index) => (
-            <Link 
-              key={index} 
-              to={item.path} 
-              className="text-black hover:text-primary font-medium transition-colors"
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          <Link to="/" className="text-2xl font-bold text-black">
+            chargeurs.ch
+          </Link>
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            {menuItems.map((item, index) => (
+              <Link 
+                key={index} 
+                to={item.path} 
+                className="text-black hover:text-primary font-medium transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
+              <Link to="/auth/login">
+                Connexion
+              </Link>
+            </Button>
+          </nav>
+          
+          <div className="flex items-center space-x-2">
+            <CartIcon />
+            
+            <button 
+              className="md:hidden text-black"
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             >
-              {item.label}
-            </Link>
-          ))}
-          <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
-            <Link to="/auth/login">
-              Connexion
-            </Link>
-          </Button>
-        </nav>
-        
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-black"
-          onClick={toggleMenu}
-          aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
       </div>
       
-      {/* Mobile Navigation */}
       <div 
         className={`md:hidden absolute top-full left-0 w-full bg-white shadow-md transition-all duration-300 ${
           isMenuOpen ? 'max-h-[70vh] overflow-y-auto' : 'max-h-0 overflow-hidden'
