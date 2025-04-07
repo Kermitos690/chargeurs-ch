@@ -13,14 +13,43 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, User, Settings, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-interface UserMenuProps {
-  handleLogout: () => Promise<void>;
-}
-
-const UserMenu: React.FC<UserMenuProps> = ({ handleLogout }) => {
+const UserMenu: React.FC = () => {
   const { user, userData } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error signing out:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur de déconnexion",
+          description: error.message || "Une erreur est survenue lors de la déconnexion"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous êtes maintenant déconnecté"
+      });
+      
+      navigate('/');
+    } catch (error) {
+      console.error("Unexpected error during logout:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur de déconnexion",
+        description: "Une erreur inattendue est survenue"
+      });
+    }
+  };
   
   if (!user) {
     return (

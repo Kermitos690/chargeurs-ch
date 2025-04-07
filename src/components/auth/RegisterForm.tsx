@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
-import { auth, createUserWithEmailAndPassword, updateProfile, db } from '@/services/firebase';
-import { setDoc, doc } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from '@/integrations/supabase/client';
 import LoginError from './LoginError';
 import RegisterFormFields from './RegisterFormFields';
 import RegisterButton from './RegisterButton';
@@ -28,13 +27,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
 
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
-      case 'auth/email-already-in-use':
+      case 'email-already-in-use':
         return "Cette adresse email est déjà utilisée par un autre compte";
-      case 'auth/invalid-email':
+      case 'invalid-email':
         return "Format d'adresse email invalide";
-      case 'auth/weak-password':
+      case 'weak-password':
         return "Le mot de passe est trop faible (minimum 6 caractères)";
-      case 'auth/network-request-failed':
+      case 'network-request-failed':
         return "Problème de connexion réseau. Vérifiez votre connexion internet.";
       case 'passwords-dont-match':
         return "Les mots de passe ne correspondent pas";
@@ -62,7 +61,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     
     // Validation du mot de passe
     if (password.length < 6) {
-      setErrorMessage(getErrorMessage('auth/weak-password'));
+      setErrorMessage(getErrorMessage('weak-password'));
       return;
     }
     
@@ -71,27 +70,40 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Create the user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      console.log("Compte créé avec succès, uid:", user.uid);
-      
-      // Update the user profile with the name
-      await updateProfile(user, { displayName: name });
-      console.log("Profil mis à jour avec le nom:", name);
-      
-      // Create a user document in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        id: user.uid,
-        email: email,
-        name: name,
-        phone: phone,
-        subscriptionType: 'basic',
-        createdAt: new Date()
+      // Create the user with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            phone
+          }
+        }
       });
       
-      console.log("Document utilisateur créé dans Firestore");
+      if (error) {
+        console.error("Erreur lors de l'inscription:", error);
+        setErrorMessage(getErrorMessage(error.message));
+        return;
+      }
+      
+      console.log("Compte créé avec succès");
+      
+      // Create a user profile in the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user?.id,
+          email: email,
+          name: name,
+          phone: phone,
+          subscription_type: 'basic'
+        });
+      
+      if (profileError) {
+        console.error("Erreur lors de la création du profil:", profileError);
+      }
       
       toast({
         title: "Compte créé avec succès",
@@ -101,7 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       onSuccess();
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
-      setErrorMessage(getErrorMessage(error.code));
+      setErrorMessage(getErrorMessage(error.message));
     } finally {
       setIsLoading(false);
     }

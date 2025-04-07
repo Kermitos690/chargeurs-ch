@@ -1,85 +1,132 @@
+
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User } from '@supabase/supabase-js';
-import { useSupabaseAuth } from './useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
-// Étendre le type User pour inclure les propriétés manquantes
-interface ExtendedUser extends User {
-  // Ajout des propriétés pour compatibilité avec le code existant
-  uid: string;
-  displayName?: string;
-}
-
-interface AuthContextType {
-  user: ExtendedUser | null;
-  userData: {
-    id: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    subscriptionType?: string;
-  } | null;
+interface AuthContextProps {
+  user: User | null;
+  session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  userData: any | null;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const AuthContext = createContext<AuthContextProps>({
   user: null,
-  userData: null,
+  session: null,
   loading: true,
-  isAdmin: false
+  isAdmin: false,
+  userData: null
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user: supabaseUser, userData, loading } = useSupabaseAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
 
-  // Adapter l'utilisateur Supabase pour ajouter les propriétés manquantes
   useEffect(() => {
-    if (supabaseUser) {
-      // Créer un utilisateur étendu qui ajoute uid comme alias pour id et displayName
-      const extendedUser = {
-        ...supabaseUser,
-        uid: supabaseUser.id, // Ajouter uid comme alias pour id
-        displayName: userData?.name || supabaseUser.email?.split('@')[0] || null, // Ajouter displayName basé sur le nom ou l'email
-      } as ExtendedUser;
+    // Initial session check
+    const initializeAuth = async () => {
+      setLoading(true);
       
-      setUser(extendedUser);
-    } else {
-      setUser(null);
-    }
-  }, [supabaseUser, userData]);
-
-  useEffect(() => {
-    // Check if user has admin role
-    const checkAdminRole = async () => {
-      if (user) {
-        try {
-          const { data, error } = await supabase.from('admin_roles')
-            .select('*')
-            .eq('user_id', user.id);
-            
-          // Check if the result contains data
-          if (data && data.length > 0) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-          }
-        } catch (error) {
-          console.error("Error checking admin role:", error);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
+      // Get current session
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Error getting session:", error);
+        setLoading(false);
+        return;
       }
+      
+      if (session) {
+        setUser(session.user);
+        setSession(session);
+        
+        // Check if user is admin
+        const { data: adminData } = await supabase
+          .from('admin_roles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+          
+        setIsAdmin(!!adminData);
+        
+        // Get user profile data
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profileData) {
+          setUserData({
+            id: session.user.id,
+            email: profileData.email,
+            name: profileData.name,
+            phone: profileData.phone,
+            subscriptionType: profileData.subscription_type
+          });
+        }
+      }
+      
+      setLoading(false);
     };
-
-    checkAdminRole();
-  }, [user]);
+    
+    initializeAuth();
+    
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log("Auth state changed:", event);
+      
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setUser(newSession?.user || null);
+        setSession(newSession);
+        
+        if (newSession?.user) {
+          // Check if user is admin
+          const { data: adminData } = await supabase
+            .from('admin_roles')
+            .select('*')
+            .eq('user_id', newSession.user.id)
+            .maybeSingle();
+            
+          setIsAdmin(!!adminData);
+          
+          // Get user profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', newSession.user.id)
+            .single();
+            
+          if (profileData) {
+            setUserData({
+              id: newSession.user.id,
+              email: profileData.email,
+              name: profileData.name,
+              phone: profileData.phone,
+              subscriptionType: profileData.subscription_type
+            });
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setSession(null);
+        setIsAdmin(false);
+        setUserData(null);
+      }
+    });
+    
+    // Clean up on unmount
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isAdmin }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userData }}>
       {children}
     </AuthContext.Provider>
   );

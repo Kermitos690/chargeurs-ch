@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { transferCartToUser } from '@/services/cart';
 
 interface UserData {
   id: string;
@@ -14,89 +13,97 @@ interface UserData {
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        
-        // Clear user data if logged out
-        if (event === 'SIGNED_OUT') {
-          setUserData(null);
-        }
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
+    // Initial session check
+    const initializeAuth = async () => {
+      setLoading(true);
       
-      // Fetch user data if logged in
-      if (currentSession?.user) {
-        fetchUserData(currentSession.user.id);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Fetch additional user data when logged in
-  useEffect(() => {
-    if (user && !userData) {
-      fetchUserData(user.id);
-    }
-    
-    // Transfer cart when user logs in
-    if (user?.id) {
-      transferCartToUser(user.id).catch(error => {
-        console.error("Erreur lors du transfert du panier:", error);
-      });
-    }
-  }, [user?.id, userData]);
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Get current session
+      const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error("Erreur lors de la récupération des données utilisateur:", error);
+        console.error("Error getting session:", error);
+        setLoading(false);
         return;
       }
       
-      if (data) {
-        setUserData({
-          id: userId,
-          name: data.name,
-          email: user?.email,
-          phone: data.phone,
-          subscriptionType: data.subscription_type
-        });
-      } else {
-        // If no profile exists, use basic user data
-        setUserData({
-          id: userId,
-          email: user?.email,
-          name: user?.user_metadata?.name || user?.email?.split('@')[0]
-        });
+      if (session) {
+        setUser(session.user);
+        
+        try {
+          // Fetch user profile from 'profiles' table
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profileError) {
+            console.error("Error fetching user profile:", profileError);
+          } else if (profileData) {
+            setUserData({
+              id: session.user.id,
+              name: profileData.name,
+              email: profileData.email,
+              phone: profileData.phone,
+              subscriptionType: profileData.subscription_type
+            });
+          }
+        } catch (error) {
+          console.error("Error in profile data fetch:", error);
+        }
       }
-    } catch (error) {
-      console.error("Erreur lors de la récupération des données:", error);
-    }
-  };
+      
+      setLoading(false);
+    };
+    
+    initializeAuth();
+    
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log("Auth state changed:", event);
+      
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (newSession?.user) {
+          setUser(newSession.user);
+          
+          try {
+            // Fetch user profile
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', newSession.user.id)
+              .single();
+            
+            if (profileError) {
+              console.error("Error fetching user profile:", profileError);
+            } else if (profileData) {
+              setUserData({
+                id: newSession.user.id,
+                name: profileData.name,
+                email: profileData.email,
+                phone: profileData.phone,
+                subscriptionType: profileData.subscription_type
+              });
+            }
+          } catch (error) {
+            console.error("Error in profile data fetch:", error);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setUserData(null);
+      }
+    });
+    
+    // Clean up on unmount
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
 
-  return { user, userData, loading, session };
+  return { user, userData, loading };
 };

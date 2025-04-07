@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, Mail, Info } from 'lucide-react';
-import { resetPassword } from '@/services/firebase/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
 interface PasswordResetFormProps {
@@ -35,74 +35,48 @@ export const PasswordResetForm = ({
     try {
       console.log("Tentative de réinitialisation pour:", email);
       
-      const result = await resetPassword(email);
-      console.log("Résultat complet de la réinitialisation:", result);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/new-password`,
+      });
       
-      if (result.success) {
-        onSuccess(email);
-        toast({
-          title: "Email envoyé",
-          description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
-        });
-      } else {
-        // Traduction améliorée des messages d'erreur
-        let errorMessage = result.error || "Une erreur est survenue lors de l'envoi de l'email";
+      if (error) {
+        console.error("Erreur lors de la réinitialisation:", error);
         
-        // Messages d'erreur plus précis en français
-        if (result.code === 'auth/user-not-found') {
-          // Masquer cette erreur spécifique pour des raisons de sécurité
+        // Pour des raisons de sécurité, ne pas divulguer si l'email existe
+        if (error.message.includes('user not found')) {
+          // On prétend que ça a marché même si l'utilisateur n'existe pas
           onSuccess(email);
           toast({
             title: "Email envoyé",
             description: "Si un compte existe avec cette adresse, un email de réinitialisation a été envoyé",
           });
           return;
-        } else if (result.code === 'auth/invalid-email') {
+        }
+        
+        // Traduction des messages d'erreur
+        let errorMessage = "Une erreur est survenue lors de l'envoi de l'email";
+        
+        if (error.message.includes('invalid email')) {
           errorMessage = "L'adresse email n'est pas valide";
-        } else if (result.code === 'auth/too-many-requests') {
+        } else if (error.message.includes('too many requests')) {
           errorMessage = "Trop de tentatives, veuillez réessayer plus tard";
-        } else if (result.code === 'auth/network-request-failed') {
-          errorMessage = "Problème de connexion réseau. Vérifiez votre connexion internet.";
-        } else if (result.code === 'auth/unauthorized-continue-uri' || result.code === 'auth/unauthorized-domain') {
-          // Si l'erreur est liée à l'URL de redirection, on considère que l'opération a probablement réussi
-          // malgré l'erreur puisque notre fonction auth.ts a une tentative de fallback
-          onSuccess(email);
-          toast({
-            title: "Email envoyé",
-            description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
-          });
-          return;
-        } else if (result.code === 'permission-denied') {
-          // Si l'erreur est liée aux permissions, on considère que l'opération a réussi
-          // puisque c'est juste l'enregistrement de la tentative qui a échoué
-          onSuccess(email);
-          toast({
-            title: "Email envoyé",
-            description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
-          });
-          return;
+          onRateLimitError();
         }
         
         setError(errorMessage);
-        
-        // Stocker l'erreur détaillée pour débogage
-        if (result.details) {
-          setDetailedError(result.details);
-        }
-        
+        setDetailedError(error.message);
         onRetryCountUpdate();
-        
-        // Afficher une boîte de dialogue spécifique pour les erreurs de limite de taux
-        if (result.code === 'auth/too-many-requests' || 
-            result.code === 'auth/reset-password-limit-exceeded' ||
-            (result.error && result.error.includes('Limite de réinitialisation'))) {
-          onRateLimitError();
-        }
         
         toast({
           variant: "destructive",
           title: "Erreur",
           description: errorMessage,
+        });
+      } else {
+        onSuccess(email);
+        toast({
+          title: "Email envoyé",
+          description: "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email",
         });
       }
     } catch (error: any) {

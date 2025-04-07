@@ -4,7 +4,7 @@ import {
   CardContent
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { loginUser } from '@/services/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import LoginError from './LoginError';
 import LoginFormFields from './LoginFormFields';
 import LoginButton from './LoginButton';
@@ -63,21 +63,12 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
     setIsLoading(true);
 
     try {
-      const result = await loginUser(email, password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
       
-      if (result.success) {
-        // Réinitialiser les tentatives après une connexion réussie
-        localStorage.removeItem('loginAttempts');
-        localStorage.removeItem('loginLockoutUntil');
-        
-        toast({
-          title: "Connexion réussie",
-          description: "Vous êtes maintenant connecté à votre compte",
-        });
-        
-        // Rediriger vers la page précédente ou la page d'accueil
-        onSuccess(redirectPath);
-      } else {
+      if (error) {
         // Incrémenter et enregistrer le nombre de tentatives
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
@@ -89,14 +80,26 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
           localStorage.setItem('loginLockoutUntil', String(lockoutTime));
           setError(`Trop de tentatives échouées. Compte bloqué pendant 5 minutes.`);
         } else {
-          setError(result.error || "Email ou mot de passe incorrect");
+          setError(error.message || "Email ou mot de passe incorrect");
         }
         
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: result.error || "Email ou mot de passe incorrect",
+          description: error.message || "Email ou mot de passe incorrect",
         });
+      } else {
+        // Réinitialiser les tentatives après une connexion réussie
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('loginLockoutUntil');
+        
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté à votre compte",
+        });
+        
+        // Rediriger vers la page précédente ou la page d'accueil
+        onSuccess(redirectPath);
       }
     } catch (error: any) {
       setError("Une erreur inattendue s'est produite. Veuillez réessayer plus tard.");

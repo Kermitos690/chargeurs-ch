@@ -66,7 +66,7 @@ const AdminLogin = () => {
         toast({
           variant: 'destructive',
           title: 'Erreur de connexion',
-          description: result.success ? '' : (result as any).error || 'Vérifiez vos identifiants',
+          description: (result as any).error || 'Vérifiez vos identifiants',
         });
       }
     } catch (error: any) {

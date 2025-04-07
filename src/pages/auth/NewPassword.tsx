@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { completePasswordReset } from '@/services/firebase/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   password: z.string()
@@ -34,9 +34,6 @@ const NewPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get oobCode from URL
-  const oobCode = new URLSearchParams(location.search).get('oobCode');
-  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,36 +43,56 @@ const NewPassword = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    if (!oobCode) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Code de réinitialisation invalide. Veuillez réessayer.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     
     try {
-      const result = await completePasswordReset(oobCode, data.password);
+      // Get hash from URL
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
       
-      if (result && result.success) {
+      if (!accessToken || type !== 'recovery') {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Lien de réinitialisation invalide. Veuillez demander un nouveau lien.",
+        });
+        return;
+      }
+      
+      // Set the session from recovery tokens
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+      });
+      
+      if (sessionError) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Session invalide. Veuillez demander un nouveau lien de réinitialisation.",
+        });
+        return;
+      }
+      
+      // Update password
+      const { error } = await supabase.auth.updateUser({
+        password: data.password
+      });
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: error.message || "Une erreur est survenue lors de la réinitialisation du mot de passe.",
+        });
+      } else {
         toast({
           title: "Mot de passe réinitialisé",
           description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
         });
         setTimeout(() => navigate('/auth/login'), 2000);
-      } else {
-        const errorMessage = result && result.error 
-          ? result.error
-          : "Une erreur est survenue lors de la réinitialisation du mot de passe.";
-          
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: errorMessage,
-        });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
