@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart, Loader2 } from 'lucide-react';
 import { addToCart } from '@/services/cart';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: {
@@ -20,6 +21,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
+  const [loading, setLoading] = useState(false);
+  
   const {
     id,
     name,
@@ -36,7 +39,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await addToCart(id, 1, displayPrice);
+    
+    setLoading(true);
+    try {
+      await addToCart(id, 1, displayPrice);
+      toast.success('Produit ajouté au panier');
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout au panier:', error);
+      toast.error('Erreur lors de l\'ajout au panier');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,9 +96,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
           variant="default"
           className="w-full"
           onClick={handleAddToCart}
+          disabled={loading}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Ajouter
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <ShoppingCart className="mr-2 h-4 w-4" />
+          )}
+          {loading ? 'Ajout en cours...' : 'Ajouter au panier'}
         </Button>
       </CardFooter>
     </Card>

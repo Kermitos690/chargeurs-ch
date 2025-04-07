@@ -32,6 +32,14 @@ const Products: React.FC = () => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
+  // Titre de la page basé sur la catégorie sélectionnée
+  const getPageTitle = () => {
+    if (!filters.category) return "Tous nos produits";
+    
+    const selectedCategory = categories.find(cat => cat.slug === filters.category);
+    return selectedCategory ? selectedCategory.name : "Produits";
+  };
+  
   const [filters, setFilters] = useState<ProductFilters>({
     category: searchParams.get('category') || undefined,
     search: searchParams.get('q') || undefined,
@@ -108,7 +116,7 @@ const Products: React.FC = () => {
       <main className="flex-grow pt-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-8">
-            <h1 className="text-3xl font-bold mb-6">Produits</h1>
+            <h1 className="text-3xl font-bold mb-6">{getPageTitle()}</h1>
             
             {/* Barre de recherche et filtres */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">

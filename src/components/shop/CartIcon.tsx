@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from 'lucide-react';
@@ -12,10 +13,8 @@ const CartIcon: React.FC = () => {
 
   const fetchCartCount = async () => {
     try {
-      if (user?.id) {
-        const items = await getCartItems(user.id);
-        setItemCount(items.length);
-      }
+      const items = await getCartItems(user?.id);
+      setItemCount(items.length);
     } catch (error) {
       console.error('Erreur lors de la récupération du nombre d\'articles:', error);
     }
