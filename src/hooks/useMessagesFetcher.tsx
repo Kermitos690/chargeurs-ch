@@ -22,8 +22,8 @@ export const useMessagesFetcher = (
           id: msg.id,
           content: msg.content,
           user_id: msg.user_id,
-          // Fix: Explicitly handle is_assistant as a boolean
-          is_assistant: msg.is_assistant === true,
+          // Make sure we're explicitly checking for the is_assistant field that might be missing
+          is_assistant: Boolean(msg.is_assistant),
           created_at: msg.created_at,
           room_id: msg.room_id
         }));
