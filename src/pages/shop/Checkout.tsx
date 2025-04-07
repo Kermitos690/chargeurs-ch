@@ -25,9 +25,10 @@ import {
 } from 'lucide-react';
 import { getCartItems, calculateCartTotal } from '@/services/cart';
 import { createCheckoutSession } from '@/services/checkout';
+import { getUserProfile } from '@/services/supabase/profile';
 
 const Checkout: React.FC = () => {
-  const { user, userData } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,17 +54,23 @@ const Checkout: React.FC = () => {
         }
         setCartItems(items);
         
-        // Si l'utilisateur est connecté, pré-remplir les informations
-        if (user && userData) {
-          // Récupérer les détails utilisateur depuis le profil
-          setShippingDetails({
-            firstName: userData.name?.split(' ')[0] || '',
-            lastName: userData.name?.split(' ')[1] || '',
-            address: userData.address || '',
-            city: userData.city || '',
-            postalCode: userData.postalCode || '',
-            phone: userData.phone || ''
-          });
+        // Si l'utilisateur est connecté, récupérer et pré-remplir ses informations
+        if (user) {
+          try {
+            const userProfile = await getUserProfile(user.id);
+            if (userProfile) {
+              setShippingDetails({
+                firstName: userProfile.firstName || '',
+                lastName: userProfile.lastName || '',
+                address: userProfile.address || '',
+                city: userProfile.city || '',
+                postalCode: userProfile.postalCode || '',
+                phone: userProfile.phone || ''
+              });
+            }
+          } catch (profileError) {
+            console.error("Erreur lors de la récupération du profil:", profileError);
+          }
         }
       } catch (error) {
         console.error('Erreur lors de la récupération du panier:', error);
@@ -74,7 +81,7 @@ const Checkout: React.FC = () => {
     };
 
     fetchCart();
-  }, [user, userData, navigate]);
+  }, [user, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
