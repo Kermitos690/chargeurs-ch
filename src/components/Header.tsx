@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from "@/components/ui/button";
 import {
@@ -12,17 +12,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, User, Settings, HelpCircle, Menu, X } from 'lucide-react';
+import { LogOut, User, Settings, HelpCircle, Menu, X, ChevronDown, Sparkles } from 'lucide-react';
 import { clearCart } from '@/services/cart'; 
 import { toast } from 'sonner';
 import CartIcon from './shop/CartIcon';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { auth } from '@/services/firebase';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { cn } from '@/lib/utils';
 
 const Header = () => {
   const { user, userData } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -37,15 +52,44 @@ const Header = () => {
   };
 
   const navItems = [
-    { path: '/', label: 'Accueil' },
-    { path: '/features', label: 'Fonctionnalités' },
-    { path: '/about', label: 'À propos' },
-    { path: '/contact', label: 'Contact' },
-    { path: '/produits', label: 'Boutique' },
+    { path: '/', label: 'Accueil', children: [] },
+    { 
+      path: '/features', 
+      label: 'Fonctionnalités', 
+      children: [
+        { path: '/features/charging', label: 'Recharge rapide' },
+        { path: '/features/connectivity', label: 'Connectivité' },
+        { path: '/features/security', label: 'Sécurité' }
+      ] 
+    },
+    { 
+      path: '/about', 
+      label: 'À propos', 
+      children: [
+        { path: '/about/company', label: 'Notre entreprise' },
+        { path: '/about/team', label: 'Équipe' },
+        { path: '/about/history', label: 'Histoire' }
+      ] 
+    },
+    { 
+      path: '/contact', 
+      label: 'Contact',
+      children: [] 
+    },
+    { 
+      path: '/produits', 
+      label: 'Boutique',
+      children: [
+        { path: '/produits/accessoires', label: 'Accessoires' },
+        { path: '/produits/residentiels', label: 'Chargeurs résidentiels' },
+        { path: '/produits/entreprises', label: 'Solutions entreprises' },
+        { path: '/produits/publiques', label: 'Bornes publiques' }
+      ] 
+    },
   ];
 
   return (
-    <header className="bg-background border-b">
+    <header className="bg-background border-b sticky top-0 z-50">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center">
           <img 
@@ -55,22 +99,81 @@ const Header = () => {
           />
         </Link>
         
-        {/* Navigation pour desktop */}
-        <nav className="hidden md:flex items-center space-x-6">
+        {/* Navigation avec menu néon pour desktop */}
+        <div className="hidden md:flex items-center space-x-2">
           {navItems.map((item) => (
-            <NavLink 
-              key={item.path}
-              to={item.path} 
-              className={({ isActive }) => 
-                `px-3 py-2 rounded-md ${isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "hover:bg-accent"}`
-              }
-            >
-              {item.label}
-            </NavLink>
+            item.children.length > 0 ? (
+              <DropdownMenu key={item.path}>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className={`group relative flex items-center px-3 py-2 rounded-md transition-all duration-300 overflow-hidden ${
+                      location.pathname === item.path || location.pathname.startsWith(item.path + '/') 
+                      ? "bg-electric-blue text-primary-foreground shadow-electric animate-electric-pulse" 
+                      : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                    }`}
+                  >
+                    <div className="relative z-10 flex items-center">
+                      <Sparkles className="w-4 h-4 mr-1.5 transition-all duration-500 group-hover:text-electric-blue" />
+                      {item.label}
+                      <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
+                    </div>
+                    
+                    {/* Effet de fond néon sur hover */}
+                    <div className="absolute inset-0 bg-gradient-electric opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  className="w-56 glass-panel-electric animate-scale-in rounded-lg shadow-elevation-electric"
+                >
+                  <DropdownMenuItem asChild className="electric-glow">
+                    <NavLink 
+                      to={item.path} 
+                      className="w-full font-medium hover:bg-electric-blue/10 hover:text-electric-blue transition-colors"
+                    >
+                      <span className="text-gradient-electric">Tous les {item.label.toLowerCase()}</span>
+                    </NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-electric-blue/20" />
+                  {item.children.map((child) => (
+                    <DropdownMenuItem key={child.path} asChild>
+                      <NavLink 
+                        to={child.path} 
+                        className={({ isActive }) => cn(
+                          "w-full hover:bg-electric-blue/10 transition-all duration-200",
+                          isActive 
+                            ? "text-electric-blue font-medium electric-glow" 
+                            : "hover:text-electric-blue"
+                        )}
+                      >
+                        {child.label}
+                      </NavLink>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <NavLink 
+                key={item.path}
+                to={item.path} 
+                className={({ isActive }) => cn(
+                  "group relative flex items-center px-3 py-2 rounded-md transition-all duration-300 overflow-hidden",
+                  isActive 
+                    ? "bg-electric-blue text-primary-foreground shadow-electric animate-electric-pulse" 
+                    : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                )}
+              >
+                <div className="relative z-10 flex items-center">
+                  <Sparkles className="w-4 h-4 mr-1.5 transition-all duration-500 group-hover:text-electric-blue" />
+                  {item.label}
+                </div>
+                
+                {/* Effet de fond néon sur hover */}
+                <div className="absolute inset-0 bg-gradient-electric opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              </NavLink>
+            )
           ))}
-        </nav>
+        </div>
         
         <div className="flex items-center space-x-4">
           <CartIcon />
@@ -78,149 +181,284 @@ const Header = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-electric-blue/10 transition-all duration-300">
+                  <Avatar className="h-8 w-8 shadow-electric">
                     <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
-                    <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                    <AvatarFallback className="bg-electric-blue/20 text-electric-blue">{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-popover border-border shadow-lg" align="end" forceMount>
-                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <User className="mr-2 h-4 w-4" />
+              <DropdownMenuContent className="w-56 glass-panel-electric border-electric-blue/30 animate-scale-in" align="end" forceMount>
+                <DropdownMenuLabel className="text-electric-blue">Mon compte</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-electric-blue/20" />
+                <DropdownMenuItem 
+                  onClick={() => navigate('/profile')}
+                  className="hover:bg-electric-blue/10 hover:text-electric-blue transition-colors cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4 text-electric-blue" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/account')}>
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem 
+                  onClick={() => navigate('/account')}
+                  className="hover:bg-electric-blue/10 hover:text-electric-blue transition-colors cursor-pointer"
+                >
+                  <Settings className="mr-2 h-4 w-4 text-electric-blue" />
                   <span>Paramètres</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/faq')}>
-                  <HelpCircle className="mr-2 h-4 w-4" />
+                <DropdownMenuItem 
+                  onClick={() => navigate('/faq')}
+                  className="hover:bg-electric-blue/10 hover:text-electric-blue transition-colors cursor-pointer"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4 text-electric-blue" />
                   <span>Aide</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} >
-                  <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuSeparator className="bg-electric-blue/20" />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="hover:bg-electric-blue/10 hover:text-electric-blue transition-colors cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4 text-electric-blue" />
                   <span>Se déconnecter</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="outline" size="sm" onClick={() => navigate('/auth/login')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/auth/login')} 
+                className="hidden sm:flex hover:bg-electric-blue/10 hover:text-electric-blue hover:border-electric-blue transition-all duration-300"
+              >
                 Se connecter
               </Button>
-              <Button size="sm" onClick={() => navigate('/auth/register')}>
+              <Button 
+                size="sm" 
+                onClick={() => navigate('/auth/register')} 
+                className="hidden sm:flex bg-electric-blue hover:bg-electric-blue/90 shadow-electric transition-all duration-300"
+              >
                 S'inscrire
               </Button>
             </>
           )}
           
-          {/* Bouton de menu mobile */}
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
-              <div className="flex flex-col h-full">
-                <div className="p-4 border-b">
-                  <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-                    <img 
-                      src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
-                      alt="Chargeurs.ch Logo" 
-                      className="h-10 w-auto" 
-                    />
-                  </Link>
-                </div>
-                <nav className="flex-1 p-4">
-                  <ul className="space-y-2">
+          {/* Menu mobile avec Drawer en bas pour mobile et Sheet sur le côté pour tablette */}
+          {isMobile ? (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="md:hidden hover:bg-electric-blue/10 transition-all duration-300"
+                >
+                  <Menu className="h-5 w-5 text-electric-blue" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="bg-background p-4 glass-panel-electric border-t border-electric-blue/30">
+                <div className="flex flex-col h-full space-y-4">
+                  <nav className="space-y-2">
                     {navItems.map((item) => (
-                      <li key={item.path}>
-                        <NavLink 
-                          to={item.path} 
-                          className={({ isActive }) => 
-                            `block p-2 rounded-md ${isActive 
-                              ? "bg-primary text-primary-foreground" 
-                              : "hover:bg-accent"}`
-                          }
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </NavLink>
-                      </li>
+                      <div key={item.path} className="space-y-1">
+                        <DrawerClose asChild>
+                          <NavLink 
+                            to={item.path} 
+                            className={({ isActive }) => cn(
+                              "flex items-center p-2 rounded-md font-medium",
+                              isActive 
+                                ? "bg-electric-blue text-primary-foreground shadow-electric" 
+                                : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                            )}
+                          >
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            {item.label}
+                          </NavLink>
+                        </DrawerClose>
+                        
+                        {item.children.length > 0 && (
+                          <div className="pl-4 space-y-1 border-l-2 border-electric-blue/30 ml-2">
+                            {item.children.map((child) => (
+                              <DrawerClose key={child.path} asChild>
+                                <NavLink 
+                                  to={child.path} 
+                                  className={({ isActive }) => cn(
+                                    "block p-2 rounded-md text-sm",
+                                    isActive 
+                                      ? "text-electric-blue font-medium" 
+                                      : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                  )}
+                                >
+                                  {child.label}
+                                </NavLink>
+                              </DrawerClose>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
-                  </ul>
-                </nav>
-                {user ? (
-                  <div className="p-4 border-t">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
-                        <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
-                    </div>
-                    <div className="space-y-2">
+                  </nav>
+                  
+                  {!user && (
+                    <div className="flex flex-col space-y-2 pt-4">
                       <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
                         onClick={() => {
-                          navigate('/profile');
+                          navigate('/auth/login');
                           setIsMenuOpen(false);
                         }}
+                        className="bg-electric-blue hover:bg-electric-blue/90 shadow-electric"
                       >
-                        <User className="mr-2 h-4 w-4" />
-                        Profil
+                        Se connecter
                       </Button>
                       <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
+                        variant="outline" 
                         onClick={() => {
-                          navigate('/account');
+                          navigate('/auth/register');
                           setIsMenuOpen(false);
                         }}
+                        className="hover:bg-electric-blue/10 hover:text-electric-blue hover:border-electric-blue"
                       >
-                        <Settings className="mr-2 h-4 w-4" />
-                        Paramètres
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-left" 
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Se déconnecter
+                        S'inscrire
                       </Button>
                     </div>
+                  )}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="hover:bg-electric-blue/10"
+                >
+                  {isMenuOpen ? 
+                    <X className="h-5 w-5 text-electric-blue" /> : 
+                    <Menu className="h-5 w-5 text-electric-blue" />
+                  }
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[280px] glass-panel-electric border-r border-electric-blue/30 p-0">
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b border-electric-blue/30">
+                    <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
+                      <img 
+                        src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+                        alt="Chargeurs.ch Logo" 
+                        className="h-10 w-auto" 
+                      />
+                    </Link>
                   </div>
-                ) : (
-                  <div className="p-4 border-t flex flex-col space-y-2">
-                    <Button 
-                      onClick={() => {
-                        navigate('/auth/login');
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      Se connecter
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        navigate('/auth/register');
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      S'inscrire
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                  <nav className="flex-1 p-4">
+                    <ul className="space-y-2">
+                      {navItems.map((item) => (
+                        <li key={item.path} className="space-y-1">
+                          <NavLink 
+                            to={item.path} 
+                            className={({ isActive }) => cn(
+                              "flex items-center p-2 rounded-md font-medium",
+                              isActive 
+                                ? "bg-electric-blue text-primary-foreground shadow-electric" 
+                                : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                            )}
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            {item.label}
+                          </NavLink>
+                          
+                          {item.children.length > 0 && (
+                            <ul className="pl-4 space-y-1 border-l-2 border-electric-blue/30 ml-2">
+                              {item.children.map((child) => (
+                                <li key={child.path}>
+                                  <NavLink 
+                                    to={child.path} 
+                                    className={({ isActive }) => cn(
+                                      "block p-2 rounded-md text-sm",
+                                      isActive 
+                                        ? "text-electric-blue font-medium" 
+                                        : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                    )}
+                                    onClick={() => setIsMenuOpen(false)}
+                                  >
+                                    {child.label}
+                                  </NavLink>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                  {user ? (
+                    <div className="p-4 border-t border-electric-blue/30">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Avatar className="h-8 w-8 shadow-electric">
+                          <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                          <AvatarFallback className="bg-electric-blue/20 text-electric-blue">{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium text-electric-blue">{userData?.name || 'Utilisateur'}</span>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          onClick={() => {
+                            navigate('/profile');
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4 text-electric-blue" />
+                          Profil
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          onClick={() => {
+                            navigate('/account');
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <Settings className="mr-2 h-4 w-4 text-electric-blue" />
+                          Paramètres
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          onClick={handleLogout}
+                        >
+                          <LogOut className="mr-2 h-4 w-4 text-electric-blue" />
+                          Se déconnecter
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border-t border-electric-blue/30 flex flex-col space-y-2">
+                      <Button 
+                        onClick={() => {
+                          navigate('/auth/login');
+                          setIsMenuOpen(false);
+                        }}
+                        className="bg-electric-blue hover:bg-electric-blue/90 shadow-electric"
+                      >
+                        Se connecter
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          navigate('/auth/register');
+                          setIsMenuOpen(false);
+                        }}
+                        className="hover:bg-electric-blue/10 hover:text-electric-blue hover:border-electric-blue"
+                      >
+                        S'inscrire
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </div>
     </header>
