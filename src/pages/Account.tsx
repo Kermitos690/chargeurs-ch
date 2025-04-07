@@ -46,9 +46,11 @@ const Account = () => {
           if (userResult.success && userResult.data) {
             const userDataFromFirestore = userResult.data;
             
-            // Check if subscriptionType exists before trying to use it
-            if (userDataFromFirestore.subscriptionType) {
-              const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
+            // S'assurer que subscriptionType existe et a une valeur
+            const subscriptionType = userDataFromFirestore.subscriptionType || 'basic';
+            
+            if (subscriptionType) {
+              const subResult = await getDocument('subscriptions', subscriptionType);
               if (subResult.success && subResult.data) {
                 setUserSubscription(subResult.data as Subscription);
               }
