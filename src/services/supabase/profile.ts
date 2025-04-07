@@ -39,6 +39,17 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       return null;
     }
 
+    // Get subscription_type from the profiles table as it's not in user_details
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('subscription_type')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error('Erreur lors de la récupération du type d\'abonnement:', profileError);
+    }
+
     // Convertir les noms de champs snake_case en camelCase pour l'interface TypeScript
     return {
       id: data.id,
@@ -50,7 +61,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       postalCode: data.postal_code,
       createdAt: data.updated_at, // Using updated_at as a fallback since created_at might not exist
       updatedAt: data.updated_at,
-      subscriptionType: data.subscription_type || 'basic' // Ensure we provide a default value
+      subscriptionType: profileData?.subscription_type || 'basic' // Ensure we provide a default value
     };
   } catch (error) {
     console.error('Erreur lors de la récupération du profil:', error);
@@ -77,7 +88,6 @@ export const updateUserProfile = async (
       address: profile.address,
       city: profile.city,
       postal_code: profile.postalCode,
-      subscription_type: profile.subscriptionType,
       updated_at: new Date().toISOString()
     };
 
@@ -89,6 +99,19 @@ export const updateUserProfile = async (
     if (error) {
       console.error('Erreur lors de la mise à jour du profil:', error);
       return { success: false, error };
+    }
+
+    // Update subscription_type in profiles table if it's provided
+    if (profile.subscriptionType) {
+      const { error: subscriptionError } = await supabase
+        .from('profiles')
+        .update({ subscription_type: profile.subscriptionType })
+        .eq('id', userId);
+
+      if (subscriptionError) {
+        console.error('Erreur lors de la mise à jour du type d\'abonnement:', subscriptionError);
+        return { success: false, error: subscriptionError };
+      }
     }
 
     return { success: true };
