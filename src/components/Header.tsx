@@ -244,7 +244,7 @@ const Header = () => {
             </>
           )}
           
-          {/* Menu mobile avec Drawer en bas pour mobile et Sheet sur le côté pour tablette */}
+          {/* Menu mobile avec Drawer en bas pour mobile */}
           {isMobile ? (
             <Drawer>
               <DrawerTrigger asChild>
@@ -256,7 +256,7 @@ const Header = () => {
                   <Menu className="h-5 w-5 text-electric-blue" />
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="bg-background p-4 glass-panel-electric border-t border-electric-blue/30">
+              <DrawerContent className="bg-white p-4 border-t border-electric-blue/30">
                 <div className="flex flex-col h-full space-y-4">
                   <nav className="space-y-2">
                     {navItems.map((item) => (
@@ -267,8 +267,8 @@ const Header = () => {
                             className={({ isActive }) => cn(
                               "flex items-center p-2 rounded-md font-medium",
                               isActive 
-                                ? "bg-electric-blue text-primary-foreground shadow-electric" 
-                                : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                ? "bg-electric-blue text-white shadow-electric" 
+                                : "text-gray-800 hover:bg-electric-blue/10 hover:text-electric-blue"
                             )}
                           >
                             <Sparkles className="w-4 h-4 mr-2" />
@@ -286,7 +286,7 @@ const Header = () => {
                                     "block p-2 rounded-md text-sm",
                                     isActive 
                                       ? "text-electric-blue font-medium" 
-                                      : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                      : "text-gray-600 hover:bg-electric-blue/10 hover:text-electric-blue"
                                   )}
                                 >
                                   {child.label}
@@ -300,13 +300,13 @@ const Header = () => {
                   </nav>
                   
                   {!user && (
-                    <div className="flex flex-col space-y-2 pt-4">
+                    <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                       <Button 
                         onClick={() => {
                           navigate('/auth/login');
                           setIsMenuOpen(false);
                         }}
-                        className="bg-electric-blue hover:bg-electric-blue/90 shadow-electric"
+                        className="bg-electric-blue text-white hover:bg-electric-blue/90 shadow-electric"
                       >
                         Se connecter
                       </Button>
@@ -316,7 +316,7 @@ const Header = () => {
                           navigate('/auth/register');
                           setIsMenuOpen(false);
                         }}
-                        className="hover:bg-electric-blue/10 hover:text-electric-blue hover:border-electric-blue"
+                        className="text-electric-blue border-electric-blue hover:bg-electric-blue/10"
                       >
                         S'inscrire
                       </Button>
@@ -339,7 +339,7 @@ const Header = () => {
                   }
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[280px] glass-panel-electric border-r border-electric-blue/30 p-0">
+              <SheetContent side="left" className="w-[280px] bg-white p-0 border-r border-electric-blue/30">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-electric-blue/30">
                     <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
@@ -359,8 +359,8 @@ const Header = () => {
                             className={({ isActive }) => cn(
                               "flex items-center p-2 rounded-md font-medium",
                               isActive 
-                                ? "bg-electric-blue text-primary-foreground shadow-electric" 
-                                : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                ? "bg-electric-blue text-white shadow-electric" 
+                                : "text-gray-800 hover:bg-electric-blue/10 hover:text-electric-blue"
                             )}
                             onClick={() => setIsMenuOpen(false)}
                           >
@@ -378,7 +378,7 @@ const Header = () => {
                                       "block p-2 rounded-md text-sm",
                                       isActive 
                                         ? "text-electric-blue font-medium" 
-                                        : "hover:bg-electric-blue/10 hover:text-electric-blue"
+                                        : "text-gray-600 hover:bg-electric-blue/10 hover:text-electric-blue"
                                     )}
                                     onClick={() => setIsMenuOpen(false)}
                                   >
@@ -404,7 +404,7 @@ const Header = () => {
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          className="w-full justify-start text-left text-gray-800 hover:bg-electric-blue/10 hover:text-electric-blue" 
                           onClick={() => {
                             navigate('/profile');
                             setIsMenuOpen(false);
@@ -415,7 +415,7 @@ const Header = () => {
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          className="w-full justify-start text-left text-gray-800 hover:bg-electric-blue/10 hover:text-electric-blue" 
                           onClick={() => {
                             navigate('/account');
                             setIsMenuOpen(false);
@@ -426,7 +426,7 @@ const Header = () => {
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start text-left hover:bg-electric-blue/10 hover:text-electric-blue" 
+                          className="w-full justify-start text-left text-gray-800 hover:bg-electric-blue/10 hover:text-electric-blue" 
                           onClick={handleLogout}
                         >
                           <LogOut className="mr-2 h-4 w-4 text-electric-blue" />
@@ -435,13 +435,13 @@ const Header = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 border-t border-electric-blue/30 flex flex-col space-y-2">
+                    <div className="p-4 border-t border-gray-200 flex flex-col space-y-2">
                       <Button 
                         onClick={() => {
                           navigate('/auth/login');
                           setIsMenuOpen(false);
                         }}
-                        className="bg-electric-blue hover:bg-electric-blue/90 shadow-electric"
+                        className="bg-electric-blue text-white hover:bg-electric-blue/90 shadow-electric"
                       >
                         Se connecter
                       </Button>
@@ -451,7 +451,7 @@ const Header = () => {
                           navigate('/auth/register');
                           setIsMenuOpen(false);
                         }}
-                        className="hover:bg-electric-blue/10 hover:text-electric-blue hover:border-electric-blue"
+                        className="text-electric-blue border-electric-blue hover:bg-electric-blue/10"
                       >
                         S'inscrire
                       </Button>
