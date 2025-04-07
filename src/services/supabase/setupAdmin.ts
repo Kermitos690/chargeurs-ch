@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // Type pour le résultat de setupInitialAdmin
-type SetupResult = 
+export type SetupResult = 
   | { success: true; message: string; warning?: string }
   | { success: false; error: string };
 
@@ -34,7 +34,8 @@ export const setupInitialAdmin = async (): Promise<SetupResult> => {
     );
 
     if (!result.success) {
-      return { success: false, error: result.error || "Erreur inconnue" };
+      // Now TypeScript knows we're in the error case
+      return { success: false, error: result.success ? "" : result.error };
     }
 
     // Mettre à jour la configuration système pour indiquer que le superadmin a été créé
@@ -71,8 +72,9 @@ export const createAdminImmediately = async () => {
       toast.success(result.message);
       return { success: true };
     } else {
-      toast.error(result.error);
-      return { success: false, error: result.error };
+      // Now TypeScript knows we're in the error case
+      toast.error(result.success ? "" : result.error);
+      return { success: false, error: result.success ? "" : result.error };
     }
   } catch (error: any) {
     toast.error(error.message || "Erreur inattendue");
