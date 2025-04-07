@@ -1,19 +1,15 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  CardContent, 
-  CardFooter 
-} from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Loader2, UserPlus, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { auth, createUserWithEmailAndPassword, updateProfile, db } from '@/services/firebase';
 import { setDoc, doc } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
+import LoginError from './LoginError';
+import RegisterFormFields from './RegisterFormFields';
+import RegisterButton from './RegisterButton';
+import RegisterFooter from './RegisterFooter';
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -115,116 +111,30 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     <>
       {errorMessage && (
         <div className="p-3 pt-6 px-6">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Erreur d'inscription</AlertTitle>
-            <AlertDescription>
-              {errorMessage}
-            </AlertDescription>
-          </Alert>
+          <LoginError error={errorMessage} />
         </div>
       )}
       <CardContent className="pt-6">
         <form onSubmit={handleRegister} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom complet</Label>
-            <Input
-              id="name"
-              placeholder="Jean Dupont"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="nom@exemple.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Téléphone</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+41 XX XXX XX XX"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="terms" 
-              checked={acceptTerms}
-              onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-            />
-            <label
-              htmlFor="terms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              J'accepte les{" "}
-              <Link to="/terms" className="text-primary hover:underline">
-                conditions d'utilisation
-              </Link>{" "}
-              et la{" "}
-              <Link to="/privacy" className="text-primary hover:underline">
-                politique de confidentialité
-              </Link>
-            </label>
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Inscription en cours...
-              </>
-            ) : (
-              <>
-                <UserPlus className="mr-2 h-4 w-4" />
-                S'inscrire
-              </>
-            )}
-          </Button>
+          <RegisterFormFields
+            name={name}
+            setName={setName}
+            email={email}
+            setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
+            password={password}
+            setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            acceptTerms={acceptTerms}
+            setAcceptTerms={setAcceptTerms}
+            isLoading={isLoading}
+          />
+          <RegisterButton isLoading={isLoading} />
         </form>
       </CardContent>
-      <CardFooter className="pt-4">
-        <div className="text-center text-sm w-full">
-          Déjà un compte?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-primary hover:underline"
-          >
-            Se connecter
-          </Link>
-        </div>
-      </CardFooter>
+      <RegisterFooter />
     </>
   );
 };
