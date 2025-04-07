@@ -1,112 +1,142 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { loginWithSupabase } from '@/services/supabase/auth';
-import { Loader2 } from 'lucide-react';
+import { loginAdmin } from '@/services/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Battery, Lock, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Veuillez entrer une adresse email valide." }),
-  password: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." }),
+  email: z.string().email('Adresse email invalide'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
-
-type FormValues = z.infer<typeof formSchema>;
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
 
-  // Dans la fonction handleLogin, modifiez le code qui vérifie le résultat de l'authentification
-  const handleLogin = async (values: FormValues) => {
-    setLoading(true);
-    setErrorMessage(null);
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
     try {
-      const result = await loginWithSupabase(values.email, values.password);
-
-      if (result.success) {
-        // L'authentification a réussi
+      const { success, error } = await loginAdmin(values.email, values.password);
+      
+      if (success) {
+        toast({
+          title: 'Connexion réussie',
+          description: 'Bienvenue dans l\'interface d\'administration',
+        });
         navigate('/admin/dashboard');
       } else {
-        // Vérifier que result a la forme attendue avec la propriété error
-        if ('error' in result) {
-          setErrorMessage(result.error);
-        } else {
-          setErrorMessage("Erreur d'authentification inconnue");
-        }
+        toast({
+          variant: 'destructive',
+          title: 'Erreur de connexion',
+          description: error || 'Vérifiez vos identifiants',
+        });
       }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      setErrorMessage(error.message || "Une erreur s'est produite lors de la connexion");
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la connexion',
+      });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="grid h-screen place-items-center">
-      <Card className="w-[450px]">
-        <CardHeader>
-          <CardTitle>Administration</CardTitle>
-          <CardDescription>Connectez-vous à votre compte administrateur</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="exemple@chargeurs.ch" 
-              {...register("email")} 
-              aria-invalid={errors.email ? "true" : "false"}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email?.message}</p>
-            )}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 py-12">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary">
+            <Battery className="h-6 w-6 text-white" />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              {...register("password")} 
-              aria-invalid={errors.password ? "true" : "false"}
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password?.message}</p>
-            )}
-          </div>
-          {errorMessage && (
-            <div className="text-red-500 text-sm">{errorMessage}</div>
-          )}
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleSubmit(handleLogin)} disabled={loading} className="w-full">
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Connexion...
-              </>
-            ) : (
-              "Se connecter"
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Administration</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Connectez-vous pour accéder au panneau d'administration
+          </p>
+        </div>
+
+        <div className="mt-8 rounded-lg bg-white p-6 shadow-md">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="admin@example.com" 
+                        {...field} 
+                        type="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mot de passe</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="••••••••" 
+                        {...field} 
+                        type="password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="mr-2 h-4 w-4" />
+                    Se connecter
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 };

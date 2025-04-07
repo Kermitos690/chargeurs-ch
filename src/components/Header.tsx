@@ -1,161 +1,226 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
-import CartIcon from '@/components/shop/CartIcon';
+import React, { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LogOut, User, Settings, HelpCircle, Menu, X } from 'lucide-react';
+import { clearCart } from '@/services/cart'; 
 import { toast } from 'sonner';
+import CartIcon from './shop/CartIcon';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { auth } from '@/services/firebase';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+  const { user, userData } = useAuth();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success('Déconnexion réussie');
-      navigate('/');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-      toast.error('Erreur lors de la déconnexion');
+      await clearCart(user?.uid); 
+      await auth.signOut();
+      navigate('/auth/login');
+      toast.success("Déconnexion réussie !");
+    } catch (error: any) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast.error("Erreur lors de la déconnexion");
     }
   };
 
-  const menuItems = [
-    { label: 'Accueil', path: '/' },
-    { label: 'À propos', path: '/about' },
-    { label: 'Services', path: '/services' },
-    { label: 'Produits', path: '/produits' },
-    { label: 'Stations', path: '/stations' },
-    { label: 'Chat', path: '/chat' },
-    { label: 'Contact', path: '/contact' },
+  const navItems = [
+    { path: '/', label: 'Accueil' },
+    { path: '/features', label: 'Fonctionnalités' },
+    { path: '/about', label: 'À propos' },
+    { path: '/contact', label: 'Contact' },
+    { path: '/produits', label: 'Boutique' },
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="text-2xl font-bold text-black">
-            chargeurs.ch
-          </Link>
-          
-          <nav className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item, index) => (
-              <Link 
-                key={index} 
-                to={item.path} 
-                className="text-black hover:text-primary font-medium transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-            
-            {loading ? (
-              <div className="h-10 w-24 bg-gray-200 animate-pulse rounded" />
-            ) : user ? (
-              <div className="flex items-center space-x-4">
-                <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
-                  <Link to="/account">
-                    <User className="mr-2 h-4 w-4" />
-                    Mon compte
-                  </Link>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={handleLogout} 
-                  className="text-black hover:bg-red-50 hover:text-red-600"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Déconnexion
-                </Button>
-              </div>
-            ) : (
-              <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
-                <Link to="/auth/login">
-                  Connexion
-                </Link>
-              </Button>
-            )}
-          </nav>
-          
-          <div className="flex items-center space-x-2">
-            <CartIcon />
-            
-            <button 
-              className="md:hidden text-black"
-              onClick={toggleMenu}
-              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div 
-        className={`md:hidden absolute top-full left-0 w-full bg-white shadow-md transition-all duration-300 ${
-          isMenuOpen ? 'max-h-[70vh] overflow-y-auto' : 'max-h-0 overflow-hidden'
-        }`}
-      >
-        <div className="container mx-auto px-6 py-6 flex flex-col space-y-4">
-          {menuItems.map((item, index) => (
-            <Link 
-              key={index} 
+    <header className="bg-background border-b">
+      <div className="container flex items-center justify-between h-16">
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+            alt="Chargeurs.ch Logo" 
+            className="h-12 w-auto" 
+          />
+        </Link>
+        
+        {/* Navigation pour desktop */}
+        <nav className="hidden md:flex items-center space-x-6">
+          {navItems.map((item) => (
+            <NavLink 
+              key={item.path}
               to={item.path} 
-              className="text-black hover:text-primary py-2 font-medium transition-colors"
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md ${isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-accent"}`
+              }
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
+        </nav>
+        
+        <div className="flex items-center space-x-4">
+          <CartIcon />
           
-          {loading ? (
-            <div className="h-10 w-full bg-gray-200 animate-pulse rounded mt-4" />
-          ) : user ? (
-            <>
-              <Button asChild variant="outline" className="mt-4 text-black border-black hover:bg-gray-100 hover:text-black">
-                <Link to="/account">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                    <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-popover border-border shadow-lg" align="end" forceMount>
+                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <User className="mr-2 h-4 w-4" />
-                  Mon compte
-                </Link>
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/account')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Paramètres</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/faq')}>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Aide</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Se déconnecter</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => navigate('/auth/login')}>
+                Se connecter
               </Button>
-              <Button 
-                variant="ghost" 
-                onClick={handleLogout} 
-                className="text-black hover:bg-red-50 hover:text-red-600"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Déconnexion
+              <Button size="sm" onClick={() => navigate('/auth/register')}>
+                S'inscrire
               </Button>
             </>
-          ) : (
-            <Button asChild variant="outline" className="mt-4 text-black border-black hover:bg-gray-100 hover:text-black">
-              <Link to="/auth/login">
-                Connexion
-              </Link>
-            </Button>
           )}
+          
+          {/* Bouton de menu mobile */}
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px] bg-background p-0 border-r">
+              <div className="flex flex-col h-full">
+                <div className="p-4 border-b">
+                  <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
+                    <img 
+                      src="/lovable-uploads/0a73b143-1ad3-4e4d-b62c-9d50ef4d3e33.png" 
+                      alt="Chargeurs.ch Logo" 
+                      className="h-10 w-auto" 
+                    />
+                  </Link>
+                </div>
+                <nav className="flex-1 p-4">
+                  <ul className="space-y-2">
+                    {navItems.map((item) => (
+                      <li key={item.path}>
+                        <NavLink 
+                          to={item.path} 
+                          className={({ isActive }) => 
+                            `block p-2 rounded-md ${isActive 
+                              ? "bg-primary text-primary-foreground" 
+                              : "hover:bg-accent"}`
+                          }
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+                {user ? (
+                  <div className="p-4 border-t">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={userData?.name ? `https://ui-avatars.com/api/?name=${userData?.name}` : ""} alt={userData?.name} />
+                        <AvatarFallback>{userData?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{userData?.name || 'Utilisateur'}</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={() => {
+                          navigate('/profile');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Profil
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={() => {
+                          navigate('/account');
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Paramètres
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-left" 
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Se déconnecter
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 border-t flex flex-col space-y-2">
+                    <Button 
+                      onClick={() => {
+                        navigate('/auth/login');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Se connecter
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        navigate('/auth/register');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      S'inscrire
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

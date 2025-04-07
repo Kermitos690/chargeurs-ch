@@ -14,7 +14,6 @@ import { Loader2, ShoppingBag, AlertTriangle } from 'lucide-react';
 import CartItem from './CartItem';
 import { getCartItems, calculateCartTotal, clearCart } from '@/services/cart';
 import { createCheckoutSession } from '@/services/checkout';
-import { useAuth } from '@/hooks/useAuth';
 
 interface CartDrawerProps {
   open: boolean;
@@ -23,7 +22,6 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -31,7 +29,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems(user?.id);
+      const items = await getCartItems();
       setCartItems(items);
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
@@ -44,31 +42,23 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
     if (open) {
       fetchCart();
     }
-  }, [open, user]);
-
-  // Écouter les événements de mise à jour du panier
-  useEffect(() => {
-    const handleCartUpdate = () => {
-      if (open) {
-        fetchCart();
-      }
-    };
-    
-    window.addEventListener('cart-updated', handleCartUpdate);
-    
-    return () => {
-      window.removeEventListener('cart-updated', handleCartUpdate);
-    };
   }, [open]);
 
   const handleClearCart = async () => {
-    await clearCart(user?.id);
+    await clearCart();
     setCartItems([]);
   };
 
-  const handleCheckout = () => {
-    onOpenChange(false);
-    navigate('/checkout');
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      await createCheckoutSession();
+      // La redirection sera gérée par createCheckoutSession
+    } catch (error) {
+      console.error('Erreur lors du checkout:', error);
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   const handleGoToCart = () => {
@@ -76,6 +66,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
     navigate('/panier');
   };
 
+  // Calcul du total du panier
   const total = calculateCartTotal(cartItems);
 
   return (

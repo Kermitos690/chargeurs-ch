@@ -11,63 +11,106 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Battery, Loader2, LogIn, AlertCircle } from 'lucide-react';
+import { loginUser } from '@/services/firebase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast: uiToast } = useToast();
-  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Récupérer l'URL de redirection depuis l'état de location (si disponible)
-  const from = location.state?.from?.pathname || '/account';
+  const from = location.state?.from?.pathname || '/stations';
 
-  // Rediriger si l'utilisateur est déjà connecté
+  // Limite le nombre de tentatives de connexion
+  const MAX_LOGIN_ATTEMPTS = 5;
+  const LOCKOUT_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
+
   useEffect(() => {
-    if (user) {
-      navigate(from);
+    // Vérifier s'il y a un verrou de connexion
+    const lockoutUntil = localStorage.getItem('loginLockoutUntil');
+    if (lockoutUntil && Number(lockoutUntil) > Date.now()) {
+      const remainingMinutes = Math.ceil((Number(lockoutUntil) - Date.now()) / 60000);
+      setError(`Compte temporairement bloqué. Réessayez dans ${remainingMinutes} minute(s).`);
+      setIsLoading(true);
+    } else if (lockoutUntil) {
+      // Effacer le verrou si le temps est écoulé
+      localStorage.removeItem('loginLockoutUntil');
+      localStorage.removeItem('loginAttempts');
+      setLoginAttempts(0);
     }
-  }, [user, navigate, from]);
+
+    // Récupérer le nombre de tentatives précédentes
+    const savedAttempts = localStorage.getItem('loginAttempts');
+    if (savedAttempts) {
+      setLoginAttempts(Number(savedAttempts));
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // Vérifier si l'utilisateur est verrouillé
+    const lockoutUntil = localStorage.getItem('loginLockoutUntil');
+    if (lockoutUntil && Number(lockoutUntil) > Date.now()) {
+      const remainingMinutes = Math.ceil((Number(lockoutUntil) - Date.now()) / 60000);
+      setError(`Compte temporairement bloqué. Réessayez dans ${remainingMinutes} minute(s).`);
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const result = await loginUser(email, password);
       
-      if (error) {
-        console.error("Erreur de connexion:", error);
-        setError(error.message);
-        toast.error("Erreur de connexion: " + error.message);
-        return;
-      }
-
-      if (data.user) {
-        console.log("Connexion réussie, utilisateur:", data.user.email);
-        toast.success("Connexion réussie!");
+      if (result.success) {
+        // Réinitialiser les tentatives après une connexion réussie
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('loginLockoutUntil');
         
-        // Rediriger après un court délai pour permettre au contexte d'auth de se mettre à jour
-        setTimeout(() => {
-          navigate(from);
-        }, 500);
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté à votre compte",
+        });
+        
+        // Rediriger vers la page précédente ou la page d'accueil
+        navigate(from);
+      } else {
+        // Incrémenter et enregistrer le nombre de tentatives
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        localStorage.setItem('loginAttempts', String(newAttempts));
+        
+        // Vérifier si l'utilisateur doit être verrouillé
+        if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+          const lockoutTime = Date.now() + LOCKOUT_DURATION;
+          localStorage.setItem('loginLockoutUntil', String(lockoutTime));
+          setError(`Trop de tentatives échouées. Compte bloqué pendant 5 minutes.`);
+        } else {
+          setError(result.error || "Email ou mot de passe incorrect");
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Erreur de connexion",
+          description: result.error || "Email ou mot de passe incorrect",
+        });
       }
     } catch (error: any) {
-      console.error("Erreur lors de la connexion:", error);
       setError("Une erreur inattendue s'est produite. Veuillez réessayer plus tard.");
-      toast.error("Erreur de connexion");
+      
+      toast({
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: "Une erreur inattendue s'est produite",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +143,7 @@ const Login = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading && !!localStorage.getItem('loginLockoutUntil')}
                   />
                 </div>
                 <div className="space-y-2">
@@ -117,7 +160,7 @@ const Login = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading && !!localStorage.getItem('loginLockoutUntil')}
                   />
                 </div>
                 
@@ -133,7 +176,7 @@ const Login = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={isLoading}
+                  disabled={isLoading || (!!localStorage.getItem('loginLockoutUntil') && Number(localStorage.getItem('loginLockoutUntil')) > Date.now())}
                 >
                   {isLoading ? (
                     <>

@@ -21,9 +21,6 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
-import Services from "./pages/Services";
-import Chat from "./pages/Chat"; 
-import AppPage from "./pages/App"; 
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
@@ -42,7 +39,6 @@ import ProduitsAccessoires from "./pages/produits/Accessoires";
 import Products from "./pages/shop/Products";
 import ProductDetail from "./pages/shop/ProductDetail";
 import Cart from "./pages/shop/Cart";
-import Checkout from "./pages/shop/Checkout"; // Nouvelle page de checkout
 import CheckoutSuccess from "./pages/shop/CheckoutSuccess";
 import CheckoutCancel from "./pages/shop/CheckoutCancel";
 
@@ -72,9 +68,6 @@ const App = () => (
             <Route path="/features" element={<Features />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/chat" element={<Chat />} /> 
-            <Route path="/app" element={<AppPage />} />
             
             {/* Routes d'authentification */}
             <Route path="/auth/login" element={<Login />} />
@@ -94,7 +87,6 @@ const App = () => (
             <Route path="/produits" element={<Products />} />
             <Route path="/produits/:slug" element={<ProductDetail />} />
             <Route path="/panier" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} /> {/* Nouvelle route de checkout */}
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/checkout/cancel" element={<CheckoutCancel />} />
             

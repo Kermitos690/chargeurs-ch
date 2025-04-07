@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -39,8 +40,16 @@ const Cart: React.FC = () => {
     fetchCart();
   }, []);
 
-  const handleCheckout = () => {
-    navigate('/checkout');
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      await createCheckoutSession();
+      // La redirection sera gérée par createCheckoutSession
+    } catch (error) {
+      console.error('Erreur lors du checkout:', error);
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   const handleContinueShopping = () => {
@@ -52,6 +61,7 @@ const Cart: React.FC = () => {
     fetchCart();
   };
 
+  // Calcul du total du panier
   const subtotal = calculateCartTotal(cartItems);
   const shipping = subtotal > 50 ? 0 : 5.90;
   const total = subtotal + shipping;
@@ -86,6 +96,7 @@ const Cart: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Détail du panier */}
                 <div className="lg:col-span-2">
                   <Card>
                     <CardHeader className="pb-2">
@@ -115,6 +126,7 @@ const Cart: React.FC = () => {
                   </Card>
                 </div>
                 
+                {/* Résumé de la commande */}
                 <div>
                   <Card>
                     <CardHeader>
