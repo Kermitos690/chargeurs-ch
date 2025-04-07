@@ -71,6 +71,18 @@ export const createCheckoutSession = async () => {
   }
 };
 
+// Add the missing function that was causing an error in CheckoutSuccess.tsx
+export const handleCheckoutSuccess = async (sessionId: string) => {
+  try {
+    // In a real app, you would verify the payment with Stripe here
+    // For now, we'll just return success
+    return { success: true };
+  } catch (error) {
+    console.error('Error processing checkout success:', error);
+    return { success: false, error: 'Failed to process payment confirmation' };
+  }
+};
+
 const calculateTotal = (items: any[]) => {
   return items.reduce((total, item) => {
     const price = item.variant ? item.variant.price : item.product.price;

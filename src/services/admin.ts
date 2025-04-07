@@ -19,6 +19,11 @@ export const logoutAdmin = async () => {
 
 export const getCollection = async (collection: string) => {
   try {
+    // Only allow accessing tables that exist in our schema
+    if (!isValidTable(collection)) {
+      throw new Error(`Collection ${collection} does not exist`);
+    }
+    
     const { data, error } = await supabase
       .from(collection)
       .select('*');
@@ -34,6 +39,11 @@ export const getCollection = async (collection: string) => {
 
 export const getDocument = async (collection: string, id: string) => {
   try {
+    // Only allow accessing tables that exist in our schema
+    if (!isValidTable(collection)) {
+      throw new Error(`Collection ${collection} does not exist`);
+    }
+    
     const { data, error } = await supabase
       .from(collection)
       .select('*')
@@ -51,6 +61,11 @@ export const getDocument = async (collection: string, id: string) => {
 
 export const updateDocument = async (collection: string, id: string, data: any) => {
   try {
+    // Only allow accessing tables that exist in our schema
+    if (!isValidTable(collection)) {
+      throw new Error(`Collection ${collection} does not exist`);
+    }
+    
     const { error } = await supabase
       .from(collection)
       .update(data)
@@ -67,6 +82,11 @@ export const updateDocument = async (collection: string, id: string, data: any) 
 
 export const deleteDocument = async (collection: string, id: string) => {
   try {
+    // Only allow accessing tables that exist in our schema
+    if (!isValidTable(collection)) {
+      throw new Error(`Collection ${collection} does not exist`);
+    }
+    
     const { error } = await supabase
       .from(collection)
       .delete()
@@ -92,3 +112,23 @@ export const fromTimestamp = (timestamp: any) => {
   // Already a date string or object
   return timestamp;
 };
+
+// Helper function to check if a table name is valid
+function isValidTable(tableName: string): boolean {
+  const validTables = [
+    'admin_roles',
+    'cart_items',
+    'carts',
+    'products',
+    'product_variants',
+    'messages',
+    'order_items',
+    'orders',
+    'product_categories',
+    'profiles',
+    'system_config',
+    'user_details'
+  ];
+  
+  return validTables.includes(tableName);
+}

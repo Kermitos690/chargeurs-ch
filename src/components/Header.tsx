@@ -7,6 +7,8 @@ import DesktopNavigation from './header/DesktopNavigation';
 import MobileNavigation from './header/MobileNavigation';
 import UserMenu from './header/UserMenu';
 import CartIcon from './shop/CartIcon';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Header = () => {
   const { user } = useAuth();
@@ -18,6 +20,24 @@ const Header = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Erreur lors de la déconnexion");
+        return;
+      }
+      
+      toast.success("Déconnexion réussie");
+      navigate('/');
+    } catch (error) {
+      console.error("Unexpected error during logout:", error);
+      toast.error("Une erreur inattendue s'est produite");
+    }
+  };
 
   return (
     <header className="bg-background border-b sticky top-0 z-50">
@@ -43,6 +63,7 @@ const Header = () => {
           <MobileNavigation 
             isMenuOpen={isMenuOpen}
             setIsMenuOpen={setIsMenuOpen}
+            handleLogout={handleLogout}
           />
         </div>
       </div>

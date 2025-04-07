@@ -29,8 +29,12 @@ const Cart: React.FC = () => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems(user?.id);
-      setCartItems(items);
+      if (user) {
+        const items = await getCartItems(user.id);
+        setCartItems(items);
+      } else {
+        setCartItems([]);
+      }
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
     } finally {
@@ -39,10 +43,20 @@ const Cart: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchCart();
-  }, [user?.id]);
+    if (user) {
+      fetchCart();
+    } else {
+      setCartItems([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const handleCheckout = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
     setCheckoutLoading(true);
     try {
       await createCheckoutSession();
@@ -59,8 +73,10 @@ const Cart: React.FC = () => {
   };
 
   const handleClearCart = async () => {
-    await clearCart(user?.id);
-    fetchCart();
+    if (user) {
+      await clearCart(user.id);
+      fetchCart();
+    }
   };
 
   // Calcul du total du panier

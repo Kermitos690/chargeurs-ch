@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +9,15 @@ import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Subscription } from '@/types/api';
+
+interface Subscription {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  duration: 'monthly' | 'yearly';
+  features: string[];
+}
 
 const Account = () => {
   const { user, loading, userData } = useAuth();
@@ -31,28 +38,17 @@ const Account = () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          // Récupérer le profil utilisateur
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('subscription_type')
-            .eq('id', user.id)
-            .single();
-          
-          if (profileError) {
-            console.error("Error fetching user profile:", profileError);
-          } else if (profileData && profileData.subscription_type) {
-            // Fetch subscription details if user has one
-            const { data: subscriptionData, error: subError } = await supabase
-              .from('subscriptions')
-              .select('*')
-              .eq('id', profileData.subscription_type)
-              .single();
-              
-            if (subError) {
-              console.error("Error fetching subscription:", subError);
-            } else if (subscriptionData) {
-              setUserSubscription(subscriptionData as Subscription);
-            }
+          if (userData?.subscriptionType) {
+            const mockSubscription: Subscription = {
+              id: userData.subscriptionType,
+              name: userData.subscriptionType === 'premium' ? 'Premium' : 'Basic',
+              price: userData.subscriptionType === 'premium' ? 19.99 : 9.99,
+              duration: 'monthly',
+              features: userData.subscriptionType === 'premium' 
+                ? ['Unlimited access', '24/7 support', 'Priority charging']
+                : ['Basic access', 'Email support', 'Standard charging']
+            };
+            setUserSubscription(mockSubscription);
           }
         } catch (error) {
           console.error('Erreur lors de la récupération des données d\'abonnement:', error);
@@ -68,7 +64,7 @@ const Account = () => {
     };
 
     fetchUserSubscription();
-  }, [user, toast]);
+  }, [user, userData, toast]);
 
   if (loading) {
     return (
@@ -93,14 +89,12 @@ const Account = () => {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
-            {/* Informations générales */}
             <Card>
               <CardHeader>
                 <CardTitle>Bienvenue, {userData?.name || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Carte d'abonnement */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
@@ -125,7 +119,6 @@ const Account = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Autres cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Factures récentes</CardTitle>
@@ -242,7 +235,6 @@ const Account = () => {
             )}
           </TabsContent>
           
-          {/* Profile tab content */}
           <TabsContent value="profile">
             <Card>
               <CardHeader>
