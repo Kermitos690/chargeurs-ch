@@ -67,12 +67,18 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userData, userEmail
       });
 
       if (result.success) {
-        toast.success("Profil mis à jour", "Vos informations ont été mises à jour avec succès.");
+        toast.success("Profil mis à jour", {
+          description: "Vos informations ont été mises à jour avec succès."
+        });
       } else {
-        toast.error("Erreur", result.error || "Une erreur est survenue lors de la mise à jour de votre profil.");
+        toast.error("Erreur", {
+          description: result.error || "Une erreur est survenue lors de la mise à jour de votre profil."
+        });
       }
     } catch (error: any) {
-      toast.error("Erreur", error.message || "Une erreur est survenue lors de la mise à jour de votre profil.");
+      toast.error("Erreur", {
+        description: error.message || "Une erreur est survenue lors de la mise à jour de votre profil."
+      });
     } finally {
       setSavingProfile(false);
     }

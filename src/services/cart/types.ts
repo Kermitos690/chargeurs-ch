@@ -17,6 +17,6 @@ export interface CartItem {
     name: string;
     imageUrl?: string;
     price: number;
-    attributes: Record<string, any>;
+    attributes: any; // Changé de Record<string, any> à any pour accepter Json
   } | null;
 }

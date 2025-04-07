@@ -116,6 +116,7 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
 
     if (itemsError) throw itemsError;
 
+    // Convertir les données de la base en format CartItem
     return cartItems.map(item => ({
       id: item.id,
       quantity: item.quantity,

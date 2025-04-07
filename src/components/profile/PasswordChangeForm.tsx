@@ -47,7 +47,9 @@ const PasswordChangeForm: React.FC = () => {
       const result = await updateUserPassword(data.currentPassword, data.newPassword);
       
       if (result.success) {
-        toast.success("Mot de passe mis à jour", "Votre mot de passe a été changé avec succès.");
+        toast.success("Mot de passe mis à jour", {
+          description: "Votre mot de passe a été changé avec succès."
+        });
         
         form.reset({
           currentPassword: '',
@@ -55,10 +57,14 @@ const PasswordChangeForm: React.FC = () => {
           confirmPassword: '',
         });
       } else {
-        toast.error("Erreur", result.error || "Une erreur est survenue lors de la mise à jour de votre mot de passe.");
+        toast.error("Erreur", {
+          description: result.error || "Une erreur est survenue lors de la mise à jour de votre mot de passe."
+        });
       }
     } catch (error: any) {
-      toast.error("Erreur", error.message || "Une erreur est survenue lors de la mise à jour de votre mot de passe.");
+      toast.error("Erreur", {
+        description: error.message || "Une erreur est survenue lors de la mise à jour de votre mot de passe."
+      });
     } finally {
       setSavingPassword(false);
     }
