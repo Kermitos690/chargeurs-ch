@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, X } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 
 interface ChatToggleProps {
   isOpen: boolean;
@@ -10,10 +9,6 @@ interface ChatToggleProps {
 }
 
 const ChatToggle: React.FC<ChatToggleProps> = ({ isOpen, setIsOpen }) => {
-  const { user } = useAuth();
-  
-  if (!user) return null;
-
   return (
     <Button
       className={`fixed bottom-4 right-4 z-50 rounded-full h-12 w-12 shadow-elevation-electric ${

@@ -26,15 +26,32 @@ export const useChatMessages = () => {
 
   // Fetch messages on mount
   useEffect(() => {
-    if (user?.id) {
-      fetchMessages(user.id);
-    }
-  }, [user?.id, fetchMessages]);
+    fetchMessages('general');
+    
+    // Set up realtime subscription for new messages
+    const channel = supabase
+      .channel('public:messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `room_id=eq.general`
+      }, (payload) => {
+        // Add the new message to state if it's not from the current user
+        const newMessage = payload.new as Message;
+        setMessages(prev => [...prev, newMessage]);
+      })
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchMessages]);
 
   return {
     messages,
     loading,
     sendMessage: sendNewMessage,
-    fetchMessages: () => user?.id && fetchMessages(user.id)
+    refreshMessages: () => fetchMessages('general')
   };
 };

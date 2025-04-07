@@ -6,12 +6,12 @@ import { Message } from './useChatMessages';
 export const useMessagesFetcher = (
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 ) => {
-  const fetchMessages = useCallback(async (userId: string) => {
+  const fetchMessages = useCallback(async (roomId: string = 'general') => {
     try {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', userId)
+        .eq('room_id', roomId)
         .order('created_at', { ascending: true });
       
       if (error) throw error;
@@ -22,7 +22,7 @@ export const useMessagesFetcher = (
           id: msg.id,
           content: msg.content,
           user_id: msg.user_id,
-          // Make sure we're explicitly checking for the is_assistant field that might be missing
+          // Ensure we handle the is_assistant field safely
           is_assistant: Boolean(msg.is_assistant),
           created_at: msg.created_at,
           room_id: msg.room_id
