@@ -16,7 +16,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Loader2, ArrowRight, AlertTriangle, Truck } from 'lucide-react';
 import CartItem from '@/components/shop/CartItem';
-import { getCartItems, calculateCartTotal, clearCart } from '@/services/cart';
+import { getCartItems, clearCart } from '@/services/cart';
+import { calculateCartTotal } from '@/services/cart';
 import { createCheckoutSession } from '@/services/checkout';
 
 const Cart: React.FC = () => {
