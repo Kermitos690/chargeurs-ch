@@ -76,7 +76,11 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
         name: item.product_variants.name,
         imageUrl: item.product_variants.image_url,
         price: item.product_variants.price,
-        attributes: item.product_variants.attributes,
+        // Convertir explicitement les attributs en Record<string, any>
+        // Si c'est une chaîne JSON, la parser, sinon utiliser comme tel
+        attributes: typeof item.product_variants.attributes === 'string' 
+          ? JSON.parse(item.product_variants.attributes) 
+          : item.product_variants.attributes
       } : null,
     }));
   } catch (error) {
