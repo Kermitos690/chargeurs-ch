@@ -1,12 +1,10 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Message } from '@/hooks/useChatMessages';
 
 interface ChatMessageProps {
-  message: {
-    content: string;
-    is_assistant: boolean;
-  };
+  message: Message;
   isUser: boolean;
 }
 
