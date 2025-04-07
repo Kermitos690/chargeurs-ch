@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getOrCreateCart } from './types';
 
 export const getCartItems = async (userId: string | undefined) => {
   if (!userId) return [];
@@ -28,39 +29,6 @@ export const getCartItems = async (userId: string | undefined) => {
     return [];
   }
 };
-
-// Helper function to get or create a cart
-async function getOrCreateCart(userId: string) {
-  try {
-    // Check if user already has a cart
-    const { data: existingCarts, error: fetchError } = await supabase
-      .from('carts')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
-      
-    if (fetchError) throw fetchError;
-    
-    // If cart exists, return it
-    if (existingCarts) {
-      return existingCarts;
-    }
-    
-    // Create a new cart
-    const { data: newCart, error: createError } = await supabase
-      .from('carts')
-      .insert({ user_id: userId })
-      .select()
-      .single();
-      
-    if (createError) throw createError;
-    
-    return newCart;
-  } catch (error) {
-    console.error('Error getting or creating cart:', error);
-    return null;
-  }
-}
 
 export const addToCart = async (userId: string | undefined, productId: string, quantity: number, variantId?: string) => {
   if (!userId) {
@@ -140,83 +108,4 @@ export const addToCart = async (userId: string | undefined, productId: string, q
     toast.error('Failed to add item to cart');
     return false;
   }
-};
-
-export const updateCartItemQuantity = async (itemId: string, quantity: number) => {
-  try {
-    if (quantity <= 0) {
-      return removeFromCart(itemId);
-    }
-    
-    const { error } = await supabase
-      .from('cart_items')
-      .update({ quantity })
-      .eq('id', itemId);
-      
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating cart item:', error);
-    toast.error('Failed to update cart');
-    return false;
-  }
-};
-
-export const removeFromCart = async (itemId: string) => {
-  try {
-    const { error } = await supabase
-      .from('cart_items')
-      .delete()
-      .eq('id', itemId);
-      
-    if (error) throw error;
-    
-    toast.success('Item removed from cart');
-    return true;
-  } catch (error) {
-    console.error('Error removing item from cart:', error);
-    toast.error('Failed to remove item');
-    return false;
-  }
-};
-
-export const clearCart = async (userId: string | undefined) => {
-  if (!userId) return false;
-  
-  try {
-    // Get the user's cart
-    const { data: cart, error: cartError } = await supabase
-      .from('carts')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-      
-    if (cartError || !cart) {
-      console.error('Error finding cart:', cartError);
-      return false;
-    }
-    
-    // Delete all items in the cart
-    const { error } = await supabase
-      .from('cart_items')
-      .delete()
-      .eq('cart_id', cart.id);
-      
-    if (error) throw error;
-    
-    toast.success('Cart cleared');
-    return true;
-  } catch (error) {
-    console.error('Error clearing cart:', error);
-    toast.error('Failed to clear cart');
-    return false;
-  }
-};
-
-export const calculateCartTotal = (items: any[]) => {
-  return items.reduce((total, item) => {
-    const price = item.variant ? item.variant.price : item.product.price;
-    return total + (price * item.quantity);
-  }, 0);
 };

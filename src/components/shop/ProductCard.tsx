@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart, Loader2 } from 'lucide-react';
 import { addToCart } from '@/services/cart';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProductCardProps {
   product: {
@@ -22,7 +22,9 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   const [loading, setLoading] = useState(false);
-  
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const {
     id,
     name,

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import {
+import { 
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle,
   SheetFooter,
-  SheetClose
+  SheetTitle,
+  SheetClose 
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShoppingBag, AlertTriangle } from 'lucide-react';
-import CartItem from './CartItem';
-import { getCartItems, calculateCartTotal, clearCart } from '@/services/cart';
-import { createCheckoutSession } from '@/services/checkout';
+import { Separator } from "@/components/ui/separator";
+import { X, ShoppingCart, Loader2, AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { getCartItems, calculateCartTotal } from '@/services/cart';
+import CartDrawerItem from './CartDrawerItem';
 
 interface CartDrawerProps {
   open: boolean;
@@ -26,14 +26,16 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdat
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems(user?.id);
-      setCartItems(items);
-      if (onCartUpdate) onCartUpdate();
+      if (user) {
+        const items = await getCartItems(user.id);
+        setCartItems(items);
+      } else {
+        setCartItems([]);
+      }
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
     } finally {
@@ -42,120 +44,85 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdat
   };
 
   useEffect(() => {
-    if (open) {
+    if (user) {
       fetchCart();
-    }
-  }, [open, user?.id]);
-
-  const handleClearCart = async () => {
-    if (user?.id) {
-      await clearCart(user.id);
+    } else {
       setCartItems([]);
-      if (onCartUpdate) onCartUpdate();
+      setLoading(false);
     }
-  };
+  }, [user]);
 
-  const handleCheckout = async () => {
-    setCheckoutLoading(true);
-    try {
-      await createCheckoutSession();
-      // La redirection sera gérée par createCheckoutSession
-    } catch (error) {
-      console.error('Erreur lors du checkout:', error);
-    } finally {
-      setCheckoutLoading(false);
-    }
-  };
-
-  const handleGoToCart = () => {
+  const handleCheckout = () => {
     onOpenChange(false);
-    navigate('/panier');
+    navigate('/checkout');
   };
 
-  const total = calculateCartTotal(cartItems);
+  // Calcul du total du panier
+  const subtotal = calculateCartTotal(cartItems);
+  const shipping = subtotal > 50 ? 0 : 5.90;
+  const total = subtotal + shipping;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md flex flex-col">
-        <SheetHeader className="border-b pb-4">
+      <SheetContent className="sm:max-w-lg">
+        <SheetHeader>
           <SheetTitle className="flex items-center">
-            <ShoppingBag className="mr-2 h-5 w-5" />
+            <ShoppingCart className="h-5 w-5 mr-2" />
             Mon Panier
-            {cartItems.length > 0 && (
-              <span className="ml-2 bg-primary text-white text-xs font-semibold px-2 py-1 rounded-full">
-                {cartItems.length}
-              </span>
-            )}
           </SheetTitle>
         </SheetHeader>
-
-        <div className="flex-grow overflow-auto py-4">
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-40 text-center">
-              <ShoppingBag className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Votre panier est vide</p>
-              <SheetClose asChild>
-                <Button variant="link" className="mt-2" onClick={() => navigate('/produits')}>
-                  Parcourir les produits
-                </Button>
-              </SheetClose>
-            </div>
-          ) : (
-            <div className="space-y-2">
+        
+        {loading ? (
+          <div className="flex justify-center items-center h-48">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : cartItems.length === 0 ? (
+          <div className="text-center py-16">
+            <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-semibold mb-2">Votre panier est vide</h2>
+            <p className="text-muted-foreground mb-6">
+              Parcourez notre catalogue et ajoutez des produits à votre panier.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="space-y-4">
               {cartItems.map((item) => (
-                <CartItem key={item.id} item={item} onUpdate={fetchCart} />
+                <CartDrawerItem 
+                  key={item.id} 
+                  item={item} 
+                  onUpdate={fetchCart}
+                  onRemove={onCartUpdate}
+                />
               ))}
-            </div>
-          )}
-        </div>
-
-        {cartItems.length > 0 && (
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-medium">Total</span>
-              <span className="font-bold text-lg">{total.toFixed(2)} CHF</span>
-            </div>
-            
-            <div className="flex flex-col gap-2">
-              <Button 
-                variant="default" 
-                className="w-full" 
-                disabled={checkoutLoading} 
-                onClick={handleCheckout}
-              >
-                {checkoutLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Traitement...
-                  </>
-                ) : (
-                  "Procéder au paiement"
-                )}
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                onClick={handleGoToCart}
-              >
-                Voir le panier
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-muted-foreground" 
-                onClick={handleClearCart}
-              >
-                Vider le panier
-              </Button>
             </div>
           </div>
         )}
+        
+        <SheetFooter>
+          {cartItems.length > 0 && (
+            <div className="w-full">
+              <div className="space-y-4 mb-4">
+                <div className="flex justify-between">
+                  <span>Sous-total</span>
+                  <span>{subtotal.toFixed(2)} CHF</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Livraison</span>
+                  <span>{shipping > 0 ? `${shipping.toFixed(2)} CHF` : 'Gratuit'}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>{total.toFixed(2)} CHF</span>
+                </div>
+              </div>
+              <Button className="w-full" onClick={handleCheckout}>
+                Passer à la caisse
+              </Button>
+            </div>
+          )}
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
