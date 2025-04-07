@@ -54,7 +54,7 @@ const Hero = () => {
                 <span className="block mt-2">Passez à la location !</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-                Des solutions de recharge innovantes, fiables et accessibles pour les particuliers et les entreprises dans tout le canton de Vaud.
+                Des solutions de recharge innovantes, fiables et accessibles pour vos smartphones et appareils électroniques dans tout le canton de Vaud.
               </p>
               
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -68,7 +68,7 @@ const Hero = () => {
                   <div className="rounded-full bg-primary/10 p-1.5">
                     <Zap className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm">Technologie de chargement ultra rapide (2025 innovation)</span>
+                  <span className="text-sm">Technologie innovante pour smartphones</span>
                 </div>
               </div>
               

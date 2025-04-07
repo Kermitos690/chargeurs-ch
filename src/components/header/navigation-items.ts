@@ -35,9 +35,9 @@ export const navigationItems: NavigationItem[] = [
     label: 'Boutique',
     children: [
       { path: '/produits/accessoires', label: 'Accessoires' },
-      { path: '/produits/residentiels', label: 'Chargeurs résidentiels' },
-      { path: '/produits/entreprises', label: 'Solutions entreprises' },
-      { path: '/produits/publiques', label: 'Bornes publiques' }
+      { path: '/produits/standards', label: 'Powerbanks standards' },
+      { path: '/produits/premium', label: 'Powerbanks premium' },
+      { path: '/produits/location', label: 'Service de location' }
     ] 
   },
 ];

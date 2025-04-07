@@ -25,7 +25,7 @@ export const getCollection = async (collection: string) => {
     }
     
     const { data, error } = await supabase
-      .from(collection)
+      .from(collection as any)
       .select('*');
       
     if (error) throw error;
@@ -45,7 +45,7 @@ export const getDocument = async (collection: string, id: string) => {
     }
     
     const { data, error } = await supabase
-      .from(collection)
+      .from(collection as any)
       .select('*')
       .eq('id', id)
       .single();
@@ -67,7 +67,7 @@ export const updateDocument = async (collection: string, id: string, data: any) 
     }
     
     const { error } = await supabase
-      .from(collection)
+      .from(collection as any)
       .update(data)
       .eq('id', id);
       
@@ -88,7 +88,7 @@ export const deleteDocument = async (collection: string, id: string) => {
     }
     
     const { error } = await supabase
-      .from(collection)
+      .from(collection as any)
       .delete()
       .eq('id', id);
       

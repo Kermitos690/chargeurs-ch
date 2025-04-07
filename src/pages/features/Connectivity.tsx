@@ -9,17 +9,17 @@ const Connectivity = () => {
     {
       icon: <Wifi className="h-12 w-12 text-electric-blue" />,
       title: "Connectivité Wi-Fi intégrée",
-      description: "Connectez votre borne de recharge à votre réseau Wi-Fi domestique pour un contrôle à distance et des mises à jour automatiques."
+      description: "Connectez votre powerbank à votre réseau Wi-Fi pour un suivi en temps réel et des mises à jour automatiques."
     },
     {
       icon: <Smartphone className="h-12 w-12 text-electric-blue" />,
       title: "Application Mobile Intuitive",
-      description: "Contrôlez votre borne de recharge, suivez votre consommation et planifiez vos sessions depuis votre smartphone."
+      description: "Contrôlez votre powerbank, suivez votre consommation et planifiez vos recharges depuis votre smartphone."
     },
     {
       icon: <Globe className="h-12 w-12 text-electric-blue" />,
       title: "Accès Web Sécurisé",
-      description: "Gérez votre compte et vos bornes depuis n'importe quel navigateur avec notre interface web sécurisée."
+      description: "Gérez votre compte et vos locations depuis n'importe quel navigateur avec notre interface web sécurisée."
     },
     {
       icon: <CloudSun className="h-12 w-12 text-electric-blue" />,
@@ -29,7 +29,7 @@ const Connectivity = () => {
     {
       icon: <Share2 className="h-12 w-12 text-electric-blue" />,
       title: "Partage Familial",
-      description: "Partagez l'accès à votre borne avec les membres de votre famille ou vos invités via des comptes secondaires."
+      description: "Partagez l'accès à vos powerbanks avec les membres de votre famille via des comptes secondaires."
     },
     {
       icon: <Router className="h-12 w-12 text-electric-blue" />,
@@ -44,7 +44,7 @@ const Connectivity = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Connectivité Intelligente</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Nos solutions de recharge sont entièrement connectées pour vous offrir un contrôle total, des analyses détaillées et une expérience utilisateur optimale.
+            Nos powerbanks sont entièrement connectées pour vous offrir un contrôle total, des analyses détaillées et une expérience utilisateur optimale.
           </p>
         </div>
 
@@ -52,9 +52,9 @@ const Connectivity = () => {
           <div className="bg-gradient-to-r from-electric-blue to-blue-600 rounded-xl overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-8">
               <div className="text-white">
-                <h2 className="text-3xl font-bold mb-4">Restez connecté à votre véhicule</h2>
+                <h2 className="text-3xl font-bold mb-4">Restez connecté à tout moment</h2>
                 <p className="mb-6">
-                  Notre écosystème connecté vous permet de contrôler et surveiller votre recharge à distance, de recevoir des notifications en temps réel et d'optimiser votre consommation d'énergie.
+                  Notre écosystème connecté vous permet de contrôler et surveiller vos powerbanks à distance, de recevoir des notifications en temps réel et d'optimiser votre consommation d'énergie.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center">
@@ -80,7 +80,7 @@ const Connectivity = () => {
               <div className="rounded-lg overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1605648916361-9bc12ad6a569" 
-                  alt="Application mobile de contrôle de recharge" 
+                  alt="Application mobile de contrôle de powerbank" 
                   className="w-full h-auto"
                 />
               </div>
@@ -107,7 +107,7 @@ const Connectivity = () => {
         <div className="bg-muted rounded-xl p-8 text-center mb-16">
           <h2 className="text-3xl font-bold mb-4">Compatible avec votre maison intelligente</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Intégrez votre borne de recharge avec vos autres appareils connectés pour une expérience domotique complète.
+            Intégrez votre système de powerbanks avec vos autres appareils connectés pour une expérience domotique complète.
           </p>
           <div className="flex flex-wrap justify-center gap-8">
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">

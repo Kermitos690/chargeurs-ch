@@ -8,20 +8,24 @@ export const createCheckoutSession = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error('You must be logged in to checkout');
+      toast.error('Vous devez être connecté pour finaliser votre achat');
       return { success: false };
     }
     
     // Get cart items
     const { data: cartItems, error: cartError } = await supabase
       .from('cart_items')
-      .select('*, product:products(*), variant:product_variants(*)')
+      .select(`
+        *,
+        product:products(*),
+        variant:product_variants(*)
+      `)
       .eq('user_id', user.id);
       
     if (cartError) throw cartError;
     
     if (!cartItems || cartItems.length === 0) {
-      toast.error('Your cart is empty');
+      toast.error('Votre panier est vide');
       return { success: false };
     }
     
@@ -66,12 +70,12 @@ export const createCheckoutSession = async () => {
     
   } catch (error) {
     console.error('Error creating checkout session:', error);
-    toast.error('Failed to process checkout');
+    toast.error('Échec du traitement de la commande');
     return { success: false };
   }
 };
 
-// Add the missing function that was causing an error in CheckoutSuccess.tsx
+// Add the function that was causing an error in CheckoutSuccess.tsx
 export const handleCheckoutSuccess = async (sessionId: string) => {
   try {
     // In a real app, you would verify the payment with Stripe here

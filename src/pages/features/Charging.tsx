@@ -9,22 +9,22 @@ const Charging = () => {
     {
       icon: <Zap className="h-12 w-12 text-electric-blue" />,
       title: "Recharge Ultra-Rapide",
-      description: "Notre technologie permet une recharge jusqu'à 80% en moins de 30 minutes pour la plupart des véhicules électriques compatibles."
+      description: "Notre technologie permet une recharge jusqu'à 80% en moins de 30 minutes pour la plupart des smartphones et tablettes."
     },
     {
       icon: <Battery className="h-12 w-12 text-electric-blue" />,
-      title: "Compatible avec tous les véhicules",
-      description: "Nos bornes sont compatibles avec tous les standards de recharge: Type 2, CCS, CHAdeMO et Tesla avec adaptateur."
+      title: "Compatible avec tous les appareils",
+      description: "Nos powerbanks sont compatibles avec tous les types de smartphones: iPhone, Samsung, Xiaomi, Huawei et bien d'autres."
     },
     {
       icon: <Clock className="h-12 w-12 text-electric-blue" />,
       title: "Planification intelligente",
-      description: "Programmez vos sessions de recharge aux heures creuses pour économiser sur vos factures d'électricité."
+      description: "Programmez vos sessions de recharge aux heures qui vous conviennent grâce à notre application mobile intuitive."
     },
     {
       icon: <Shield className="h-12 w-12 text-electric-blue" />,
       title: "Sécurité maximale",
-      description: "Systèmes de protection intégrés contre les surtensions, court-circuits et conditions météorologiques extrêmes."
+      description: "Systèmes de protection intégrés contre les surtensions, court-circuits et surchauffes pour protéger vos appareils."
     },
     {
       icon: <BarChart4 className="h-12 w-12 text-electric-blue" />,
@@ -44,7 +44,7 @@ const Charging = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Recharge Rapide et Efficace</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Découvrez notre technologie de pointe pour une recharge rapide, fiable et adaptée à tous les véhicules électriques.
+            Découvrez notre technologie de pointe pour une recharge rapide, fiable et adaptée à tous les appareils mobiles.
           </p>
         </div>
 
@@ -54,33 +54,33 @@ const Charging = () => {
               <div className="text-white">
                 <h2 className="text-3xl font-bold mb-4">La puissance quand vous en avez besoin</h2>
                 <p className="mb-6">
-                  Nos bornes de recharge rapide délivrent jusqu'à 350 kW de puissance, permettant de récupérer des centaines de kilomètres d'autonomie en quelques minutes seulement.
+                  Nos powerbanks délivrent une puissance optimale, permettant de récupérer rapidement l'autonomie de votre smartphone ou tablette, où que vous soyez.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Jusqu'à 350 kW de puissance</span>
+                    <span>Jusqu'à 30W de puissance</span>
                   </li>
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Compatible avec tous les véhicules électriques</span>
+                    <span>Compatible avec tous les smartphones modernes</span>
                   </li>
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Distribution intelligente de l'énergie</span>
+                    <span>Régulation intelligente de la charge</span>
                   </li>
                 </ul>
               </div>
               <div className="rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1647833202303-5e48dbb8ad8c" 
-                  alt="Borne de recharge rapide" 
+                  src="https://images.unsplash.com/photo-1609692814858-f7cd2f0afa4f" 
+                  alt="Powerbank en charge" 
                   className="w-full h-auto"
                 />
               </div>
@@ -105,7 +105,7 @@ const Charging = () => {
         </div>
 
         <div className="bg-muted rounded-xl p-8 text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Comparez nos solutions de recharge</h2>
+          <h2 className="text-3xl font-bold mb-4">Comparez nos solutions de powerbanks</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Trouvez la solution qui correspond le mieux à vos besoins, que vous soyez un particulier ou une entreprise.
           </p>
@@ -114,35 +114,35 @@ const Charging = () => {
               <thead>
                 <tr className="bg-muted-foreground/10">
                   <th className="p-4 text-left">Caractéristiques</th>
-                  <th className="p-4 text-center">Standard (AC)</th>
-                  <th className="p-4 text-center">Rapide (DC)</th>
-                  <th className="p-4 text-center">Ultra-Rapide (DC+)</th>
+                  <th className="p-4 text-center">Standard</th>
+                  <th className="p-4 text-center">Premium</th>
+                  <th className="p-4 text-center">Ultra</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b border-muted-foreground/20">
-                  <td className="p-4 font-medium">Puissance</td>
-                  <td className="p-4 text-center">7-22 kW</td>
-                  <td className="p-4 text-center">50-175 kW</td>
-                  <td className="p-4 text-center">175-350 kW</td>
+                  <td className="p-4 font-medium">Capacité</td>
+                  <td className="p-4 text-center">5'000 mAh</td>
+                  <td className="p-4 text-center">10'000 mAh</td>
+                  <td className="p-4 text-center">20'000 mAh</td>
                 </tr>
                 <tr className="border-b border-muted-foreground/20">
-                  <td className="p-4 font-medium">Temps de recharge (0-80%)</td>
-                  <td className="p-4 text-center">4-8 heures</td>
-                  <td className="p-4 text-center">30-60 minutes</td>
-                  <td className="p-4 text-center">15-30 minutes</td>
+                  <td className="p-4 font-medium">Temps de recharge (smartphone)</td>
+                  <td className="p-4 text-center">~1 heure</td>
+                  <td className="p-4 text-center">~45 minutes</td>
+                  <td className="p-4 text-center">~30 minutes</td>
                 </tr>
                 <tr className="border-b border-muted-foreground/20">
                   <td className="p-4 font-medium">Utilisation idéale</td>
-                  <td className="p-4 text-center">Domicile, bureau</td>
-                  <td className="p-4 text-center">Centres commerciaux, parkings</td>
-                  <td className="p-4 text-center">Stations-service, autoroutes</td>
+                  <td className="p-4 text-center">Usage occasionnel</td>
+                  <td className="p-4 text-center">Usage régulier</td>
+                  <td className="p-4 text-center">Voyageurs et professionnels</td>
                 </tr>
                 <tr className="border-b border-muted-foreground/20">
-                  <td className="p-4 font-medium">Prix indicatif</td>
-                  <td className="p-4 text-center">1'000 - 2'500 CHF</td>
-                  <td className="p-4 text-center">20'000 - 50'000 CHF</td>
-                  <td className="p-4 text-center">50'000 - 150'000 CHF</td>
+                  <td className="p-4 font-medium">Prix indicatif (location/jour)</td>
+                  <td className="p-4 text-center">2 CHF</td>
+                  <td className="p-4 text-center">3 CHF</td>
+                  <td className="p-4 text-center">5 CHF</td>
                 </tr>
               </tbody>
             </table>
