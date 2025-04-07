@@ -2,336 +2,305 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Fonction pour ajouter des catégories
-const addCategories = async () => {
-  const categories = [
-    {
-      name: 'Powerbanks',
-      slug: 'powerbanks',
-      description: 'Batteries portables pour recharger vos appareils en déplacement'
-    },
-    {
-      name: 'Bornes de recharge',
-      slug: 'bornes-de-recharge',
-      description: 'Stations de recharge pour espaces publics et privés'
-    },
-    {
-      name: 'Goodies',
-      slug: 'goodies',
-      description: 'Produits dérivés et accessoires'
-    },
-    {
-      name: 'Cartes cadeaux',
-      slug: 'cartes-cadeaux',
-      description: 'Offrez l\'énergie durable à vos proches'
-    }
-  ];
-
-  for (const category of categories) {
-    const { error } = await supabase
-      .from('product_categories')
-      .upsert(category, { onConflict: 'slug' });
-    
-    if (error) {
-      console.error(`Erreur lors de l'ajout de la catégorie ${category.name}:`, error);
-    }
-  }
-};
-
-// Fonction pour ajouter des produits
-const addProducts = async () => {
-  // D'abord récupérer les IDs des catégories
-  const { data: categories, error: categoryError } = await supabase
-    .from('product_categories')
-    .select('id, slug');
-  
-  if (categoryError) {
-    console.error('Erreur lors de la récupération des catégories:', categoryError);
-    return;
-  }
-
-  const getCategoryId = (slug: string) => {
-    const category = categories?.find(cat => cat.slug === slug);
-    return category?.id;
-  };
-
-  const powerbanksCategory = getCategoryId('powerbanks');
-  const bornesCategory = getCategoryId('bornes-de-recharge');
-  const goodiesCategory = getCategoryId('goodies');
-  const cartesCategory = getCategoryId('cartes-cadeaux');
-
-  // Définir les produits
-  const products = [
-    // Powerbanks
-    {
-      name: 'PowerBank Eco 10000mAh',
-      slug: 'powerbank-eco-10000mah',
-      description: 'Batterie externe écologique de 10000 mAh avec 2 ports USB et recharge rapide.',
-      short_description: 'Batterie externe écologique et compacte',
-      price: 49.90,
-      sale_price: 39.90,
-      stock_quantity: 100,
-      category_id: powerbanksCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/f0VkBBn.jpg',
-      status: 'published'
-    },
-    {
-      name: 'PowerBank Pro 20000mAh',
-      slug: 'powerbank-pro-20000mah',
-      description: 'Notre batterie la plus puissante avec une capacité de 20000 mAh, compatible avec tous les appareils et proposant une recharge sans fil.',
-      short_description: 'Batterie externe haute capacité avec recharge sans fil',
-      price: 79.90,
-      stock_quantity: 50,
-      category_id: powerbanksCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/YoU8OLt.jpg',
-      status: 'published'
-    },
-    {
-      name: 'PowerBank Mini 5000mAh',
-      slug: 'powerbank-mini-5000mah',
-      description: 'Batterie compacte et légère, idéale pour les déplacements quotidiens.',
-      short_description: 'Batterie légère pour une charge d\'appoint',
-      price: 29.90,
-      stock_quantity: 150,
-      category_id: powerbanksCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/jFIz0xm.jpg',
-      status: 'published'
-    },
-
-    // Bornes de recharge
-    {
-      name: 'Station de recharge murale',
-      slug: 'station-recharge-murale',
-      description: 'Borne murale pour intérieur, idéale pour les commerces et espaces publics. Permet de recharger jusqu\'à 6 appareils simultanément.',
-      short_description: 'Borne murale pour espaces publics',
-      price: 399.90,
-      stock_quantity: 20,
-      category_id: bornesCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/N9Oubp6.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Borne de recharge autonome solaire',
-      slug: 'borne-recharge-solaire',
-      description: 'Station de recharge autonome alimentée par énergie solaire, parfaite pour les espaces extérieurs.',
-      short_description: 'Borne solaire pour extérieur',
-      price: 899.90,
-      stock_quantity: 10,
-      category_id: bornesCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/B0KUhZ8.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Mini borne de table',
-      slug: 'mini-borne-table',
-      description: 'Petite borne de recharge pour tables de restaurant ou de café. Élégante et pratique.',
-      short_description: 'Borne compacte pour tables',
-      price: 149.90,
-      stock_quantity: 30,
-      category_id: bornesCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/sFMbJ4y.jpg',
-      status: 'published'
-    },
-
-    // Goodies
-    {
-      name: 'T-shirt Chargeurs',
-      slug: 't-shirt-chargeurs',
-      description: 'T-shirt 100% coton bio avec notre logo.',
-      short_description: 'T-shirt écologique',
-      price: 24.90,
-      stock_quantity: 100,
-      category_id: goodiesCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/0ZDpzBw.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Gourde isotherme',
-      slug: 'gourde-isotherme',
-      description: 'Gourde isotherme réutilisable en acier inoxydable, capacité 500ml.',
-      short_description: 'Gourde écologique réutilisable',
-      price: 29.90,
-      stock_quantity: 80,
-      category_id: goodiesCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/U0L9KVJ.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Sac en toile',
-      slug: 'sac-toile',
-      description: 'Sac en toile 100% coton bio avec impression de notre logo.',
-      short_description: 'Sac réutilisable et écologique',
-      price: 14.90,
-      stock_quantity: 120,
-      category_id: goodiesCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/N2pf8U1.jpg',
-      status: 'published'
-    },
-
-    // Cartes cadeaux
-    {
-      name: 'Carte cadeau 50 CHF',
-      slug: 'carte-cadeau-50',
-      description: 'Carte cadeau d\'une valeur de 50 CHF, valable sur tous nos produits et services.',
-      short_description: 'Offrez 50 CHF à dépenser sur notre site',
-      price: 50,
-      stock_quantity: 999,
-      category_id: cartesCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/vBfUkRG.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Carte cadeau 100 CHF',
-      slug: 'carte-cadeau-100',
-      description: 'Carte cadeau d\'une valeur de 100 CHF, valable sur tous nos produits et services.',
-      short_description: 'Offrez 100 CHF à dépenser sur notre site',
-      price: 100,
-      stock_quantity: 999,
-      category_id: cartesCategory,
-      featured: true,
-      image_url: 'https://i.imgur.com/vBfUkRG.jpg',
-      status: 'published'
-    },
-    {
-      name: 'Carte cadeau 200 CHF',
-      slug: 'carte-cadeau-200',
-      description: 'Carte cadeau d\'une valeur de 200 CHF, valable sur tous nos produits et services.',
-      short_description: 'Offrez 200 CHF à dépenser sur notre site',
-      price: 200,
-      stock_quantity: 999,
-      category_id: cartesCategory,
-      featured: false,
-      image_url: 'https://i.imgur.com/vBfUkRG.jpg',
-      status: 'published'
-    }
-  ];
-
-  // Ajouter les produits
-  for (const product of products) {
-    const { error } = await supabase
-      .from('products')
-      .upsert(product, { onConflict: 'slug' });
-    
-    if (error) {
-      console.error(`Erreur lors de l'ajout du produit ${product.name}:`, error);
-    }
-  }
-};
-
-// Ajouter des variantes pour certains produits
-const addProductVariants = async () => {
-  // Récupérer les IDs des produits
-  const { data: products, error: productsError } = await supabase
-    .from('products')
-    .select('id, slug');
-  
-  if (productsError) {
-    console.error('Erreur lors de la récupération des produits:', productsError);
-    return;
-  }
-
-  const getProductId = (slug: string) => {
-    const product = products?.find(p => p.slug === slug);
-    return product?.id;
-  };
-
-  // Variantes pour le T-shirt
-  const tshirtVariants = [
-    {
-      product_id: getProductId('t-shirt-chargeurs'),
-      name: 'Taille S',
-      price: 24.90,
-      stock_quantity: 20,
-      attributes: { size: 'S', color: 'Noir' }
-    },
-    {
-      product_id: getProductId('t-shirt-chargeurs'),
-      name: 'Taille M',
-      price: 24.90,
-      stock_quantity: 30,
-      attributes: { size: 'M', color: 'Noir' }
-    },
-    {
-      product_id: getProductId('t-shirt-chargeurs'),
-      name: 'Taille L',
-      price: 24.90,
-      stock_quantity: 30,
-      attributes: { size: 'L', color: 'Noir' }
-    },
-    {
-      product_id: getProductId('t-shirt-chargeurs'),
-      name: 'Taille XL',
-      price: 24.90,
-      stock_quantity: 20,
-      attributes: { size: 'XL', color: 'Noir' }
-    }
-  ];
-
-  // Variantes pour la gourde
-  const gourdeVariants = [
-    {
-      product_id: getProductId('gourde-isotherme'),
-      name: 'Bleu',
-      price: 29.90,
-      stock_quantity: 30,
-      attributes: { color: 'Bleu' },
-      image_url: 'https://i.imgur.com/U0L9KVJ.jpg'
-    },
-    {
-      product_id: getProductId('gourde-isotherme'),
-      name: 'Rouge',
-      price: 29.90,
-      stock_quantity: 25,
-      attributes: { color: 'Rouge' },
-      image_url: 'https://i.imgur.com/OiflTlD.jpg'
-    },
-    {
-      product_id: getProductId('gourde-isotherme'),
-      name: 'Noir',
-      price: 29.90,
-      stock_quantity: 25,
-      attributes: { color: 'Noir' },
-      image_url: 'https://i.imgur.com/Tn0D2VN.jpg'
-    }
-  ];
-
-  // Ajouter toutes les variantes
-  const variants = [...tshirtVariants, ...gourdeVariants];
-  
-  for (const variant of variants) {
-    if (!variant.product_id) continue;
-    
-    const { error } = await supabase
-      .from('product_variants')
-      .insert(variant);
-    
-    if (error) {
-      console.error(`Erreur lors de l'ajout de la variante ${variant.name}:`, error);
-    }
-  }
-};
-
-// Fonction principale pour ajouter tous les produits
+// Seed products for the shop
 export const seedProducts = async () => {
   try {
-    await addCategories();
-    await addProducts();
-    await addProductVariants();
-    toast.success("Produits ajoutés avec succès !");
+    console.log("Démarrage de l'importation des produits...");
+    
+    // First, ensure categories exist
+    const categories = [
+      { id: 'powerbanks', name: 'Powerbanks', slug: 'powerbanks', description: 'Batteries portables de recharge' },
+      { id: 'stations', name: 'Bornes de recharge', slug: 'stations', description: 'Stations de recharge pour véhicules électriques' },
+      { id: 'goodies', name: 'Goodies', slug: 'goodies', description: 'Produits dérivés et accessoires' },
+      { id: 'gift-cards', name: 'Cartes cadeaux', slug: 'gift-cards', description: 'Cartes cadeaux pour offrir des recharges' }
+    ];
+    
+    // Insert categories
+    for (const category of categories) {
+      const { error } = await supabase
+        .from('product_categories')
+        .upsert(category, { onConflict: 'id' });
+      
+      if (error) {
+        console.error(`Erreur lors de l'ajout de la catégorie ${category.name}:`, error);
+        toast.error(`Erreur: ${error.message}`);
+        return false;
+      }
+    }
+    
+    // Now add some products
+    const products = [
+      // Powerbanks
+      {
+        id: 'pb-slim-10000',
+        name: 'PowerSlim 10000',
+        slug: 'powerslim-10000',
+        description: 'Batterie externe ultra-fine de 10000mAh avec charge rapide USB-C PD 18W.',
+        price: 49.90,
+        sale_price: 39.90,
+        category_id: 'powerbanks',
+        stock_quantity: 150,
+        featured: true,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1604671368394-2240d0b1bb6c',
+        specifications: JSON.stringify({
+          capacity: '10000mAh',
+          ports: '1x USB-C, 1x USB-A',
+          maxOutput: '18W',
+          weight: '180g',
+          dimensions: '140 x 70 x 12mm'
+        })
+      },
+      {
+        id: 'pb-pro-20000',
+        name: 'PowerPro 20000',
+        slug: 'powerpro-20000',
+        description: 'Batterie externe haute capacité de 20000mAh avec charge ultra-rapide 45W et affichage LED.',
+        price: 89.90,
+        category_id: 'powerbanks',
+        stock_quantity: 75,
+        featured: true,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5',
+        specifications: JSON.stringify({
+          capacity: '20000mAh',
+          ports: '1x USB-C, 2x USB-A',
+          maxOutput: '45W',
+          weight: '350g',
+          dimensions: '160 x 80 x 22mm'
+        })
+      },
+      // Charging Stations
+      {
+        id: 'cs-home-basic',
+        name: 'Station Domicile Basic',
+        slug: 'station-domicile-basic',
+        description: 'Borne de recharge domestique 7kW avec câble intégré Type 2, idéale pour une installation résidentielle.',
+        price: 899,
+        category_id: 'stations',
+        stock_quantity: 35,
+        featured: true,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1618390408023-9e696f0f4b0e',
+        specifications: JSON.stringify({
+          power: '7kW',
+          connector: 'Type 2',
+          installation: 'Murale',
+          connectivity: 'Wi-Fi',
+          dimensions: '450 x 250 x 140mm'
+        })
+      },
+      {
+        id: 'cs-pro-22kw',
+        name: 'Station Pro 22kW',
+        slug: 'station-pro-22kw',
+        description: 'Borne de recharge triphasée 22kW avec authentification RFID et connexion réseau pour gestion à distance.',
+        price: 1599,
+        category_id: 'stations',
+        stock_quantity: 20,
+        featured: false,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1558435091-c3d950121fa2',
+        specifications: JSON.stringify({
+          power: '22kW',
+          connector: 'Type 2',
+          installation: 'Sur pied ou murale',
+          connectivity: 'Wi-Fi, Ethernet, 4G',
+          authentication: 'RFID, App mobile'
+        })
+      },
+      // Goodies
+      {
+        id: 'goodies-tshirt',
+        name: 'T-shirt Eco-Power',
+        slug: 't-shirt-eco-power',
+        description: 'T-shirt 100% coton bio avec impression Eco-Power. Disponible en plusieurs tailles.',
+        price: 24.90,
+        category_id: 'goodies',
+        stock_quantity: 100,
+        featured: false,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
+        specifications: JSON.stringify({
+          material: '100% coton bio',
+          available_sizes: 'S, M, L, XL',
+          colors: 'Blanc, Noir, Vert'
+        })
+      },
+      {
+        id: 'goodies-bottle',
+        name: 'Gourde Isotherme',
+        slug: 'gourde-isotherme',
+        description: 'Gourde isotherme 500ml en acier inoxydable, maintient vos boissons chaudes 12h et froides 24h.',
+        price: 29.90,
+        category_id: 'goodies',
+        stock_quantity: 80,
+        featured: false,
+        is_digital: false,
+        main_image_url: 'https://images.unsplash.com/photo-1610142991820-e03b91ecdda8',
+        specifications: JSON.stringify({
+          material: 'Acier inoxydable double paroi',
+          capacity: '500ml',
+          colors: 'Argent, Noir, Bleu'
+        })
+      },
+      // Gift Cards
+      {
+        id: 'gift-card-50',
+        name: 'Carte Cadeau 50 CHF',
+        slug: 'carte-cadeau-50-chf',
+        description: 'Carte cadeau d\'une valeur de 50 CHF, valable sur tout le site et dans nos stations de recharge.',
+        price: 50,
+        category_id: 'gift-cards',
+        stock_quantity: 999,
+        featured: false,
+        is_digital: true,
+        main_image_url: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3',
+        specifications: JSON.stringify({
+          value: '50 CHF',
+          validity: '12 mois',
+          format: 'Code numérique par email'
+        })
+      },
+      {
+        id: 'gift-card-100',
+        name: 'Carte Cadeau 100 CHF',
+        slug: 'carte-cadeau-100-chf',
+        description: 'Carte cadeau d\'une valeur de 100 CHF, valable sur tout le site et dans nos stations de recharge.',
+        price: 100,
+        category_id: 'gift-cards',
+        stock_quantity: 999,
+        featured: false,
+        is_digital: true,
+        main_image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48',
+        specifications: JSON.stringify({
+          value: '100 CHF',
+          validity: '12 mois',
+          format: 'Code numérique par email ou carte physique'
+        })
+      }
+    ];
+    
+    // Insert products
+    for (const product of products) {
+      const { error } = await supabase
+        .from('products')
+        .upsert(product, { onConflict: 'id' });
+      
+      if (error) {
+        console.error(`Erreur lors de l'ajout du produit ${product.name}:`, error);
+        toast.error(`Erreur: ${error.message}`);
+        return false;
+      }
+    }
+    
+    // Add some variants for products that have them
+    const variants = [
+      // T-shirt variants
+      {
+        id: 'tshirt-white-s',
+        product_id: 'goodies-tshirt',
+        name: 'Blanc - Taille S',
+        sku: 'TS-WHITE-S',
+        price: 24.90,
+        stock_quantity: 25,
+        attributes: JSON.stringify({
+          color: 'Blanc',
+          size: 'S'
+        })
+      },
+      {
+        id: 'tshirt-white-m',
+        product_id: 'goodies-tshirt',
+        name: 'Blanc - Taille M',
+        sku: 'TS-WHITE-M',
+        price: 24.90,
+        stock_quantity: 30,
+        attributes: JSON.stringify({
+          color: 'Blanc',
+          size: 'M'
+        })
+      },
+      {
+        id: 'tshirt-black-m',
+        product_id: 'goodies-tshirt',
+        name: 'Noir - Taille M',
+        sku: 'TS-BLACK-M',
+        price: 24.90,
+        stock_quantity: 30,
+        attributes: JSON.stringify({
+          color: 'Noir',
+          size: 'M'
+        })
+      },
+      {
+        id: 'tshirt-green-l',
+        product_id: 'goodies-tshirt',
+        name: 'Vert - Taille L',
+        sku: 'TS-GREEN-L',
+        price: 24.90,
+        stock_quantity: 15,
+        attributes: JSON.stringify({
+          color: 'Vert',
+          size: 'L'
+        })
+      },
+      // Bottle variants
+      {
+        id: 'bottle-silver',
+        product_id: 'goodies-bottle',
+        name: 'Gourde Argent',
+        sku: 'BOTTLE-SILVER',
+        price: 29.90,
+        stock_quantity: 30,
+        attributes: JSON.stringify({
+          color: 'Argent'
+        })
+      },
+      {
+        id: 'bottle-black',
+        product_id: 'goodies-bottle',
+        name: 'Gourde Noir',
+        sku: 'BOTTLE-BLACK',
+        price: 29.90,
+        stock_quantity: 25,
+        attributes: JSON.stringify({
+          color: 'Noir'
+        })
+      },
+      {
+        id: 'bottle-blue',
+        product_id: 'goodies-bottle',
+        name: 'Gourde Bleu',
+        sku: 'BOTTLE-BLUE',
+        price: 29.90,
+        stock_quantity: 25,
+        attributes: JSON.stringify({
+          color: 'Bleu'
+        })
+      }
+    ];
+    
+    // Insert variants
+    for (const variant of variants) {
+      const { error } = await supabase
+        .from('product_variants')
+        .upsert(variant, { onConflict: 'id' });
+      
+      if (error) {
+        console.error(`Erreur lors de l'ajout de la variante ${variant.name}:`, error);
+        toast.error(`Erreur: ${error.message}`);
+        return false;
+      }
+    }
+    
+    console.log("Importation des produits terminée avec succès!");
+    toast.success("Produits importés avec succès!");
     return true;
-  } catch (error) {
-    console.error("Erreur lors de l'ajout des produits:", error);
-    toast.error("Erreur lors de l'ajout des produits");
+    
+  } catch (error: any) {
+    console.error("Erreur lors de l'importation des produits:", error);
+    toast.error(`Erreur: ${error.message}`);
     return false;
   }
 };

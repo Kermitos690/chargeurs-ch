@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginAdmin } from '@/services/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,7 +53,7 @@ const AdminLogin = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // Try login with Supabase
+      // Login with Supabase
       const result = await loginWithSupabase(values.email, values.password);
         
       if (result.success) {
@@ -64,25 +63,11 @@ const AdminLogin = () => {
         });
         navigate('/admin/dashboard');
       } else {
-        // If Supabase login fails, TypeScript knows we're in the failure case
-        const errorMessage = result.success ? "" : result.error;
-        
-        // Fallback to Firebase if Supabase login fails
-        const firebaseResult = await loginAdmin(values.email, values.password);
-        
-        if (firebaseResult.success) {
-          toast({
-            title: 'Connexion réussie (Firebase)',
-            description: 'Bienvenue dans l\'interface d\'administration',
-          });
-          navigate('/admin/dashboard');
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Erreur de connexion',
-            description: errorMessage || (firebaseResult.success ? "" : firebaseResult.error) || 'Vérifiez vos identifiants',
-          });
-        }
+        toast({
+          variant: 'destructive',
+          title: 'Erreur de connexion',
+          description: result.success ? '' : result.error || 'Vérifiez vos identifiants',
+        });
       }
     } catch (error: any) {
       toast({

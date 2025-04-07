@@ -1,14 +1,10 @@
 
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
-interface RouteGuardProps {
-  children: React.ReactNode;
-}
-
-const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
+const RouteGuard = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -23,10 +19,10 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
 
   if (!user) {
     // Redirect to login but save the location they were trying to access
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 };
 
 export default RouteGuard;

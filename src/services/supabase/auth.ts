@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Define clear return types for authentication functions
 export type AuthResult = 
   | { success: true; message?: string; user?: any; role?: string }
   | { success: false; error: string };
@@ -121,5 +122,47 @@ export const createAdminAccount = async (email: string, password: string, role: 
   } catch (error: any) {
     console.error("Erreur critique lors de la création du compte:", error);
     return { success: false, error: error.message || "Erreur lors de la création du compte" };
+  }
+};
+
+export const resetPassword = async (email: string): Promise<AuthResult> => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/new-password`,
+    });
+
+    if (error) {
+      console.error("Erreur lors de la réinitialisation du mot de passe:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { 
+      success: true, 
+      message: "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation." 
+    };
+  } catch (error: any) {
+    console.error("Erreur lors de la réinitialisation:", error);
+    return { success: false, error: error.message || "Erreur de réinitialisation" };
+  }
+};
+
+export const updatePassword = async (newPassword: string): Promise<AuthResult> => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) {
+      console.error("Erreur lors de la mise à jour du mot de passe:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { 
+      success: true, 
+      message: "Mot de passe mis à jour avec succès" 
+    };
+  } catch (error: any) {
+    console.error("Erreur lors de la mise à jour:", error);
+    return { success: false, error: error.message || "Erreur de mise à jour" };
   }
 };
