@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User } from '@supabase/supabase-js';
 import { useSupabaseAuth } from './useSupabaseAuth';
@@ -6,8 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Étendre le type User pour inclure les propriétés manquantes
 interface ExtendedUser extends User {
-  // Ajout de la propriété uid pour compatibilité avec le code existant
+  // Ajout des propriétés pour compatibilité avec le code existant
   uid: string;
+  displayName?: string;
 }
 
 interface AuthContextType {
@@ -38,17 +38,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Adapter l'utilisateur Supabase pour ajouter les propriétés manquantes
   useEffect(() => {
     if (supabaseUser) {
-      // Créer un utilisateur étendu qui ajoute uid comme alias pour id
+      // Créer un utilisateur étendu qui ajoute uid comme alias pour id et displayName
       const extendedUser = {
         ...supabaseUser,
         uid: supabaseUser.id, // Ajouter uid comme alias pour id
+        displayName: userData?.name || supabaseUser.email?.split('@')[0] || null, // Ajouter displayName basé sur le nom ou l'email
       } as ExtendedUser;
       
       setUser(extendedUser);
     } else {
       setUser(null);
     }
-  }, [supabaseUser]);
+  }, [supabaseUser, userData]);
 
   useEffect(() => {
     // Check if user has admin role
