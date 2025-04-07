@@ -22,8 +22,8 @@ export const useMessagesFetcher = (
           id: msg.id,
           content: msg.content,
           user_id: msg.user_id,
-          // Ensure we handle the is_assistant field safely
-          is_assistant: Boolean(msg.is_assistant),
+          // Set is_assistant to false by default if it doesn't exist in the database
+          is_assistant: msg.is_assistant === true,
           created_at: msg.created_at,
           room_id: msg.room_id
         }));
