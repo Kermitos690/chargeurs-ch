@@ -34,7 +34,7 @@ export const setupInitialAdmin = async (): Promise<SetupResult> => {
     );
 
     if (!result.success) {
-      return { success: false, error: result.error };
+      return { success: false, error: (result as any).error };
     }
 
     // Mettre à jour la configuration système pour indiquer que le superadmin a été créé
@@ -71,8 +71,8 @@ export const createAdminImmediately = async () => {
       toast.success(result.message);
       return { success: true };
     } else {
-      toast.error(result.error);
-      return { success: false, error: result.error };
+      toast.error((result as any).error);
+      return { success: false, error: (result as any).error };
     }
   } catch (error: any) {
     toast.error(error.message || "Erreur inattendue");

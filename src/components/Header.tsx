@@ -17,7 +17,7 @@ import { clearCart } from '@/services/cart';
 import { toast } from 'sonner';
 import CartIcon from './shop/CartIcon';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { auth } from '@/services/firebase';
+import { logoutFromSupabase } from '@/services/supabase/auth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Drawer,
@@ -41,8 +41,10 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await clearCart(user?.uid); 
-      await auth.signOut();
+      if (user?.id) {
+        await clearCart(user.id); 
+      }
+      await logoutFromSupabase();
       navigate('/auth/login');
       toast.success("Déconnexion réussie !");
     } catch (error: any) {

@@ -34,7 +34,7 @@ const AdminSidebar = () => {
       toast.success('Déconnexion réussie');
       navigate('/admin/login');
     } else {
-      toast.error(`Erreur: ${result.success ? '' : result.error}`);
+      toast.error(`Erreur: ${result.success ? '' : (result as any).error || "Erreur inconnue"}`);
     }
   };
 

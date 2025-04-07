@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,7 +31,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdat
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems(user?.uid);
+      const items = await getCartItems(user?.id);
       setCartItems(items);
       if (onCartUpdate) onCartUpdate();
     } catch (error) {
@@ -46,12 +45,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdat
     if (open) {
       fetchCart();
     }
-  }, [open, user?.uid]);
+  }, [open, user?.id]);
 
   const handleClearCart = async () => {
-    await clearCart(user?.uid);
-    setCartItems([]);
-    if (onCartUpdate) onCartUpdate();
+    if (user?.id) {
+      await clearCart(user.id);
+      setCartItems([]);
+      if (onCartUpdate) onCartUpdate();
+    }
   };
 
   const handleCheckout = async () => {
@@ -71,7 +72,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdat
     navigate('/panier');
   };
 
-  // Calcul du total du panier
   const total = calculateCartTotal(cartItems);
 
   return (
