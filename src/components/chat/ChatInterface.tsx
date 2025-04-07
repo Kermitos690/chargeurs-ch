@@ -57,7 +57,7 @@ const ChatInterface = () => {
           id: msg.id,
           content: msg.content,
           user_id: msg.user_id,
-          is_assistant: msg.is_assistant || false,
+          is_assistant: Boolean(msg.is_assistant),
           created_at: msg.created_at,
           room_id: msg.room_id
         }));
