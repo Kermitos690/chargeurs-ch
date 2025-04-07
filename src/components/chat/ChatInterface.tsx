@@ -13,9 +13,10 @@ import ChatToggle from './ChatToggle';
 interface Message {
   id: string;
   content: string;
-  sender_id: string;
+  user_id: string;
   is_assistant: boolean;
   created_at: string;
+  room_id?: string;
 }
 
 const ChatInterface = () => {
@@ -43,13 +44,26 @@ const ChatInterface = () => {
     
     try {
       const { data, error } = await supabase
-        .from('chat_messages')
+        .from('messages')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      setMessages(data || []);
+      
+      if (data) {
+        // Transform the data to match our Message interface if needed
+        const formattedMessages = data.map(msg => ({
+          id: msg.id,
+          content: msg.content,
+          user_id: msg.user_id,
+          is_assistant: msg.is_assistant || false,
+          created_at: msg.created_at,
+          room_id: msg.room_id
+        }));
+        
+        setMessages(formattedMessages);
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des messages:', error);
     }
@@ -66,9 +80,9 @@ const ChatInterface = () => {
     
     const userMessage = {
       content: input,
-      sender_id: user.id,
+      user_id: user.id,
       is_assistant: false,
-      user_id: user.id
+      room_id: 'general'
     };
     
     try {
@@ -76,7 +90,7 @@ const ChatInterface = () => {
       
       // Enregistrer le message de l'utilisateur
       const { data: messageSent, error: messageError } = await supabase
-        .from('chat_messages')
+        .from('messages')
         .insert(userMessage)
         .select();
       
@@ -84,7 +98,16 @@ const ChatInterface = () => {
       
       // Mettre à jour l'interface
       if (messageSent && messageSent[0]) {
-        setMessages(prev => [...prev, messageSent[0] as Message]);
+        const newMessage: Message = {
+          id: messageSent[0].id,
+          content: messageSent[0].content,
+          user_id: messageSent[0].user_id,
+          is_assistant: false,
+          created_at: messageSent[0].created_at,
+          room_id: messageSent[0].room_id
+        };
+        
+        setMessages(prev => [...prev, newMessage]);
       }
       
       setInput('');
@@ -102,20 +125,29 @@ const ChatInterface = () => {
         
         const assistantResponse = {
           content: responses[Math.floor(Math.random() * responses.length)],
-          sender_id: 'assistant',
+          user_id: user.id,
           is_assistant: true,
-          user_id: user.id
+          room_id: 'general'
         };
         
         const { data: botResponse, error: botError } = await supabase
-          .from('chat_messages')
+          .from('messages')
           .insert(assistantResponse)
           .select();
         
         if (botError) throw botError;
         
         if (botResponse && botResponse[0]) {
-          setMessages(prev => [...prev, botResponse[0] as Message]);
+          const newBotMessage: Message = {
+            id: botResponse[0].id,
+            content: botResponse[0].content,
+            user_id: botResponse[0].user_id,
+            is_assistant: true,
+            created_at: botResponse[0].created_at,
+            room_id: botResponse[0].room_id
+          };
+          
+          setMessages(prev => [...prev, newBotMessage]);
         }
         
         setLoading(false);
