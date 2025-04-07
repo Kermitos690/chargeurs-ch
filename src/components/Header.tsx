@@ -1,14 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
 import CartIcon from '@/components/shop/CartIcon';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +30,17 @@ const Header = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success('Déconnexion réussie');
+      navigate('/');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      toast.error('Erreur lors de la déconnexion');
+    }
   };
 
   const menuItems = [
@@ -55,11 +71,33 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
-            <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
-              <Link to="/auth/login">
-                Connexion
-              </Link>
-            </Button>
+            
+            {loading ? (
+              <div className="h-10 w-24 bg-gray-200 animate-pulse rounded" />
+            ) : user ? (
+              <div className="flex items-center space-x-4">
+                <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
+                  <Link to="/account">
+                    <User className="mr-2 h-4 w-4" />
+                    Mon compte
+                  </Link>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout} 
+                  className="text-black hover:bg-red-50 hover:text-red-600"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </div>
+            ) : (
+              <Button asChild variant="outline" className="text-black border-black hover:bg-gray-100 hover:text-black">
+                <Link to="/auth/login">
+                  Connexion
+                </Link>
+              </Button>
+            )}
           </nav>
           
           <div className="flex items-center space-x-2">
@@ -91,11 +129,33 @@ const Header = () => {
               {item.label}
             </Link>
           ))}
-          <Button asChild variant="outline" className="mt-4 text-black border-black hover:bg-gray-100 hover:text-black">
-            <Link to="/auth/login">
-              Connexion
-            </Link>
-          </Button>
+          
+          {loading ? (
+            <div className="h-10 w-full bg-gray-200 animate-pulse rounded mt-4" />
+          ) : user ? (
+            <>
+              <Button asChild variant="outline" className="mt-4 text-black border-black hover:bg-gray-100 hover:text-black">
+                <Link to="/account">
+                  <User className="mr-2 h-4 w-4" />
+                  Mon compte
+                </Link>
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={handleLogout} 
+                className="text-black hover:bg-red-50 hover:text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Déconnexion
+              </Button>
+            </>
+          ) : (
+            <Button asChild variant="outline" className="mt-4 text-black border-black hover:bg-gray-100 hover:text-black">
+              <Link to="/auth/login">
+                Connexion
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

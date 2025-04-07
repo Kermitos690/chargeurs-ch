@@ -2,6 +2,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
+import { syncCartAfterLogin } from '@/services/cart/management';
 
 interface AuthContextType {
   user: User | null;
@@ -33,14 +34,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener
+    // Vérifier d'abord la session existante
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      if (existingSession) {
+        setSession(existingSession);
+        setUser(existingSession.user);
+        
+        // Différer les opérations qui pourraient bloquer
+        setTimeout(async () => {
+          try {
+            // Synchroniser le panier si l'utilisateur est connecté
+            if (existingSession.user) {
+              await syncCartAfterLogin(existingSession.user.id);
+            }
+            
+            // Vérifier si l'utilisateur a un rôle d'admin
+            const { data, error } = await supabase
+              .from('admin_roles')
+              .select('*')
+              .eq('user_id', existingSession.user.id)
+              .maybeSingle();
+            
+            if (data) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
+            
+            // Récupérer les données utilisateur
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', existingSession.user.id)
+              .maybeSingle();
+            
+            if (profile) {
+              setUserData({
+                id: existingSession.user.id,
+                name: profile.name,
+                email: existingSession.user.email,
+                phone: profile.phone,
+                subscriptionType: profile.subscription_type || 'basic'
+              });
+            }
+          } catch (error) {
+            console.error("Erreur lors de la vérification des données de l'utilisateur:", error);
+          } finally {
+            setLoading(false);
+          }
+        }, 0);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Configurer l'écouteur pour les changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log("Auth state changed:", event, newSession?.user?.email);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
-          // Utiliser setTimeout pour éviter les blocages potentiels
+          // Synchroniser le panier pour le nouvel utilisateur connecté
+          if (event === 'SIGNED_IN') {
+            await syncCartAfterLogin(newSession.user.id);
+          }
+          
+          // Différer les opérations qui pourraient bloquer
           setTimeout(async () => {
             try {
               // Vérifier si l'utilisateur a un rôle d'admin
@@ -85,55 +146,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      setUser(existingSession?.user ?? null);
-      
-      if (existingSession?.user) {
-        // Utiliser setTimeout pour éviter les blocages potentiels
-        setTimeout(async () => {
-          try {
-            // Vérifier si l'utilisateur a un rôle d'admin
-            const { data, error } = await supabase
-              .from('admin_roles')
-              .select('*')
-              .eq('user_id', existingSession.user.id)
-              .maybeSingle();
-            
-            if (data) {
-              setIsAdmin(true);
-            } else {
-              setIsAdmin(false);
-            }
-            
-            // Récupérer les données utilisateur
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', existingSession.user.id)
-              .maybeSingle();
-            
-            if (profile) {
-              setUserData({
-                id: existingSession.user.id,
-                name: profile.name,
-                email: existingSession.user.email,
-                phone: profile.phone,
-                subscriptionType: profile.subscription_type || 'basic'
-              });
-            }
-          } catch (error) {
-            console.error("Erreur lors de la vérification des données de l'utilisateur:", error);
-          } finally {
-            setLoading(false);
-          }
-        }, 0);
-      } else {
-        setLoading(false);
-      }
-    });
 
     return () => {
       subscription.unsubscribe();
