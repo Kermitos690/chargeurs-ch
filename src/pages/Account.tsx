@@ -11,7 +11,7 @@ import { getUserProfile, UserProfile } from '@/services/supabase/profile';
 import { getDocument } from '@/services/firebase';
 import { Subscription } from '@/types/api';
 
-// Import the new component files
+// Import the component files
 import AccountOverview from '@/components/account/AccountOverview';
 import SubscriptionCard from '@/components/account/SubscriptionCard';
 import ProfileCard from '@/components/account/ProfileCard';
@@ -46,6 +46,7 @@ const Account = () => {
           if (userResult.success && userResult.data) {
             const userDataFromFirestore = userResult.data;
             
+            // Check if subscriptionType exists before trying to use it
             if (userDataFromFirestore.subscriptionType) {
               const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
               if (subResult.success && subResult.data) {
