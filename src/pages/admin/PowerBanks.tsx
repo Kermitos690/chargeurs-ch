@@ -15,7 +15,7 @@ import {
   getCollection,
   deleteDocument,
   updateDocument
-} from '@/services/firebase';
+} from '@/services/admin';
 import { PowerBank } from '@/types/api';
 import { toast } from 'sonner';
 import { 

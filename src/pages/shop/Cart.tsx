@@ -16,7 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Loader2, ArrowRight, AlertTriangle, Truck } from 'lucide-react';
 import CartItem from '@/components/shop/CartItem';
-import { getCartItems, calculateCartTotal, clearCart } from '@/services/cart';
+import { getCartItems, calculateCartTotal, clearCart } from '@/services/supabase/cart';
 import { createCheckoutSession } from '@/services/checkout';
 
 const Cart: React.FC = () => {
@@ -29,7 +29,7 @@ const Cart: React.FC = () => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems(user?.uid);
+      const items = await getCartItems(user?.id);
       setCartItems(items);
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
@@ -40,7 +40,7 @@ const Cart: React.FC = () => {
 
   useEffect(() => {
     fetchCart();
-  }, [user?.uid]);
+  }, [user?.id]);
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
@@ -59,7 +59,7 @@ const Cart: React.FC = () => {
   };
 
   const handleClearCart = async () => {
-    await clearCart(user?.uid);
+    await clearCart(user?.id);
     fetchCart();
   };
 

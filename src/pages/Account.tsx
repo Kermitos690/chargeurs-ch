@@ -9,17 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { getDocument, getCollection } from '@/services/firebase';
-import { Subscription, User as UserType } from '@/types/api';
+import { supabase } from '@/integrations/supabase/client';
+import { Subscription } from '@/types/api';
 
 const Account = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, userData } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userData, setUserData] = useState<UserType | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,19 +31,27 @@ const Account = () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          // Récupérer les données utilisateur complètes
-          const userResult = await getDocument('users', user.uid);
+          // Récupérer le profil utilisateur
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('subscription_type')
+            .eq('id', user.id)
+            .single();
           
-          if (userResult.success && userResult.data) {
-            const userDataFromFirestore = userResult.data as UserType;
-            setUserData(userDataFromFirestore);
-            
-            // Si l'utilisateur a un abonnement, récupérer les détails
-            if (userDataFromFirestore.subscriptionType) {
-              const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
-              if (subResult.success && subResult.data) {
-                setUserSubscription(subResult.data as Subscription);
-              }
+          if (profileError) {
+            console.error("Error fetching user profile:", profileError);
+          } else if (profileData && profileData.subscription_type) {
+            // Fetch subscription details if user has one
+            const { data: subscriptionData, error: subError } = await supabase
+              .from('subscriptions')
+              .select('*')
+              .eq('id', profileData.subscription_type)
+              .single();
+              
+            if (subError) {
+              console.error("Error fetching subscription:", subError);
+            } else if (subscriptionData) {
+              setUserSubscription(subscriptionData as Subscription);
             }
           }
         } catch (error) {
@@ -89,7 +96,7 @@ const Account = () => {
             {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {user?.displayName || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {userData?.name || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -248,7 +255,7 @@ const Account = () => {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Nom d'utilisateur</h4>
-                    <p className="text-gray-500">{user?.displayName || 'Non défini'}</p>
+                    <p className="text-gray-500">{userData?.name || 'Non défini'}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>

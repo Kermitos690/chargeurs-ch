@@ -15,7 +15,7 @@ import {
   getCollection, 
   deleteDocument,
   fromTimestamp
-} from '@/services/firebase';
+} from '@/services/admin';
 import { toast } from 'sonner';
 import { Loader2, Search, Edit, Trash2 } from 'lucide-react';
 import { User } from '@/types/api';
@@ -32,7 +32,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     
-    const response = await getCollection('users');
+    const response = await getCollection('profiles');
     if (response.success) {
       // Make sure the data conforms to User type
       const typedData = response.data.map((item: any) => ({
@@ -40,8 +40,8 @@ const AdminUsers = () => {
         name: item.name || 'N/A',
         email: item.email || 'N/A',
         phone: item.phone || 'N/A',
-        subscriptionType: item.subscriptionType,
-        createdAt: item.createdAt
+        subscriptionType: item.subscription_type,
+        createdAt: item.created_at
       }));
       setUsers(typedData);
     } else {
@@ -53,7 +53,7 @@ const AdminUsers = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${name} ?`)) {
-      const response = await deleteDocument('users', id);
+      const response = await deleteDocument('profiles', id);
       
       if (response.success) {
         toast.success(`Utilisateur ${name} supprimé avec succès`);

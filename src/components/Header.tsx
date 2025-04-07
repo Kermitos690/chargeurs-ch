@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { clearCart } from '@/services/cart'; 
-import { toast } from 'sonner';
-import { logoutFromSupabase } from '@/services/supabase/auth';
 import { useNavigate } from 'react-router-dom';
 import DesktopNavigation from './header/DesktopNavigation';
 import MobileNavigation from './header/MobileNavigation';
@@ -21,20 +18,6 @@ const Header = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
-
-  const handleLogout = async () => {
-    try {
-      if (user?.id) {
-        await clearCart(user.id); 
-      }
-      await logoutFromSupabase();
-      navigate('/auth/login');
-      toast.success("Déconnexion réussie !");
-    } catch (error: any) {
-      console.error("Erreur lors de la déconnexion:", error);
-      toast.error("Erreur lors de la déconnexion");
-    }
-  };
 
   return (
     <header className="bg-background border-b sticky top-0 z-50">
@@ -54,13 +37,12 @@ const Header = () => {
           <CartIcon />
           
           {/* User Menu (Desktop) */}
-          <UserMenu handleLogout={handleLogout} />
+          <UserMenu />
           
           {/* Mobile Navigation */}
           <MobileNavigation 
             isMenuOpen={isMenuOpen}
             setIsMenuOpen={setIsMenuOpen}
-            handleLogout={handleLogout}
           />
         </div>
       </div>

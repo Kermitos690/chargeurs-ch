@@ -1,6 +1,7 @@
+
 import axios from 'axios';
 import { toast } from 'sonner';
-import { auth } from './firebase';
+import { supabase } from '@/integrations/supabase/client';
 import { Subscription } from '@/types/api';
 
 // API endpoints for Stripe integration
@@ -9,9 +10,9 @@ const STRIPE_API_ENDPOINT = 'https://api.example.com/stripe'; // Replace with yo
 // Create a checkout session for subscription
 export const createCheckoutSession = async (priceId: string, successUrl?: string, cancelUrl?: string) => {
   try {
-    const idToken = await auth.currentUser?.getIdToken();
+    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!idToken) {
+    if (!user) {
       throw new Error('Vous devez être connecté pour souscrire à un abonnement.');
     }
     
@@ -24,7 +25,7 @@ export const createCheckoutSession = async (priceId: string, successUrl?: string
       },
       {
         headers: {
-          Authorization: `Bearer ${idToken}`,
+          Authorization: `Bearer ${user.id}`,
         },
       }
     );
@@ -45,9 +46,9 @@ export const createCheckoutSession = async (priceId: string, successUrl?: string
 // Check subscription status for current user
 export const checkSubscriptionStatus = async () => {
   try {
-    const idToken = await auth.currentUser?.getIdToken();
+    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!idToken) {
+    if (!user) {
       return { success: false, error: 'Non authentifié' };
     }
     
@@ -55,7 +56,7 @@ export const checkSubscriptionStatus = async () => {
       `${STRIPE_API_ENDPOINT}/subscription-status`,
       {
         headers: {
-          Authorization: `Bearer ${idToken}`,
+          Authorization: `Bearer ${user.id}`,
         },
       }
     );
@@ -137,9 +138,9 @@ export const subscribeToPlan = async (subscriptionId: string) => {
 // Cancel current subscription
 export const cancelSubscription = async () => {
   try {
-    const idToken = await auth.currentUser?.getIdToken();
+    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!idToken) {
+    if (!user) {
       throw new Error('Vous devez être connecté pour annuler votre abonnement.');
     }
     
@@ -148,7 +149,7 @@ export const cancelSubscription = async () => {
       {},
       {
         headers: {
-          Authorization: `Bearer ${idToken}`,
+          Authorization: `Bearer ${user.id}`,
         },
       }
     );
