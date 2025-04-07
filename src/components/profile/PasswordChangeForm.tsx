@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { updatePassword } from '@/services/firebase/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PasswordChangeFormProps {
   userId: string;
@@ -34,20 +34,23 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ userId }) => {
     setIsSubmitting(true);
 
     try {
-      const result = await updatePassword(currentPassword, newPassword);
+      // Utilisation de Supabase pour mettre à jour le mot de passe
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
       
-      if (result.success) {
-        // Réinitialiser le formulaire
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        toast.success("Votre mot de passe a été changé avec succès.");
-      } else {
-        setError(result.error || "Une erreur est survenue lors de la modification du mot de passe.");
+      if (error) {
+        throw error;
       }
-    } catch (error) {
+      
+      // Réinitialiser le formulaire
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast.success("Votre mot de passe a été changé avec succès.");
+    } catch (error: any) {
       console.error("Erreur lors de la modification du mot de passe:", error);
-      setError("Une erreur est survenue lors de la modification du mot de passe.");
+      setError(error.message || "Une erreur est survenue lors de la modification du mot de passe.");
     } finally {
       setIsSubmitting(false);
     }

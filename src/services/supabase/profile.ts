@@ -1,12 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { User, updatePassword } from 'firebase/auth';
-import { auth } from '@/services/firebase/config';
 
 export interface UserProfile {
   id: string;
   firstName?: string;
   lastName?: string;
+  email?: string;
   phone?: string;
   address?: string;
   city?: string;
@@ -118,50 +117,5 @@ export const updateUserProfile = async (
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);
     return { success: false, error };
-  }
-};
-
-/**
- * Met à jour le mot de passe de l'utilisateur dans Firebase
- * @param currentPassword Mot de passe actuel
- * @param newPassword Nouveau mot de passe
- * @returns Résultat de l'opération
- */
-export const updateUserPassword = async (
-  currentPassword: string,
-  newPassword: string
-): Promise<{ success: boolean; error?: any }> => {
-  try {
-    const user = auth.currentUser;
-    
-    if (!user || !user.email) {
-      return { 
-        success: false, 
-        error: "Aucun utilisateur connecté ou adresse email manquante"
-      };
-    }
-
-    // Réauthentifier l'utilisateur est nécessaire pour les opérations sensibles,
-    // mais cela nécessiterait une étape supplémentaire avec reauthenticateWithCredential
-    // Pour simplifier, nous supposons que l'utilisateur est récemment authentifié
-
-    // Mettre à jour le mot de passe
-    await updatePassword(user, newPassword);
-    
-    return { success: true };
-  } catch (error: any) {
-    console.error('Erreur lors de la mise à jour du mot de passe:', error);
-    
-    let errorMessage = "Une erreur est survenue lors de la mise à jour du mot de passe";
-    if (error.code === 'auth/requires-recent-login') {
-      errorMessage = "Pour des raisons de sécurité, veuillez vous reconnecter avant de modifier votre mot de passe";
-    } else if (error.code === 'auth/weak-password') {
-      errorMessage = "Le mot de passe est trop faible. Il doit contenir au moins 6 caractères";
-    }
-    
-    return { 
-      success: false, 
-      error: errorMessage
-    };
   }
 };

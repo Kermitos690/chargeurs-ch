@@ -25,7 +25,7 @@ const Profile = () => {
       if (user) {
         setLoading(true);
         try {
-          const profile = await getUserProfile(user.uid);
+          const profile = await getUserProfile(user.id);
           if (profile) {
             setUserData(profile);
           }
@@ -79,13 +79,12 @@ const Profile = () => {
             <div className="lg:col-span-2">
               <PersonalInfoForm 
                 userData={userData} 
-                userEmail={user?.email || ''} 
-                userId={user?.uid || ''} 
+                user={user || { id: '', email: '' }} 
               />
             </div>
             
             <div>
-              <PasswordChangeForm />
+              <PasswordChangeForm userId={user?.id || ''} />
               
               <div className="mt-6">
                 <NotificationsSettings />

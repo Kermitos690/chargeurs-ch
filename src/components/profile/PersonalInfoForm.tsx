@@ -3,27 +3,21 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updateProfile } from '@/services/firebase/auth';
-import { updateUserProfile } from '@/services/supabase/profile';
 import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
+import { UserProfile } from '@/services/supabase/profile';
 
 interface PersonalInfoFormProps {
   user: {
-    uid: string;
-    email?: string | null;
-    displayName?: string | null;
-    photoURL?: string | null;
-  };
-  userData: {
     id: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-  } | null;
+    email?: string | null;
+  };
+  userData: UserProfile | null;
 }
 
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, userData }) => {
-  const [name, setName] = useState(userData?.name || user?.displayName || '');
+  const [firstName, setFirstName] = useState(userData?.firstName || '');
+  const [lastName, setLastName] = useState(userData?.lastName || '');
   const [email, setEmail] = useState(userData?.email || user?.email || '');
   const [phone, setPhone] = useState(userData?.phone || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,26 +29,25 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, userData }) =
     setIsSubmitting(true);
 
     try {
-      // Mettre à jour le profil Firebase (name, photo, etc.)
-      const firebaseResult = await updateProfile({
-        displayName: name,
-      });
-
       // Mettre à jour les données utilisateur dans Supabase
-      if (user.uid) {
-        const supabaseResult = await updateUserProfile(user.uid, {
-          name,
-          email,
-          phone
-        });
+      if (user.id) {
+        const { error } = await supabase
+          .from('user_details')
+          .update({
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
 
-        if (firebaseResult.success && supabaseResult.success) {
-          toast.success("Vos informations ont été mises à jour avec succès.");
-        } else {
-          setError("Une erreur est survenue lors de la mise à jour de vos informations.");
+        if (error) {
+          throw error;
         }
+
+        toast.success("Vos informations ont été mises à jour avec succès.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la mise à jour du profil:", error);
       setError("Une erreur est survenue lors de la mise à jour de vos informations.");
     } finally {
@@ -73,11 +66,21 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, userData }) =
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="name">Nom</Label>
+        <Label htmlFor="firstName">Prénom</Label>
         <Input 
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          id="firstName"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="lastName">Nom</Label>
+        <Input 
+          id="lastName"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           required
         />
       </div>
