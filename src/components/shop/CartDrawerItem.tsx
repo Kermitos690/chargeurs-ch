@@ -1,14 +1,16 @@
+
 import React from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { updateCartItemQuantity, removeFromCart } from '@/services/cart';
+import { updateCartItemQuantity, removeFromCart } from '@/services/supabase/cart';
 
 interface CartDrawerItemProps {
   item: any;
   onUpdate: () => void;
+  onRemove?: () => void;
 }
 
-const CartDrawerItem: React.FC<CartDrawerItemProps> = ({ item, onUpdate }) => {
+const CartDrawerItem: React.FC<CartDrawerItemProps> = ({ item, onUpdate, onRemove }) => {
   const handleIncrease = async () => {
     await updateCartItemQuantity(item.id, item.quantity + 1);
     onUpdate();
@@ -22,6 +24,7 @@ const CartDrawerItem: React.FC<CartDrawerItemProps> = ({ item, onUpdate }) => {
   const handleRemove = async () => {
     await removeFromCart(item.id);
     onUpdate();
+    if (onRemove) onRemove();
   };
 
   return (

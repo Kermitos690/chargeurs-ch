@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from 'lucide-react';
 import CartDrawer from './CartDrawer';
-import { getCartItems } from '@/services/cart';
+import { getCartItems } from '@/services/supabase/cart';
 import { useAuth } from '@/hooks/useAuth';
 
 const CartIcon: React.FC = () => {

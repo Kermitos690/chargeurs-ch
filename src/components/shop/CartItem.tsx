@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Minus, Plus, Loader2 } from 'lucide-react';
-import { updateCartItemQuantity, removeCartItem } from '@/services/cart';
+import { updateCartItemQuantity, removeFromCart } from '@/services/supabase/cart';
 
 interface CartItemProps {
   item: any;
@@ -27,7 +28,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
   const handleRemoveItem = async () => {
     setRemoving(true);
     try {
-      await removeCartItem(item.id);
+      await removeFromCart(item.id);
       onUpdate();
     } finally {
       setRemoving(false);

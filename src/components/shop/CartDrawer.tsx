@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { X, ShoppingCart, Loader2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { getCartItems, calculateCartTotal } from '@/services/cart';
+import { getCartItems, calculateCartTotal } from '@/services/supabase/cart';
 import CartDrawerItem from './CartDrawerItem';
 
 interface CartDrawerProps {
