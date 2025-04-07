@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Send, User, Loader2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,22 +47,13 @@ const ChatComponent = () => {
 
   // S'abonne aux nouveaux messages
   useEffect(() => {
-    const channel = supabase
-      .channel('public:messages')
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'messages' 
-        }, 
-        (payload) => {
-          setMessages((previous) => [...previous, payload.new as Message]);
-        }
-      )
-      .subscribe();
+    // Utilisez la fonction subscribeToMessages pour recevoir les nouveaux messages
+    const unsubscribe = subscribeToMessages('general', (newMessage) => {
+      setMessages((previous) => [...previous, newMessage]);
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, []);
 

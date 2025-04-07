@@ -44,7 +44,7 @@ const Account = () => {
           const userResult = await getDocument('users', user.uid);
           
           if (userResult.success && userResult.data) {
-            const userDataFromFirestore = userResult.data;
+            const userDataFromFirestore = userResult.data as { id: string; subscriptionType?: string };
             
             // S'assurer que subscriptionType existe et a une valeur
             const subscriptionType = userDataFromFirestore.subscriptionType || 'basic';

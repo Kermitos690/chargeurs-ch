@@ -116,9 +116,10 @@ export const getChatMessages = fetchMessages;
 // Function to send chat message (alias for sendMessage to fix import)
 export const sendChatMessage = async (
   content: string, 
-  userId: string
+  userId: string,
+  userName: string = 'User'
 ): Promise<{success: boolean, message?: Message}> => {
-  const result = await sendMessage(content, userId);
+  const result = await sendMessage(content, userId, userName);
   return {
     success: !!result,
     message: result || undefined

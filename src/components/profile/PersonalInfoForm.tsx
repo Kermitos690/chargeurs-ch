@@ -1,223 +1,114 @@
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { updateProfile } from '@/services/firebase/auth';
 import { updateUserProfile } from '@/services/supabase/profile';
-import { Loader2, Save } from 'lucide-react';
-import { toast } from 'sonner';
-
-const profileFormSchema = z.object({
-  firstName: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }).optional().or(z.literal('')),
-  lastName: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }).optional().or(z.literal('')),
-  email: z.string().email({ message: 'Adresse email invalide' }).optional(),
-  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().or(z.literal('')),
-  address: z.string().optional().or(z.literal('')),
-  city: z.string().optional().or(z.literal('')),
-  postalCode: z.string().optional().or(z.literal('')),
-});
-
-export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+import { toast } from "sonner";
 
 interface PersonalInfoFormProps {
-  userData: any;
-  userEmail: string;
-  userId: string;
+  user: {
+    uid: string;
+    email?: string | null;
+    displayName?: string | null;
+    photoURL?: string | null;
+  };
+  userData: {
+    id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+  } | null;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userData, userEmail, userId }) => {
-  const [savingProfile, setSavingProfile] = React.useState(false);
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, userData }) => {
+  const [name, setName] = useState(userData?.name || user?.displayName || '');
+  const [email, setEmail] = useState(userData?.email || user?.email || '');
+  const [phone, setPhone] = useState(userData?.phone || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      firstName: userData?.firstName || '',
-      lastName: userData?.lastName || '',
-      email: userEmail || '',
-      phone: userData?.phone || '',
-      address: userData?.address || '',
-      city: userData?.city || '',
-      postalCode: userData?.postalCode || '',
-    },
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    if (!userId) return;
-    
-    setSavingProfile(true);
     try {
-      const result = await updateUserProfile(userId, {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        postalCode: data.postalCode,
+      // Mettre à jour le profil Firebase (name, photo, etc.)
+      const firebaseResult = await updateProfile({
+        displayName: name,
       });
 
-      if (result.success) {
-        toast.success("Profil mis à jour", {
-          description: "Vos informations ont été mises à jour avec succès."
+      // Mettre à jour les données utilisateur dans Supabase
+      if (user.uid) {
+        const supabaseResult = await updateUserProfile(user.uid, {
+          name,
+          email,
+          phone
         });
-      } else {
-        toast.error("Erreur", {
-          description: result.error || "Une erreur est survenue lors de la mise à jour de votre profil."
-        });
+
+        if (firebaseResult.success && supabaseResult.success) {
+          toast.success("Vos informations ont été mises à jour avec succès.");
+        } else {
+          setError("Une erreur est survenue lors de la mise à jour de vos informations.");
+        }
       }
-    } catch (error: any) {
-      toast.error("Erreur", {
-        description: error.message || "Une erreur est survenue lors de la mise à jour de votre profil."
-      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du profil:", error);
+      setError("Une erreur est survenue lors de la mise à jour de vos informations.");
     } finally {
-      setSavingProfile(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Informations Personnelles</CardTitle>
-        <CardDescription>
-          Mettez à jour vos informations personnelles
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Prénom</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Votre prénom" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Votre nom" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Votre email" {...field} readOnly disabled />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Téléphone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Votre numéro de téléphone" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="border-t pt-6 mt-6">
-              <h3 className="font-medium mb-4">Adresse</h3>
-              
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Rue</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Votre adresse" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ville</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ville" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Code postal</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Code postal" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-            
-            <Button type="submit" className="w-full md:w-auto" disabled={savingProfile}>
-              {savingProfile ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enregistrement...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Enregistrer les modifications
-                </>
-              )}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow">
+      <h2 className="text-lg font-medium">Informations personnelles</h2>
+      
+      {error && (
+        <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
+          {error}
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <Label htmlFor="name">Nom</Label>
+        <Input 
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input 
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          readOnly
+        />
+        <p className="text-xs text-gray-500">L'email ne peut pas être modifié</p>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="phone">Téléphone</Label>
+        <Input 
+          id="phone"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+      </div>
+      
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Mise à jour en cours..." : "Mettre à jour"}
+      </Button>
+    </form>
   );
 };
 
