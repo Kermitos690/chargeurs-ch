@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from 'lucide-react';
 import CartDrawer from './CartDrawer';
 import { getCartItems } from '@/services/cart';
+import { useAuth } from '@/hooks/useAuth';
 
 const CartIcon: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [itemCount, setItemCount] = useState(0);
+  const { user } = useAuth();
 
   const fetchCartCount = async () => {
     try {
-      const items = await getCartItems();
+      const items = await getCartItems(user?.uid);
       setItemCount(items.length);
     } catch (error) {
       console.error('Erreur lors de la récupération du nombre d\'articles:', error);
@@ -25,7 +27,15 @@ const CartIcon: React.FC = () => {
     const interval = setInterval(fetchCartCount, 30000); // toutes les 30 secondes
     
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.uid]);
+
+  // Mettre à jour le compte quand le tiroir du panier est fermé
+  // (pour refléter les changements apportés dans le panier)
+  useEffect(() => {
+    if (!isCartOpen) {
+      fetchCartCount();
+    }
+  }, [isCartOpen]);
 
   return (
     <>
@@ -46,6 +56,7 @@ const CartIcon: React.FC = () => {
       <CartDrawer 
         open={isCartOpen} 
         onOpenChange={setIsCartOpen}
+        onCartUpdate={fetchCartCount}
       />
     </>
   );

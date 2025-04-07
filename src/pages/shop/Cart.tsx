@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { createCheckoutSession } from '@/services/checkout';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -27,7 +29,7 @@ const Cart: React.FC = () => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems();
+      const items = await getCartItems(user?.uid);
       setCartItems(items);
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
@@ -38,7 +40,7 @@ const Cart: React.FC = () => {
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [user?.uid]);
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
@@ -57,7 +59,7 @@ const Cart: React.FC = () => {
   };
 
   const handleClearCart = async () => {
-    await clearCart();
+    await clearCart(user?.uid);
     fetchCart();
   };
 

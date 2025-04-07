@@ -3,6 +3,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { User } from 'firebase/auth';
 import { useFirebaseAuth } from './useFirebaseAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { transferCartToUser } from '@/services/cart';
 
 interface AuthContextType {
   user: User | null;
@@ -29,17 +30,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Transférer le panier lors de la connexion
+    if (user) {
+      transferCartToUser(user.uid).catch(error => {
+        console.error("Erreur lors du transfert du panier:", error);
+      });
+    }
+  }, [user?.uid]);
+
+  useEffect(() => {
     // Check if user has admin role
     const checkAdminRole = async () => {
       if (user) {
         try {
           const { data, error } = await supabase.from('admin_roles')
             .select('*')
-            .eq('user_id', user.uid)
-            .maybeSingle();
+            .eq('user_id', user.uid);
             
           // Vérifiez si le résultat contient des données
-          if (data) {
+          if (data && data.length > 0) {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);

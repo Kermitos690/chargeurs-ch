@@ -26,9 +26,11 @@ export const initializeCart = async (userId?: string) => {
       query = query.eq('session_id', sessionId);
     }
     
-    const { data: existingCart, error: fetchError } = await query.maybeSingle();
+    const { data: existingCarts, error: fetchError } = await query;
 
     if (fetchError) throw fetchError;
+    
+    const existingCart = existingCarts && existingCarts.length > 0 ? existingCarts[0] : null;
 
     if (!existingCart) {
       const { data: newCart, error: createError } = await supabase
@@ -37,11 +39,10 @@ export const initializeCart = async (userId?: string) => {
           user_id: userId || null,
           session_id: !userId ? sessionId : null,
         })
-        .select('id')
-        .single();
+        .select('id');
 
       if (createError) throw createError;
-      return newCart.id;
+      return newCart[0].id;
     }
 
     return existingCart.id;
@@ -65,15 +66,16 @@ export const addToCart = async (
     if (!cartId) throw new Error('Erreur lors de l\'initialisation du panier');
 
     // Vérifier si l'article existe déjà dans le panier
-    const { data: existingItem, error: fetchError } = await supabase
+    const { data: existingItems, error: fetchError } = await supabase
       .from('cart_items')
       .select('id, quantity')
       .eq('cart_id', cartId)
       .eq('product_id', productId)
-      .eq('variant_id', variantId || null)
-      .maybeSingle();
+      .eq('variant_id', variantId || null);
 
     if (fetchError) throw fetchError;
+    
+    const existingItem = existingItems && existingItems.length > 0 ? existingItems[0] : null;
 
     if (existingItem) {
       // Mettre à jour la quantité si l'article existe déjà
@@ -125,9 +127,11 @@ export const getCartItems = async (userId?: string) => {
     }
     
     // D'abord, trouver l'ID du panier
-    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
+    const { data: carts, error: cartError } = await cartQuery;
 
     if (cartError) throw cartError;
+    
+    const cart = carts && carts.length > 0 ? carts[0] : null;
     if (!cart) return [];
 
     // Ensuite, récupérer les articles du panier avec les détails des produits
@@ -174,7 +178,9 @@ export const getCartItems = async (userId?: string) => {
         name: item.product_variants.name,
         imageUrl: item.product_variants.image_url,
         price: item.product_variants.price,
-        attributes: item.product_variants.attributes,
+        attributes: typeof item.product_variants.attributes === 'string' 
+          ? JSON.parse(item.product_variants.attributes) 
+          : item.product_variants.attributes,
       } : null,
     }));
   } catch (error) {
@@ -242,9 +248,11 @@ export const clearCart = async (userId?: string) => {
     }
     
     // Trouver l'ID du panier
-    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
+    const { data: carts, error: cartError } = await cartQuery;
 
     if (cartError) throw cartError;
+    
+    const cart = carts && carts.length > 0 ? carts[0] : null;
     if (!cart) return true;
 
     // Supprimer tous les articles du panier
@@ -270,23 +278,25 @@ export const transferCartToUser = async (userId: string) => {
     const sessionId = getOrCreateSessionId();
     
     // Trouver le panier de session
-    const { data: sessionCart, error: sessionCartError } = await supabase
+    const { data: sessionCarts, error: sessionCartError } = await supabase
       .from('carts')
       .select('id')
-      .eq('session_id', sessionId)
-      .maybeSingle();
+      .eq('session_id', sessionId);
 
     if (sessionCartError) throw sessionCartError;
+    
+    const sessionCart = sessionCarts && sessionCarts.length > 0 ? sessionCarts[0] : null;
     if (!sessionCart) return true; // Pas de panier de session, rien à transférer
 
     // Trouver un panier existant pour l'utilisateur
-    const { data: userCart, error: userCartError } = await supabase
+    const { data: userCarts, error: userCartError } = await supabase
       .from('carts')
       .select('id')
-      .eq('user_id', userId)
-      .maybeSingle();
+      .eq('user_id', userId);
 
     if (userCartError) throw userCartError;
+    
+    const userCart = userCarts && userCarts.length > 0 ? userCarts[0] : null;
 
     if (userCart) {
       // Si l'utilisateur a déjà un panier, fusionner les articles
@@ -301,15 +311,16 @@ export const transferCartToUser = async (userId: string) => {
       // Pour chaque article du panier de session
       for (const item of sessionItems) {
         // Vérifier si cet article existe déjà dans le panier de l'utilisateur
-        const { data: existingItem, error: existingItemError } = await supabase
+        const { data: existingItems, error: existingItemError } = await supabase
           .from('cart_items')
           .select('id, quantity')
           .eq('cart_id', userCart.id)
           .eq('product_id', item.product_id)
-          .eq('variant_id', item.variant_id)
-          .maybeSingle();
+          .eq('variant_id', item.variant_id);
 
         if (existingItemError) throw existingItemError;
+        
+        const existingItem = existingItems && existingItems.length > 0 ? existingItems[0] : null;
 
         if (existingItem) {
           // Mettre à jour la quantité de l'article existant

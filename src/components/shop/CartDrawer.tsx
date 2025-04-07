@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Sheet,
   SheetContent,
@@ -18,10 +19,12 @@ import { createCheckoutSession } from '@/services/checkout';
 interface CartDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCartUpdate?: () => void;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange, onCartUpdate }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -29,8 +32,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const items = await getCartItems();
+      const items = await getCartItems(user?.uid);
       setCartItems(items);
+      if (onCartUpdate) onCartUpdate();
     } catch (error) {
       console.error('Erreur lors de la récupération du panier:', error);
     } finally {
@@ -42,11 +46,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onOpenChange }) => {
     if (open) {
       fetchCart();
     }
-  }, [open]);
+  }, [open, user?.uid]);
 
   const handleClearCart = async () => {
-    await clearCart();
+    await clearCart(user?.uid);
     setCartItems([]);
+    if (onCartUpdate) onCartUpdate();
   };
 
   const handleCheckout = async () => {
