@@ -103,7 +103,7 @@ function App() {
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/sitemap" element={<Sitemap />} />
           
-          {/* Auth Routes */}
+          {/* Auth Routes - Correction des chemins */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/reset-password" element={<ResetPassword />} />

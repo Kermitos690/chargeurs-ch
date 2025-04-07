@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { navigationItems } from './navigation-items';
@@ -86,7 +85,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <Button 
                     onClick={() => {
-                      navigate('/auth/login');
+                      navigate('/login');
                       setIsMenuOpen(false);
                     }}
                     className="bg-electric-blue text-white hover:bg-electric-blue/90 shadow-electric"
@@ -96,7 +95,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      navigate('/auth/register');
+                      navigate('/register');
                       setIsMenuOpen(false);
                     }}
                     className="text-electric-blue border-electric-blue hover:bg-electric-blue/10"
@@ -221,7 +220,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                 <div className="p-4 border-t border-gray-200 flex flex-col space-y-2">
                   <Button 
                     onClick={() => {
-                      navigate('/auth/login');
+                      navigate('/login');
                       setIsMenuOpen(false);
                     }}
                     className="bg-electric-blue text-white hover:bg-electric-blue/90 shadow-electric"
@@ -231,7 +230,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      navigate('/auth/register');
+                      navigate('/register');
                       setIsMenuOpen(false);
                     }}
                     className="text-electric-blue border-electric-blue hover:bg-electric-blue/10"

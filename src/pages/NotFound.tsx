@@ -55,6 +55,12 @@ const NotFound = () => {
                 <Link to="/contact" className="hover:underline">Contacter le support</Link>
               </li>
               <li>
+                <Link to="/login" className="hover:underline">Se connecter</Link>
+              </li>
+              <li>
+                <Link to="/register" className="hover:underline">S'inscrire</Link>
+              </li>
+              <li>
                 <Link to="/admin/login" className="hover:underline flex items-center justify-center">
                   <Shield className="mr-1 h-3 w-3" />
                   Administration
