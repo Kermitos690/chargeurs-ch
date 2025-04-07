@@ -1,5 +1,5 @@
 
-// Types pour les fonctionnalités du panier
+// Définir les types pour le panier
 export interface CartItem {
   id: string;
   quantity: number;
@@ -10,13 +10,13 @@ export interface CartItem {
     slug: string;
     imageUrl?: string;
     price: number;
-    regularPrice: number;
+    regularPrice?: number;
   };
   variant?: {
     id: string;
     name: string;
     imageUrl?: string;
-    price: number;
-    attributes: any; // Modifié pour accepter any au lieu de Record<string, any>
+    price?: number;
+    attributes?: Record<string, any>;
   } | null;
 }
