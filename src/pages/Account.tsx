@@ -36,12 +36,12 @@ const Account = () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          const profile = await getUserProfile(user.uid);
+          const profile = await getUserProfile(user.id);
           if (profile) {
             setUserData(profile);
           }
           
-          const userResult = await getDocument('users', user.uid);
+          const userResult = await getDocument('users', user.id);
           
           if (userResult.success && userResult.data) {
             const userDataFromFirestore = userResult.data as { id: string; subscriptionType?: string };

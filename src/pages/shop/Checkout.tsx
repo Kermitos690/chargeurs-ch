@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,7 +27,7 @@ import { getCartItems, calculateCartTotal } from '@/services/cart';
 import { createCheckoutSession } from '@/services/checkout';
 
 const Checkout: React.FC = () => {
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,16 +54,15 @@ const Checkout: React.FC = () => {
         setCartItems(items);
         
         // Si l'utilisateur est connecté, pré-remplir les informations
-        if (user) {
+        if (user && userData) {
           // Récupérer les détails utilisateur depuis le profil
-          // Ceci est un exemple, à adapter selon votre structure
           setShippingDetails({
-            firstName: user.displayName?.split(' ')[0] || '',
-            lastName: user.displayName?.split(' ')[1] || '',
-            address: '',
-            city: '',
-            postalCode: '',
-            phone: ''
+            firstName: userData.name?.split(' ')[0] || '',
+            lastName: userData.name?.split(' ')[1] || '',
+            address: userData.address || '',
+            city: userData.city || '',
+            postalCode: userData.postalCode || '',
+            phone: userData.phone || ''
           });
         }
       } catch (error) {
@@ -76,7 +74,7 @@ const Checkout: React.FC = () => {
     };
 
     fetchCart();
-  }, [user, navigate]);
+  }, [user, userData, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

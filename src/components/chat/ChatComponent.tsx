@@ -77,8 +77,8 @@ const ChatComponent = () => {
     try {
       const result = await sendMessage(
         newMessage.trim(), 
-        user.uid, 
-        user.displayName || 'Utilisateur'
+        user.id, 
+        user.email || 'Utilisateur'
       );
       
       if (!result) {
@@ -132,7 +132,7 @@ const ChatComponent = () => {
           </div>
         ) : (
           <div className="flex-grow overflow-y-auto p-4">
-            <MessageList messages={messages} currentUserId={user?.uid} />
+            <MessageList messages={messages} currentUserId={user?.id} />
             <div ref={messagesEndRef} />
           </div>
         )}
