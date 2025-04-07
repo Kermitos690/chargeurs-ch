@@ -73,9 +73,11 @@ const Hero = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button size="lg" className="rounded-full group transition-all duration-300 hover:pr-7">
-                  Découvrir nos solutions
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <Button size="lg" className="rounded-full group transition-all duration-300 hover:pr-7" asChild>
+                  <Link to="/produits">
+                    Découvrir nos solutions
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="rounded-full transition-all duration-300 hover:bg-primary/10" asChild>
                   <Link to="/stations">

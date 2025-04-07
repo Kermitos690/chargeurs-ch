@@ -1,40 +1,48 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wifi, Smartphone, Globe, CloudSun, Share2, Router } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Connectivity = () => {
   const connectivityFeatures = [
     {
-      icon: <Wifi className="h-12 w-12 text-electric-blue" />,
+      icon: <Wifi className="h-12 w-12 text-primary" />,
       title: "Connectivité Wi-Fi intégrée",
-      description: "Connectez votre powerbank à votre réseau Wi-Fi pour un suivi en temps réel et des mises à jour automatiques."
+      description: "Connectez votre powerbank à votre réseau Wi-Fi pour un suivi en temps réel et des mises à jour automatiques.",
+      action: "/produits/premium"
     },
     {
-      icon: <Smartphone className="h-12 w-12 text-electric-blue" />,
+      icon: <Smartphone className="h-12 w-12 text-primary" />,
       title: "Application Mobile Intuitive",
-      description: "Contrôlez votre powerbank, suivez votre consommation et planifiez vos recharges depuis votre smartphone."
+      description: "Contrôlez votre powerbank, suivez votre consommation et planifiez vos recharges depuis votre smartphone.",
+      action: "/contact"
     },
     {
-      icon: <Globe className="h-12 w-12 text-electric-blue" />,
+      icon: <Globe className="h-12 w-12 text-primary" />,
       title: "Accès Web Sécurisé",
-      description: "Gérez votre compte et vos locations depuis n'importe quel navigateur avec notre interface web sécurisée."
+      description: "Gérez votre compte et vos locations depuis n'importe quel navigateur avec notre interface web sécurisée.",
+      action: "/login"
     },
     {
-      icon: <CloudSun className="h-12 w-12 text-electric-blue" />,
+      icon: <CloudSun className="h-12 w-12 text-primary" />,
       title: "Synchronisation Cloud",
-      description: "Sauvegarde automatique de vos données et préférences dans le cloud pour une expérience fluide sur tous vos appareils."
+      description: "Sauvegarde automatique de vos données et préférences dans le cloud pour une expérience fluide sur tous vos appareils.",
+      action: "/produits"
     },
     {
-      icon: <Share2 className="h-12 w-12 text-electric-blue" />,
+      icon: <Share2 className="h-12 w-12 text-primary" />,
       title: "Partage Familial",
-      description: "Partagez l'accès à vos powerbanks avec les membres de votre famille via des comptes secondaires."
+      description: "Partagez l'accès à vos powerbanks avec les membres de votre famille via des comptes secondaires.",
+      action: "/register"
     },
     {
-      icon: <Router className="h-12 w-12 text-electric-blue" />,
+      icon: <Router className="h-12 w-12 text-primary" />,
       title: "Connectivité 4G/5G",
-      description: "Option de connectivité cellulaire pour une connexion fiable même sans Wi-Fi disponible."
+      description: "Option de connectivité cellulaire pour une connexion fiable même sans Wi-Fi disponible.",
+      action: "/produits/premium"
     }
   ];
 
@@ -46,10 +54,15 @@ const Connectivity = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Nos powerbanks sont entièrement connectées pour vous offrir un contrôle total, des analyses détaillées et une expérience utilisateur optimale.
           </p>
+          <div className="mt-6">
+            <Button asChild size="lg" className="rounded-full">
+              <Link to="/produits">Découvrir nos produits connectés</Link>
+            </Button>
+          </div>
         </div>
 
         <div className="mb-16">
-          <div className="bg-gradient-to-r from-electric-blue to-blue-600 rounded-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-blue-600 rounded-xl overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-8">
               <div className="text-white">
                 <h2 className="text-3xl font-bold mb-4">Restez connecté à tout moment</h2>
@@ -76,6 +89,11 @@ const Connectivity = () => {
                     <span>Mises à jour automatiques à distance</span>
                   </li>
                 </ul>
+                <div className="mt-6">
+                  <Button className="bg-white text-primary hover:bg-white/90" asChild>
+                    <Link to="/contact">Demander une démo</Link>
+                  </Button>
+                </div>
               </div>
               <div className="rounded-lg overflow-hidden">
                 <img 
@@ -98,7 +116,10 @@ const Connectivity = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">{feature.description}</CardDescription>
+                <CardDescription className="text-base mb-4">{feature.description}</CardDescription>
+                <Button variant="outline" asChild className="w-full mt-2 hover:bg-primary/5 hover:text-primary">
+                  <Link to={feature.action}>En savoir plus</Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -109,7 +130,7 @@ const Connectivity = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Intégrez vos powerbanks avec vos autres appareils connectés pour une expérience domotique complète.
           </p>
-          <div className="flex flex-wrap justify-center gap-8">
+          <div className="flex flex-wrap justify-center gap-8 mb-8">
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Apple_HomeKit_logo.svg/1200px-Apple_HomeKit_logo.svg.png" alt="Apple HomeKit" className="max-h-12" />
             </div>
@@ -123,6 +144,9 @@ const Connectivity = () => {
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/IFTTT_Logo.svg/1200px-IFTTT_Logo.svg.png" alt="IFTTT" className="max-h-12" />
             </div>
           </div>
+          <Button asChild>
+            <Link to="/produits">Découvrir nos produits compatibles</Link>
+          </Button>
         </div>
       </div>
     </Layout>

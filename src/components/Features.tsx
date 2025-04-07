@@ -9,32 +9,38 @@ const Features = () => {
     {
       icon: <BatteryFull className="h-12 w-12 text-primary" />,
       title: "Autonomie garantie",
-      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos appareils."
+      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos appareils.",
+      link: "/features/charging"
     },
     {
       icon: <MapPin className="h-12 w-12 text-primary" />,
       title: "Réseau étendu",
-      description: "Des bornes disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7."
+      description: "Des bornes disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7.",
+      link: "/stations"
     },
     {
       icon: <Clock className="h-12 w-12 text-primary" />,
       title: "Utilisation flexible",
-      description: "Location à la demande, sans engagement. Prenez une powerbank dans une borne et rendez-la dans une autre."
+      description: "Location à la demande, sans engagement. Prenez une powerbank dans une borne et rendez-la dans une autre.",
+      link: "/subscriptions"
     },
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Sécurité optimale",
-      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité."
+      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité.",
+      link: "/features/security"
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,
       title: "Application mobile",
-      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application."
+      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application.",
+      link: "/features/connectivity"
     },
     {
       icon: <CreditCard className="h-12 w-12 text-primary" />,
       title: "Tarification transparente",
-      description: "Payez uniquement pour la durée d'utilisation, sans frais cachés."
+      description: "Payez uniquement pour la durée d'utilisation, sans frais cachés.",
+      link: "/subscriptions"
     }
   ];
 
@@ -52,11 +58,14 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-all"
+              className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-all group"
             >
               <div className="mb-5 text-primary">{feature.icon}</div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
+              <p className="text-muted-foreground mb-4">{feature.description}</p>
+              <Button variant="ghost" className="p-0 text-primary hover:text-primary/80 hover:bg-transparent group-hover:underline" asChild>
+                <Link to={feature.link}>En savoir plus</Link>
+              </Button>
             </div>
           ))}
         </div>
