@@ -25,7 +25,7 @@ export const getCollection = async (collection: string) => {
     }
     
     const { data, error } = await supabase
-      .from(collection as any)
+      .from(collection as ValidTable)
       .select('*');
       
     if (error) throw error;
@@ -45,7 +45,7 @@ export const getDocument = async (collection: string, id: string) => {
     }
     
     const { data, error } = await supabase
-      .from(collection as any)
+      .from(collection as ValidTable)
       .select('*')
       .eq('id', id)
       .single();
@@ -67,7 +67,7 @@ export const updateDocument = async (collection: string, id: string, data: any) 
     }
     
     const { error } = await supabase
-      .from(collection as any)
+      .from(collection as ValidTable)
       .update(data)
       .eq('id', id);
       
@@ -88,7 +88,7 @@ export const deleteDocument = async (collection: string, id: string) => {
     }
     
     const { error } = await supabase
-      .from(collection as any)
+      .from(collection as ValidTable)
       .delete()
       .eq('id', id);
       
@@ -113,8 +113,23 @@ export const fromTimestamp = (timestamp: any) => {
   return timestamp;
 };
 
+// Define valid table names as a type for type safety
+type ValidTable = 
+  | 'admin_roles'
+  | 'cart_items'
+  | 'carts'
+  | 'products'
+  | 'product_variants'
+  | 'messages'
+  | 'order_items'
+  | 'orders'
+  | 'product_categories'
+  | 'profiles'
+  | 'system_config'
+  | 'user_details';
+
 // Helper function to check if a table name is valid
-function isValidTable(tableName: string): boolean {
+function isValidTable(tableName: string): tableName is ValidTable {
   const validTables = [
     'admin_roles',
     'cart_items',

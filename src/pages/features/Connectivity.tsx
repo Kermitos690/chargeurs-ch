@@ -107,7 +107,7 @@ const Connectivity = () => {
         <div className="bg-muted rounded-xl p-8 text-center mb-16">
           <h2 className="text-3xl font-bold mb-4">Compatible avec votre maison intelligente</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Intégrez votre système de powerbanks avec vos autres appareils connectés pour une expérience domotique complète.
+            Intégrez vos powerbanks avec vos autres appareils connectés pour une expérience domotique complète.
           </p>
           <div className="flex flex-wrap justify-center gap-8">
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">

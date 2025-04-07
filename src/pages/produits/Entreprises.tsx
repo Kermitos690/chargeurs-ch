@@ -13,9 +13,9 @@ const ProduitsEntreprises = () => {
     {
       title: "Flottes d'entreprise",
       icon: <Building className="h-6 w-6 text-primary" />,
-      description: "Solutions adaptées aux entreprises disposant d'une flotte de véhicules électriques.",
+      description: "Solutions adaptées aux entreprises disposant d'une flotte d'appareils mobiles.",
       features: [
-        "Bornes de recharge multiples",
+        "Stations de recharge multiples",
         "Système de gestion centralisé",
         "Rapports de consommation détaillés",
         "Maintenance préventive",
@@ -23,9 +23,9 @@ const ProduitsEntreprises = () => {
       ]
     },
     {
-      title: "Parkings employés",
+      title: "Bureaux et open spaces",
       icon: <Users className="h-6 w-6 text-primary" />,
-      description: "Équipez votre parking d'entreprise pour permettre à vos employés de recharger leurs véhicules pendant les heures de travail.",
+      description: "Équipez vos bureaux pour permettre à vos employés de recharger leurs appareils pendant les heures de travail.",
       features: [
         "Identification par badge d'entreprise",
         "Facturation automatisée",
@@ -41,7 +41,7 @@ const ProduitsEntreprises = () => {
       features: [
         "Paiement par carte ou application",
         "Système de réservation",
-        "Bornes rapides (jusqu'à 150 kW)",
+        "Bornes rapides (jusqu'à 30W)",
         "Visibilité sur les plateformes de recharge",
         "Design personnalisable aux couleurs de votre entreprise"
       ]
@@ -61,28 +61,28 @@ const ProduitsEntreprises = () => {
   ];
 
   const benefits = [
-    "Réduction de l'empreinte carbone de votre entreprise",
+    "Amélioration de la productivité des collaborateurs",
     "Amélioration de l'image de marque et de l'attractivité",
     "Fidélisation des employés et attraction de talents",
-    "Conformité avec les nouvelles réglementations environnementales",
-    "Économies sur les coûts de carburant à long terme",
-    "Valorisation immobilière de vos bâtiments"
+    "Conformité avec les nouvelles politiques de travail hybride",
+    "Économies sur les achats de chargeurs et accessoires",
+    "Service apprécié par les visiteurs et clients"
   ];
 
   const caseStudies = [
     {
       company: "TechInnovate SA",
       location: "Genève",
-      challenge: "Équiper un nouveau siège social pour 200 employés dont 30% possèdent déjà des véhicules électriques.",
-      solution: "Installation de 40 points de charge avec système d'équilibrage intelligent et intégration à l'infrastructure énergétique du bâtiment.",
-      results: "Réduction de 45% des émissions de CO2 liées aux déplacements, satisfaction accrue des employés et distinction 'Entreprise verte' de la ville de Genève.",
+      challenge: "Équiper un nouveau siège social pour 200 employés toujours connectés et mobiles.",
+      solution: "Installation de 20 stations de recharge avec système d'équilibrage intelligent et intégration à l'infrastructure technologique du bâtiment.",
+      results: "Augmentation de 30% de la mobilité interne, satisfaction accrue des employés et distinction 'Entreprise innovante' de la ville de Genève.",
       image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60"
     },
     {
       company: "Grand Hotel Lac",
       location: "Montreux",
       challenge: "Offrir un service de recharge premium aux clients de l'hôtel 5 étoiles.",
-      solution: "10 bornes rapides dans le parking souterrain avec système de réservation intégré au processus de check-in de l'hôtel.",
+      solution: "10 stations de powerbanks dans le hall et les espaces communs avec système de réservation intégré au processus de check-in de l'hôtel.",
       results: "Nouvelle source de revenus, augmentation de la satisfaction client et avantage concurrentiel décisif dans le secteur de l'hôtellerie de luxe.",
       image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=60"
     }
@@ -97,7 +97,7 @@ const ProduitsEntreprises = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Solutions pour Entreprises</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Des solutions de recharge complètes et personnalisées pour accompagner 
-              votre entreprise dans sa transition vers la mobilité électrique.
+              votre entreprise dans sa transformation numérique et sa mobilité.
             </p>
           </div>
 
@@ -182,7 +182,7 @@ const ProduitsEntreprises = () => {
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-6">Prêt à électrifier votre entreprise ?</h2>
+            <h2 className="text-2xl font-bold mb-6">Prêt à équiper votre entreprise ?</h2>
             <p className="text-muted-foreground max-w-3xl mx-auto mb-8">
               Nos consultants spécialisés sont à votre disposition pour étudier vos besoins 
               et vous proposer une solution sur mesure adaptée à votre activité et à vos contraintes.
