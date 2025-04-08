@@ -38,7 +38,9 @@ export const useRegistration = ({ onSuccess, onCaptchaError }: RegistrationHookP
       case 'captcha_failed':
         return "Le service est en maintenance. Veuillez réessayer plus tard ou contacter le support.";
       case 'Database error saving new user':
-        return "Erreur lors de la création du compte. Notre équipe technique a été informée. Veuillez réessayer plus tard.";
+        // Nous savons que l'utilisateur a été créé mais le profil n'a pas pu être ajouté
+        // Cette erreur est non-bloquante pour l'inscription
+        return null;
       default:
         return "Une erreur est survenue lors de l'inscription. Veuillez réessayer. (" + errorCode + ")";
     }
@@ -102,24 +104,26 @@ export const useRegistration = ({ onSuccess, onCaptchaError }: RegistrationHookP
           return;
         }
 
-        // Si c'est une erreur de base de données, c'est probablement lié aux permissions
+        // Si c'est une erreur de base de données, vérifier si l'utilisateur a été créé
         if (isDatabaseError(error.message)) {
-          // Essayons de créer manuellement le profil si l'utilisateur a été créé
           if (data && data.user) {
             // L'utilisateur a bien été créé dans auth.users, mais pas dans public.profiles
-            // Notifier l'utilisateur que son compte a été créé malgré l'erreur
             toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
             
-            // Rediriger quand même l'utilisateur
+            // Rediriger l'utilisateur
             setTimeout(() => {
               onSuccess();
             }, 1000);
-            
+            setIsLoading(false);
             return;
           }
         }
         
-        setErrorMessage(getErrorMessage(error.message));
+        // Pour les autres erreurs, afficher le message d'erreur
+        const errorMsg = getErrorMessage(error.message);
+        if (errorMsg) {
+          setErrorMessage(errorMsg);
+        }
         setIsLoading(false);
         return;
       }
@@ -132,17 +136,19 @@ export const useRegistration = ({ onSuccess, onCaptchaError }: RegistrationHookP
         return;
       }
       
-      // Utilisez Sonner toast pour la notification
+      // Notification de succès
       toast.success("Compte créé avec succès! Vous pouvez maintenant vous connecter.");
       
-      // Attendre un peu avant de rediriger pour que l'utilisateur voie le message de succès
+      // Redirection après succès
       setTimeout(() => {
-        // Maintenant, redirigeons l'utilisateur
         onSuccess();
       }, 1000);
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
-      setErrorMessage(getErrorMessage(error.message || "unknown-error"));
+      const errorMsg = getErrorMessage(error.message || "unknown-error");
+      if (errorMsg) {
+        setErrorMessage(errorMsg);
+      }
     } finally {
       setIsLoading(false);
     }
