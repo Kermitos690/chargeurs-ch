@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
-import { signOut } from '@/services/firebase/auth';
+import { auth } from '@/services/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserData {
@@ -36,9 +36,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => 
       if (handleLogout) {
         await handleLogout();
       } else {
-        // Here was the issue - signOut() was being called without arguments
-        // but the implementation might expect an argument
-        await signOut(); // This function doesn't require arguments in Firebase Auth
+        // Call signOut from Firebase auth directly
+        await auth.signOut();
         toast({
           title: "Déconnexion réussie",
           description: "Vous avez été déconnecté avec succès."
