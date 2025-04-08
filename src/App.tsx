@@ -66,9 +66,9 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/a-propos" element={<About />} />
             <Route path="/stations" element={<StationsMap />} />
-            <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/abonnements" element={<Subscriptions />} />
             <Route path="/appointment" element={<Appointment />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
@@ -80,9 +80,16 @@ function App() {
             <Route path="/features/security" element={<Security />} />
             
             {/* About Sub-pages */}
+            <Route path="/a-propos/entreprise" element={<Company />} />
+            <Route path="/a-propos/equipe" element={<Team />} />
+            <Route path="/a-propos/histoire" element={<History />} />
+            
+            {/* Legacy routes to prevent 404s */}
+            <Route path="/about" element={<About />} />
             <Route path="/about/company" element={<Company />} />
             <Route path="/about/team" element={<Team />} />
             <Route path="/about/history" element={<History />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
             
             {/* Shop Routes */}
             <Route path="/produits" element={<ProductsPage />} />
