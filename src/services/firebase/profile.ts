@@ -21,30 +21,41 @@ export interface ProfileData {
  */
 export const updateUserProfile = async (userId: string, profileData: ProfileData) => {
   try {
+    console.log("Début de la mise à jour du profil pour", userId, "avec données:", profileData);
+    
     // 1. Mettre à jour dans Firestore
-    const userRef = doc(db, 'users', userId);
-    
-    // Vérifier si le document existe
-    const userDoc = await getDoc(userRef);
-    
-    if (!userDoc.exists()) {
-      // Créer le document s'il n'existe pas
-      await setDoc(userRef, {
-        ...profileData,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-    } else {
-      // Mettre à jour le document existant
-      await updateDoc(userRef, {
-        ...profileData,
-        updatedAt: new Date()
-      });
+    try {
+      const userRef = doc(db, 'users', userId);
+      
+      // Vérifier si le document existe
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        // Créer le document s'il n'existe pas
+        console.log("Création d'un nouveau profil utilisateur dans Firestore");
+        await setDoc(userRef, {
+          ...profileData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      } else {
+        // Mettre à jour le document existant
+        console.log("Mise à jour du profil utilisateur existant dans Firestore");
+        await updateDoc(userRef, {
+          ...profileData,
+          updatedAt: new Date()
+        });
+      }
+      console.log("Mise à jour Firestore réussie");
+    } catch (firestoreError) {
+      console.error('Erreur Firestore lors de la mise à jour du profil:', firestoreError);
+      // Continuer même si Firestore échoue, on va essayer Supabase
     }
     
     // 2. Mettre à jour dans Supabase si disponible
     try {
-      const { error } = await supabase
+      console.log("Tentative de mise à jour du profil dans Supabase");
+      const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
@@ -54,13 +65,17 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
       
-      if (error) {
-        console.error('Erreur Supabase lors de la mise à jour du profil:', error);
+      if (profileError) {
+        console.error('Erreur Supabase lors de la mise à jour du profil:', profileError);
+      } else {
+        console.log("Mise à jour du profil Supabase réussie");
       }
       
       // Si des détails utilisateur spécifiques sont fournis, les mettre à jour aussi
       if (profileData.address || profileData.city || profileData.postalCode || 
           profileData.firstName || profileData.lastName) {
+          
+        console.log("Mise à jour des détails utilisateur dans Supabase");
         const { error: detailsError } = await supabase
           .from('user_details')
           .upsert({
@@ -75,6 +90,8 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
           
         if (detailsError) {
           console.error('Erreur Supabase lors de la mise à jour des détails utilisateur:', detailsError);
+        } else {
+          console.log("Mise à jour des détails utilisateur Supabase réussie");
         }
       }
     } catch (supabaseError) {
@@ -85,14 +102,20 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
     // Si le nom a été mis à jour et que l'utilisateur est connecté,
     // mettre également à jour le profil Firebase Auth
     if (profileData.name && auth.currentUser) {
-      await updateFirebaseProfile(auth.currentUser, {
-        displayName: profileData.name
-      });
+      try {
+        console.log("Mise à jour du displayName dans Firebase Auth");
+        await updateFirebaseProfile(auth.currentUser, {
+          displayName: profileData.name
+        });
+        console.log("Mise à jour Firebase Auth réussie");
+      } catch (authError) {
+        console.error('Erreur lors de la mise à jour du profil Firebase Auth:', authError);
+      }
     }
     
     return { success: true };
   } catch (error: any) {
-    console.error('Erreur lors de la mise à jour du profil:', error);
+    console.error('Erreur globale lors de la mise à jour du profil:', error);
     return { 
       success: false, 
       error: error.message || 'Une erreur est survenue lors de la mise à jour du profil' 

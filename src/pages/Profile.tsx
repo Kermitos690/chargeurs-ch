@@ -43,9 +43,13 @@ const Profile = () => {
       
       setIsLoading(true);
       setError(null);
+      
       try {
+        console.log("Chargement des données de profil pour", user.uid);
+        
         // Utiliser d'abord les données de userData si disponibles
         if (userData) {
+          console.log("Données utilisateur disponibles depuis le contexte:", userData);
           setProfileData(userData);
           setProfileFormValues({
             name: userData.name || '',
@@ -58,9 +62,13 @@ const Profile = () => {
         }
         
         // Ensuite, récupérer les données complètes depuis Firestore/Supabase
+        console.log("Récupération des données complètes depuis le service de profil");
         const response = await getUserProfile(user.uid);
+        
         if (response.success && response.data) {
+          console.log("Données reçues du service de profil:", response.data);
           const data = response.data;
+          
           setProfileData(data);
           setProfileFormValues({
             name: data.name || user.displayName || '',
@@ -70,8 +78,18 @@ const Profile = () => {
             city: data.city || '',
             postalCode: data.postalCode || '',
           });
+          
+          console.log("Formulaire mis à jour avec les données:", {
+            name: data.name || user.displayName || '',
+            email: data.email || user.email || '',
+            phone: data.phone || '',
+            address: data.address || '',
+            city: data.city || '',
+            postalCode: data.postalCode || '',
+          });
         } else if (!response.success) {
           // Afficher l'erreur mais continuer avec les données disponibles
+          console.error("Erreur lors du chargement du profil:", response.error);
           setError(response.error || "Erreur lors du chargement du profil");
         }
       } catch (error: any) {

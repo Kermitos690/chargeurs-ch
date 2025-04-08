@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -43,9 +43,17 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
     defaultValues: initialValues,
   });
 
+  // Mettre à jour le formulaire lorsque les valeurs initiales changent
+  useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
+
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     try {
+      console.log("Envoi des données de profil:", data);
       const result = await updateUserProfile(userId, data);
       
       if (result.success) {
@@ -86,7 +94,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                 <FormItem>
                   <FormLabel>Nom complet</FormLabel>
                   <FormControl>
-                    <Input placeholder="Votre nom" {...field} />
+                    <Input placeholder="Votre nom" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -100,7 +108,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Votre email" {...field} />
+                    <Input placeholder="Votre email" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,7 +122,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                 <FormItem>
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Votre numéro de téléphone" {...field} />
+                    <Input placeholder="Votre numéro de téléphone" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +139,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                   <FormItem>
                     <FormLabel>Rue</FormLabel>
                     <FormControl>
-                      <Input placeholder="Votre adresse" {...field} />
+                      <Input placeholder="Votre adresse" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -146,7 +154,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                     <FormItem>
                       <FormLabel>Ville</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ville" {...field} />
+                        <Input placeholder="Ville" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -160,7 +168,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                     <FormItem>
                       <FormLabel>Code postal</FormLabel>
                       <FormControl>
-                        <Input placeholder="Code postal" {...field} />
+                        <Input placeholder="Code postal" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
