@@ -18,6 +18,7 @@ import Register from './pages/auth/Register';
 import ResetPassword from './pages/auth/ResetPassword';
 import NewPassword from './pages/auth/NewPassword';
 import NotFound from './pages/NotFound';
+import Unauthorized from './pages/Unauthorized';
 import Maintenance from './pages/Maintenance';
 import Installation from './pages/services/Installation';
 import RouteGuard from './components/RouteGuard';
@@ -41,6 +42,8 @@ import Publiques from './pages/produits/Publiques';
 import Entreprises from './pages/produits/Entreprises';
 import Accessoires from './pages/produits/Accessoires';
 import ProductSeed from './pages/admin/ProductSeed';
+import AdminLayout from './components/AdminLayout';
+import { AuthProvider } from './hooks/useAuth';
 
 // Nouvelles pages de fonctionnalités
 import Charging from './pages/features/Charging';
@@ -58,77 +61,82 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/stations" element={<StationsMap />} />
-          <Route path="/subscriptions" element={<Subscriptions />} />
-          <Route path="/appointment" element={<Appointment />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/features" element={<Features />} />
-          
-          {/* Feature Sub-pages */}
-          <Route path="/features/charging" element={<Charging />} />
-          <Route path="/features/connectivity" element={<Connectivity />} />
-          <Route path="/features/security" element={<Security />} />
-          
-          {/* About Sub-pages */}
-          <Route path="/about/company" element={<Company />} />
-          <Route path="/about/team" element={<Team />} />
-          <Route path="/about/history" element={<History />} />
-          
-          {/* Shop Routes */}
-          <Route path="/produits" element={<ProductsPage />} />
-          <Route path="/produits/:slug" element={<ProductDetail />} />
-          <Route path="/panier" element={<Cart />} />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
-          <Route path="/checkout/cancel" element={<CheckoutCancel />} />
-          
-          {/* Product Category Pages */}
-          <Route path="/produits/residentiels" element={<Residentiels />} />
-          <Route path="/produits/publiques" element={<Publiques />} />
-          <Route path="/produits/entreprises" element={<Entreprises />} />
-          <Route path="/produits/accessoires" element={<Accessoires />} />
-          
-          {/* Services Routes */}
-          <Route path="/services/installation" element={<Installation />} />
-          
-          {/* Legal Routes */}
-          <Route path="/confidentialite" element={<Confidentialite />} />
-          <Route path="/conditions" element={<Conditions />} />
-          <Route path="/carrieres" element={<Carrieres />} />
-          <Route path="/cookies" element={<Cookies />} />
-          <Route path="/sitemap" element={<Sitemap />} />
-          
-          {/* Auth Routes - Correction des chemins */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/new-password" element={<NewPassword />} />
-          
-          {/* Protected Routes */}
-          <Route element={<RouteGuard />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/rentals" element={<Rentals />} />
-          </Route>
-          
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/powerbanks" element={<AdminPowerBanks />} />
-          <Route path="/admin/seed-products" element={<ProductSeed />} />
-          
-          {/* Error Pages */}
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/stations" element={<StationsMap />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/appointment" element={<Appointment />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/features" element={<Features />} />
+            
+            {/* Feature Sub-pages */}
+            <Route path="/features/charging" element={<Charging />} />
+            <Route path="/features/connectivity" element={<Connectivity />} />
+            <Route path="/features/security" element={<Security />} />
+            
+            {/* About Sub-pages */}
+            <Route path="/about/company" element={<Company />} />
+            <Route path="/about/team" element={<Team />} />
+            <Route path="/about/history" element={<History />} />
+            
+            {/* Shop Routes */}
+            <Route path="/produits" element={<ProductsPage />} />
+            <Route path="/produits/:slug" element={<ProductDetail />} />
+            <Route path="/panier" element={<Cart />} />
+            <Route path="/checkout/success" element={<CheckoutSuccess />} />
+            <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+            
+            {/* Product Category Pages */}
+            <Route path="/produits/residentiels" element={<Residentiels />} />
+            <Route path="/produits/publiques" element={<Publiques />} />
+            <Route path="/produits/entreprises" element={<Entreprises />} />
+            <Route path="/produits/accessoires" element={<Accessoires />} />
+            
+            {/* Services Routes */}
+            <Route path="/services/installation" element={<Installation />} />
+            
+            {/* Legal Routes */}
+            <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route path="/conditions" element={<Conditions />} />
+            <Route path="/carrieres" element={<Carrieres />} />
+            <Route path="/cookies" element={<Cookies />} />
+            <Route path="/sitemap" element={<Sitemap />} />
+            
+            {/* Auth Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/new-password" element={<NewPassword />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            
+            {/* Protected Routes */}
+            <Route element={<RouteGuard />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/rentals" element={<Rentals />} />
+            </Route>
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="powerbanks" element={<AdminPowerBanks />} />
+              <Route path="seed-products" element={<ProductSeed />} />
+            </Route>
+            
+            {/* Error Pages */}
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

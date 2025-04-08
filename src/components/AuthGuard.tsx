@@ -7,10 +7,11 @@ import { Loader2 } from 'lucide-react';
 interface AuthGuardProps {
   children: React.ReactNode;
   adminOnly?: boolean;
+  superAdminOnly?: boolean;
 }
 
-const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
-  const { user, loading, isAdmin } = useAuth();
+const AuthGuard = ({ children, adminOnly = false, superAdminOnly = false }: AuthGuardProps) => {
+  const { user, loading, isAdmin, isSuperAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -25,7 +26,11 @@ const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  if (adminOnly && !isAdmin) {
+  if (superAdminOnly && !isSuperAdmin) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  if (adminOnly && !isAdmin && !isSuperAdmin) {
     return <Navigate to="/unauthorized" replace />;
   }
 

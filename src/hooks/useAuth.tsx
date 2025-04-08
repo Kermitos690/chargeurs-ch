@@ -8,6 +8,7 @@ interface AuthContextProps {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   userData: any | null;
 }
 
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextProps>({
   session: null,
   loading: true,
   isAdmin: false,
+  isSuperAdmin: false,
   userData: null
 });
 
@@ -24,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [userData, setUserData] = useState<any | null>(null);
 
   useEffect(() => {
@@ -52,6 +55,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .maybeSingle();
           
         setIsAdmin(!!adminData);
+        
+        // Check if user is superadmin
+        setIsSuperAdmin(adminData?.role === 'superadmin');
         
         // Get user profile data
         const { data: profileData } = await supabase
@@ -93,6 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .maybeSingle();
             
           setIsAdmin(!!adminData);
+          setIsSuperAdmin(adminData?.role === 'superadmin');
           
           // Get user profile data
           const { data: profileData } = await supabase
@@ -115,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         setSession(null);
         setIsAdmin(false);
+        setIsSuperAdmin(false);
         setUserData(null);
       }
     });
@@ -126,7 +134,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, userData }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, isSuperAdmin, userData }}>
       {children}
     </AuthContext.Provider>
   );

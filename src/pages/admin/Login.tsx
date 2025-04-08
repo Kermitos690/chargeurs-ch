@@ -15,11 +15,11 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Battery, Lock, Loader2, Settings } from 'lucide-react';
+import { Battery, Lock, Loader2, Settings, Shield, Key } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { loginWithSupabase } from '@/services/supabase/auth';
-import { createAdminImmediately } from '@/services/supabase/setupAdmin';
+import { createInitialAdmin, getDefaultAdminCredentials, checkAdminAccountsExist } from '@/services/supabase/initialAdmin';
 
 const formSchema = z.object({
   email: z.string().email('Adresse email invalide'),
@@ -32,6 +32,7 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
+  const [adminExists, setAdminExists] = useState(true);
 
   useEffect(() => {
     // Pulse effect for the logo
@@ -39,6 +40,15 @@ const AdminLogin = () => {
       setIsPulsing(true);
       setTimeout(() => setIsPulsing(false), 1500);
     }, 3000);
+
+    // Vérifier si des comptes admin existent déjà
+    const checkAdmins = async () => {
+      const exists = await checkAdminAccountsExist();
+      setAdminExists(exists);
+    };
+    
+    checkAdmins();
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -83,17 +93,50 @@ const AdminLogin = () => {
   const handleCreateAdmin = async () => {
     setIsCreatingAdmin(true);
     try {
-      const result = await createAdminImmediately();
-      if (result.success) {
+      const result = await createInitialAdmin();
+      
+      if (result) {
+        // Le compte admin a été créé avec succès
+        const credentials = getDefaultAdminCredentials();
+        
         // Préremplir le formulaire avec les identifiants créés
-        form.setValue('email', 'chargeurs@proton.me');
-        form.setValue('password', 'mdr 11111111');
+        form.setValue('email', credentials.email);
+        form.setValue('password', credentials.password);
+        
+        toast({
+          title: 'Compte administrateur créé',
+          description: 'Les identifiants ont été insérés dans le formulaire',
+        });
+        
+        setAdminExists(true);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Erreur',
+          description: 'Impossible de créer le compte administrateur',
+        });
       }
     } catch (error) {
       console.error("Erreur lors de la création du compte admin:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la création du compte',
+      });
     } finally {
       setIsCreatingAdmin(false);
     }
+  };
+
+  const fillDefaultCredentials = () => {
+    const credentials = getDefaultAdminCredentials();
+    form.setValue('email', credentials.email);
+    form.setValue('password', credentials.password);
+    
+    toast({
+      title: 'Identifiants remplis',
+      description: 'Utilisez ces identifiants pour vous connecter',
+    });
   };
 
   // Animation variants
@@ -227,27 +270,42 @@ const AdminLogin = () => {
             </form>
           </Form>
           
-          <div className="mt-4 flex justify-center">
-            <Button
-              type="button"
-              onClick={handleCreateAdmin}
-              className="text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 focus:ring-1 focus:ring-gray-400"
-              variant="outline"
-              size="sm"
-              disabled={isCreatingAdmin}
-            >
-              {isCreatingAdmin ? (
-                <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  Création...
-                </>
-              ) : (
-                <>
-                  <Settings className="mr-1 h-3 w-3" />
-                  Créer compte admin
-                </>
-              )}
-            </Button>
+          <div className="mt-4 flex justify-center gap-2">
+            {!adminExists && (
+              <Button
+                type="button"
+                onClick={handleCreateAdmin}
+                className="text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 focus:ring-1 focus:ring-gray-400"
+                variant="outline"
+                size="sm"
+                disabled={isCreatingAdmin}
+              >
+                {isCreatingAdmin ? (
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    Création...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-1 h-3 w-3" />
+                    Créer compte admin
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {adminExists && (
+              <Button
+                type="button"
+                onClick={fillDefaultCredentials}
+                className="text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 focus:ring-1 focus:ring-gray-400"
+                variant="outline"
+                size="sm"
+              >
+                <Key className="mr-1 h-3 w-3" />
+                Afficher identifiants
+              </Button>
+            )}
           </div>
         </motion.div>
 
