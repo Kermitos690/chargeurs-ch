@@ -8,7 +8,21 @@ import {
   SheetTrigger 
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  User, 
+  Settings, 
+  HelpCircle, 
+  LogOut, 
+  ShoppingCart, 
+  Home, 
+  Info, 
+  Phone, 
+  Store, 
+  Shield, 
+  Layers 
+} from 'lucide-react';
 
 type NavItem = {
   path: string;
@@ -44,7 +58,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
         className="pt-16 pb-6 w-full h-[90vh] overflow-y-auto bg-white border-none shadow-lg"
       >
         <div className="flex flex-col h-full">
+          {/* Top Section with Authentication & Main Navigation */}
           <div className="space-y-6 p-4">
+            {/* Auth Buttons */}
             {!user && (
               <div className="flex flex-col space-y-2 mb-6">
                 <SheetClose asChild>
@@ -70,45 +86,137 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
               </div>
             )}
             
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium text-muted-foreground mb-2">Navigation</h4>
-              {navItems.map((item) => (
-                <SheetClose key={item.path} asChild>
-                  <NavLink 
-                    to={item.path} 
-                    className={({ isActive }) => 
-                      `block p-2 rounded-md ${isActive 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover:bg-accent"}`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                </SheetClose>
-              ))}
+            {/* Main Navigation Section */}
+            <div className="space-y-1 rounded-md border border-border p-3 bg-muted/20">
+              <h4 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Navigation</h4>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Home className="mr-2 h-4 w-4" />
+                  Accueil
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/features" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Layers className="mr-2 h-4 w-4" />
+                  Fonctionnalités
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/about" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Info className="mr-2 h-4 w-4" />
+                  À propos
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/contact" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Phone className="mr-2 h-4 w-4" />
+                  Contact
+                </NavLink>
+              </SheetClose>
             </div>
             
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium text-muted-foreground mb-2">Boutique</h4>
-              {productItems.map((item) => (
-                <SheetClose key={item.path} asChild>
-                  <NavLink 
-                    to={item.path} 
-                    className={({ isActive }) => 
-                      `block p-2 rounded-md ${isActive 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover:bg-accent"}`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                </SheetClose>
-              ))}
+            {/* Products Section */}
+            <div className="space-y-1 rounded-md border border-border p-3 bg-muted/20">
+              <h4 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Boutique</h4>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/produits" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Store className="mr-2 h-4 w-4" />
+                  Tous les produits
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/produits/accessoires" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Accessoires
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/produits/residentiels" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Home className="mr-2 h-4 w-4" />
+                  Résidentiels
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/produits/entreprises" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Layers className="mr-2 h-4 w-4" />
+                  Entreprises
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink 
+                  to="/produits/publiques" 
+                  className={({ isActive }) => 
+                    `flex items-center p-2 rounded-md ${isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-accent"}`
+                  }
+                >
+                  <Shield className="mr-2 h-4 w-4" />
+                  Publiques
+                </NavLink>
+              </SheetClose>
             </div>
             
+            {/* User Account Section */}
             {user && (
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium text-muted-foreground mb-2">Mon compte</h4>
+              <div className="space-y-1 rounded-md border border-border p-3 bg-muted/20">
+                <h4 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Mon compte</h4>
                 <SheetClose asChild>
                   <NavLink 
                     to="/profile" 
@@ -148,17 +256,20 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                     Aide
                   </NavLink>
                 </SheetClose>
-                <button 
-                  className="flex items-center w-full p-2 rounded-md text-left hover:bg-accent"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Se déconnecter
-                </button>
+                <SheetClose asChild>
+                  <button 
+                    className="flex items-center w-full p-2 rounded-md text-left hover:bg-accent"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Se déconnecter
+                  </button>
+                </SheetClose>
               </div>
             )}
           </div>
           
+          {/* Footer Section */}
           <div className="mt-auto p-4 border-t">
             <div className="text-center">
               <p className="text-sm text-muted-foreground">© 2025 Chargeurs.ch</p>
@@ -183,4 +294,3 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
 };
 
 export default MobileNavigation;
-
