@@ -4,8 +4,7 @@ import {
   Drawer, 
   DrawerClose, 
   DrawerContent,
-  DrawerTrigger,
-  DrawerOverlay
+  DrawerTrigger
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from 'lucide-react';
@@ -48,30 +47,28 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="p-0 h-[85vh] rounded-t-xl transition-all duration-300">
-        <DrawerOverlay className="bg-black/60 backdrop-blur-sm animate-in fade-in-75 duration-300" />
+      <DrawerContent className="p-0 h-[90vh] rounded-t-xl transition-all duration-300 border-t-2 border-green-600">
+        <div className="h-1.5 w-12 rounded-full bg-gray-300 mx-auto my-2 animate-in fade-in zoom-in-95 duration-300" />
         
-        <div className="h-2 w-12 rounded-full bg-gray-300 mx-auto mb-2 mt-2 animate-in fade-in zoom-in-95 duration-300" />
-        
-        <div className="overflow-y-auto h-full pb-safe">
+        <div className="overflow-y-auto h-full pb-safe custom-scrollbar">
           {/* Main Navigation */}
-          <div className="animate-in slide-in-from-bottom-2 fade-in duration-500 delay-75">
+          <div className="animate-in slide-in-from-top duration-300 delay-75">
             <MenuSection title="Navigation" items={mainNavItems} />
           </div>
           
-          <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-700 delay-150" />
+          <div className="h-px bg-gray-200 mx-6 my-2" />
           
           {/* Boutique Section */}
-          <div className="animate-in slide-in-from-bottom-2 fade-in duration-500 delay-200">
+          <div className="animate-in slide-in-from-top duration-300 delay-150">
             <MenuSection title="Boutique" items={shopNavItems} />
           </div>
           
           {user && (
             <>
-              <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-700 delay-300" />
+              <div className="h-px bg-gray-200 mx-6 my-2" />
               
               {/* User Account Section */}
-              <div className="animate-in slide-in-from-bottom-2 fade-in duration-500 delay-350">
+              <div className="animate-in slide-in-from-top duration-300 delay-225">
                 <UserSection handleLogout={handleLogout} />
               </div>
             </>
@@ -79,17 +76,17 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
           
           {!user && (
             <>
-              <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-700 delay-300" />
+              <div className="h-px bg-gray-200 mx-6 my-2" />
               
               {/* Authentication Section */}
-              <div className="animate-in slide-in-from-bottom-2 fade-in duration-500 delay-350">
+              <div className="animate-in slide-in-from-top duration-300 delay-225">
                 <AuthSection />
               </div>
             </>
           )}
           
           {/* Footer */}
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-450">
+          <div className="animate-in fade-in duration-300 delay-300">
             <MenuFooter />
           </div>
         </div>
