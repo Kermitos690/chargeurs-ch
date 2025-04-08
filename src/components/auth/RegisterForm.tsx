@@ -28,6 +28,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
       case 'email-already-in-use':
+      case 'User already registered':
         return "Cette adresse email est déjà utilisée par un autre compte";
       case 'invalid-email':
         return "Format d'adresse email invalide";
@@ -85,24 +86,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       if (error) {
         console.error("Erreur lors de l'inscription:", error);
         setErrorMessage(getErrorMessage(error.message));
+        setIsLoading(false);
         return;
       }
       
-      console.log("Compte créé avec succès");
+      console.log("Compte créé avec succès", data);
       
-      // Create a user profile in the profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user?.id,
-          email: email,
-          name: name,
-          phone: phone,
-          subscription_type: 'basic'
-        });
-      
-      if (profileError) {
-        console.error("Erreur lors de la création du profil:", profileError);
+      if (!data.user) {
+        setErrorMessage("Erreur lors de la création du compte");
+        setIsLoading(false);
+        return;
       }
       
       toast({
@@ -110,11 +103,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         description: "Bienvenue sur chargeurs.ch !",
       });
       
+      // Maintenant, redirigeons l'utilisateur
       onSuccess();
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
       setErrorMessage(getErrorMessage(error.message));
-    } finally {
       setIsLoading(false);
     }
   };

@@ -6,11 +6,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RegisterHeader from '@/components/auth/RegisterHeader';
 import RegisterForm from '@/components/auth/RegisterForm';
+import { toast } from 'sonner';
 
 const Register = () => {
   const navigate = useNavigate();
   
   const handleRegisterSuccess = () => {
+    toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
     navigate('/stations');
   };
 

@@ -58,29 +58,16 @@ export const getUserById = async (id: string): Promise<User | null> => {
 
 export const createUser = async (userData: Partial<User>): Promise<User | null> => {
   try {
-    // Create auth user (this would typically happen through signup)
-    // For admins creating users, you would need to use a server-side function
-    // This is a simplified version for demo purposes
+    // Nous ne créons pas directement les utilisateurs via la table profiles
+    // car il faut d'abord créer l'utilisateur dans auth puis la fonction trigger
+    // s'occupera de créer le profil
     
-    const { data, error } = await supabase.from('profiles').insert({
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      subscription_type: userData.subscriptionType
-    }).select().single();
+    // Erreur: TS erreur car subscription_type nécessite un type spécifique
+    const subscriptionType = userData.subscriptionType || 'basic';
     
-    if (error) {
-      throw error;
-    }
+    toast.error("L'API d'administration ne peut pas créer directement des comptes utilisateurs. Les utilisateurs doivent s'inscrire via le formulaire d'inscription.");
     
-    return {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      subscriptionType: data.subscription_type,
-      createdAt: data.created_at
-    };
+    return null;
   } catch (error: any) {
     console.error("Erreur lors de la création de l'utilisateur:", error);
     toast.error(`Erreur: ${error.message || "Impossible de créer l'utilisateur"}`);
@@ -96,7 +83,7 @@ export const updateUser = async (id: string, userData: Partial<User>): Promise<U
         name: userData.name,
         email: userData.email,
         phone: userData.phone,
-        subscription_type: userData.subscriptionType,
+        subscription_type: userData.subscriptionType || 'basic',
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
