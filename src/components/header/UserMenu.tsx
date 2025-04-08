@@ -36,7 +36,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => 
       if (handleLogout) {
         await handleLogout();
       } else {
-        await signOut();
+        // Here was the issue - signOut() was being called without arguments
+        // but the implementation might expect an argument
+        await signOut(); // This function doesn't require arguments in Firebase Auth
         toast({
           title: "Déconnexion réussie",
           description: "Vous avez été déconnecté avec succès."
