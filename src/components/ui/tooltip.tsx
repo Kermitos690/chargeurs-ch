@@ -4,11 +4,8 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
-const TooltipProvider = ({ children, delayDuration = 200, ...props }) => (
-  <TooltipPrimitive.Provider delayDuration={delayDuration} {...props}>
-    {children}
-  </TooltipPrimitive.Provider>
-)
+// Correction du composant TooltipProvider avec des types TypeScript appropriés
+const TooltipProvider = TooltipPrimitive.Provider
 
 const Tooltip = TooltipPrimitive.Root
 
