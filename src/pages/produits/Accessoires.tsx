@@ -1,144 +1,117 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import ProductCard from '@/components/shop/ProductCard';
-import { Loader2, Search, Filter } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { getProductsByCategory } from '@/services/products';
+import { getCategories, getProducts } from '@/services/products';
+import { useProductFilters } from '@/hooks/useProductFilters';
 
-const sortOptions = [
-  { value: 'price-asc', label: 'Prix croissant' },
-  { value: 'price-desc', label: 'Prix décroissant' },
-  { value: 'newest', label: 'Plus récent' },
-  { value: 'popular', label: 'Popularité' },
-];
+// Composants de filtrage et d'affichage
+import ProductsHeader from '@/components/shop/products/ProductsHeader';
+import FilterSidebar from '@/components/shop/products/FilterSidebar';
+import ProductsGrid from '@/components/shop/products/ProductsGrid';
+import ProductsPagination from '@/components/shop/products/ProductsPagination';
+import MobileFilterToggle from '@/components/shop/products/MobileFilterToggle';
+import ViewModeToggle from '@/components/shop/products/ViewModeToggle';
 
 const Accessoires: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-
+  const [totalPages, setTotalPages] = useState(1);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [totalCount, setTotalCount] = useState(0);
+  
+  // Utiliser notre hook de filtrage
+  const { filters, handleFilterChange, resetFilters } = useProductFilters();
+  
+  // Charger les catégories
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des catégories:', error);
+      }
+    };
+    
+    loadCategories();
+  }, []);
+
+  // Charger les produits avec filtres
+  useEffect(() => {
+    const loadProducts = async () => {
       setLoading(true);
       try {
-        // Fetch products from the accessories category
-        // In a real app, you would use the category ID or slug
-        const data = await getProductsByCategory('accessories');
-        setProducts(data);
-        setFilteredProducts(data);
+        // Configurer les filtres spécifiques aux accessoires
+        const accessoireFilters = {
+          ...filters,
+          category: 'accessories' // Fixer la catégorie sur 'accessories'
+        };
+        
+        const result = await getProducts(accessoireFilters);
+        setProducts(result.products);
+        setTotalPages(result.totalPages);
+        setTotalCount(result.totalCount || 0);
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
       } finally {
         setLoading(false);
       }
     };
+    
+    loadProducts();
+  }, [filters]);
 
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    // Filter and sort products based on search query and sort option
-    let filtered = [...products];
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        product =>
-          product.name.toLowerCase().includes(query) ||
-          (product.description && product.description.toLowerCase().includes(query))
-      );
-    }
-
-    // Sort products
-    if (sortOption) {
-      switch (sortOption) {
-        case 'price-asc':
-          filtered.sort((a, b) => (a.sale_price || a.price) - (b.sale_price || b.price));
-          break;
-        case 'price-desc':
-          filtered.sort((a, b) => (b.sale_price || b.price) - (a.sale_price || a.price));
-          break;
-        case 'newest':
-          filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-          break;
-        case 'popular':
-          // In a real app, you would sort by popularity metrics
-          break;
-        default:
-          break;
-      }
-    }
-
-    setFilteredProducts(filtered);
-  }, [products, searchQuery, sortOption]);
+  const handlePageChange = (page: number) => {
+    handleFilterChange({ page });
+    window.scrollTo(0, 0);
+  };
 
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-6">Accessoires pour Powerbanks</h1>
+        <ProductsHeader 
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          totalCount={totalCount}
+          pageTitle="Accessoires pour Powerbanks"
+        />
         
-        {/* Filters and search */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Input
-              placeholder="Rechercher des accessoires..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          </div>
-          <Select value={sortOption} onValueChange={setSortOption}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Trier par" />
-            </SelectTrigger>
-            <SelectContent>
-              {sortOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex justify-between mb-4">
+          <MobileFilterToggle onClick={() => setIsFilterMenuOpen(true)} />
+          <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
         </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Filtres latéraux - Notez que nous fixons la catégorie sur 'accessories' */}
+          <FilterSidebar 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            categories={categories}
+            isOpen={isFilterMenuOpen}
+            onClose={() => setIsFilterMenuOpen(false)}
+          />
+          
+          {/* Liste des produits */}
+          <div className="flex-grow">
+            <ProductsGrid 
+              products={products}
+              loading={loading}
+              viewMode={viewMode}
+              onResetFilters={resetFilters}
+            />
+            
+            {/* Pagination */}
+            <ProductsPagination 
+              currentPage={filters.page || 1}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-2">Aucun accessoire trouvé</h2>
-            <p className="text-muted-foreground mb-4">
-              {searchQuery
-                ? `Aucun résultat ne correspond à "${searchQuery}"`
-                : "Aucun accessoire n'est disponible pour le moment."}
-            </p>
-            {searchQuery && (
-              <Button variant="outline" onClick={() => setSearchQuery('')}>
-                Effacer la recherche
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </Layout>
   );

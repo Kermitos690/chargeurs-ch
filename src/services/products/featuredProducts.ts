@@ -17,7 +17,8 @@ export const getSimilarProducts = async (productId: string, categoryId: string, 
 
     if (error) throw error;
 
-    return data;
+    // Convertir le type de données retourné
+    return data as unknown as Product[];
   } catch (error) {
     console.error('Erreur lors de la récupération des produits similaires:', error);
     throw error;
@@ -38,7 +39,8 @@ export const getFeaturedProducts = async (limit = 4): Promise<Product[]> => {
 
     if (error) throw error;
 
-    return data;
+    // Convertir le type de données retourné
+    return data as unknown as Product[];
   } catch (error) {
     console.error('Erreur lors de la récupération des produits en vedette:', error);
     throw error;

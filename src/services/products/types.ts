@@ -12,7 +12,7 @@ export interface ProductFilters {
 }
 
 export interface ProductsResponse {
-  products: any[];
+  products: Product[];
   totalCount: number | null;
   currentPage: number;
   totalPages: number;

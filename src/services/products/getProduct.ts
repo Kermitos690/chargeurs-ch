@@ -20,7 +20,8 @@ export const getProductBySlug = async (slug: string): Promise<Product> => {
 
     if (error) throw error;
 
-    return data;
+    // Convertir le type de données retourné
+    return data as unknown as Product;
   } catch (error) {
     console.error('Erreur lors de la récupération du produit:', error);
     throw error;
@@ -45,7 +46,8 @@ export const getProductById = async (id: string): Promise<Product> => {
 
     if (error) throw error;
 
-    return data;
+    // Convertir le type de données retourné
+    return data as unknown as Product;
   } catch (error) {
     console.error('Erreur lors de la récupération du produit:', error);
     throw error;

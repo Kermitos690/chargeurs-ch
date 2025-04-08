@@ -71,8 +71,11 @@ export const getProducts = async (filters: ProductFilters = {}): Promise<Product
 
     if (error) throw error;
 
+    // Assurer la compatibilité de type avec l'interface Product
+    const typedProducts = data as unknown as Product[];
+
     return {
-      products: data,
+      products: typedProducts,
       totalCount: count,
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit),
@@ -98,7 +101,8 @@ export const getProductsByCategory = async (categorySlug: string): Promise<Produ
 
     if (error) throw error;
 
-    return data || [];
+    // Convertir le type de données retourné
+    return (data || []) as unknown as Product[];
   } catch (error) {
     console.error(`Erreur lors de la récupération des produits de la catégorie ${categorySlug}:`, error);
     return [];
