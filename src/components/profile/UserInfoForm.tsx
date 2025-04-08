@@ -21,7 +21,7 @@ import { updateUserProfile } from '@/services/firebase/profile';
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
   email: z.string().email({ message: 'Adresse email invalide' }),
-  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().nullable(),
+  phone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   postalCode: z.string().optional().nullable(),
@@ -46,6 +46,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
   // Mettre à jour le formulaire lorsque les valeurs initiales changent
   useEffect(() => {
     if (initialValues) {
+      console.log("Réinitialisation du formulaire avec les valeurs:", initialValues);
       form.reset(initialValues);
     }
   }, [initialValues, form]);
@@ -53,8 +54,18 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     try {
-      console.log("Envoi des données de profil:", data);
-      const result = await updateUserProfile(userId, data);
+      console.log("Envoi des données de profil complètes:", data);
+      
+      // S'assurer que les valeurs vides sont envoyées comme des chaînes vides plutôt que null
+      const cleanedData = {
+        ...data,
+        phone: data.phone || "",
+        address: data.address || "",
+        city: data.city || "",
+        postalCode: data.postalCode || "",
+      };
+      
+      const result = await updateUserProfile(userId, cleanedData);
       
       if (result.success) {
         toast({

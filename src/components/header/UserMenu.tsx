@@ -41,7 +41,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => 
           title: "Déconnexion réussie",
           description: "Vous avez été déconnecté avec succès."
         });
-        // Add path parameter to navigate
+        // Ajouter le paramètre de chemin à navigate
         navigate('/auth/login');
       }
     } catch (error) {

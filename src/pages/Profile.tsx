@@ -59,6 +59,15 @@ const Profile = () => {
             city: userData.city || '',
             postalCode: userData.postalCode || '',
           });
+          
+          console.log("Formulaire initialisé avec les données du contexte:", {
+            name: userData.name || '',
+            email: userData.email || user.email || '',
+            phone: userData.phone || '',
+            address: userData.address || '',
+            city: userData.city || '',
+            postalCode: userData.postalCode || '',
+          });
         }
         
         // Ensuite, récupérer les données complètes depuis Firestore/Supabase
@@ -70,23 +79,20 @@ const Profile = () => {
           const data = response.data;
           
           setProfileData(data);
-          setProfileFormValues({
-            name: data.name || user.displayName || '',
-            email: data.email || user.email || '',
-            phone: data.phone || '',
-            address: data.address || '',
-            city: data.city || '',
-            postalCode: data.postalCode || '',
-          });
           
-          console.log("Formulaire mis à jour avec les données:", {
+          // Utiliser toutes les données disponibles
+          const formValues = {
             name: data.name || user.displayName || '',
             email: data.email || user.email || '',
             phone: data.phone || '',
             address: data.address || '',
             city: data.city || '',
             postalCode: data.postalCode || '',
-          });
+          };
+          
+          setProfileFormValues(formValues);
+          
+          console.log("Formulaire mis à jour avec les données complètes:", formValues);
         } else if (!response.success) {
           // Afficher l'erreur mais continuer avec les données disponibles
           console.error("Erreur lors du chargement du profil:", response.error);
