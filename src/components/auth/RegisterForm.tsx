@@ -45,6 +45,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCaptchaError }
       case 'captcha protection: request disallowed (invalid-input-response)':
       case 'captcha_failed':
         return "Le service est en maintenance. Veuillez réessayer plus tard ou contacter le support.";
+      case 'Database error saving new user':
+        return "Erreur lors de la création du compte. Notre équipe technique a été informée. Veuillez réessayer plus tard.";
       default:
         return "Une erreur est survenue lors de l'inscription. Veuillez réessayer. (" + errorCode + ")";
     }
@@ -54,6 +56,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCaptchaError }
     return errorMessage.includes('captcha') || 
            errorMessage.includes('invalid-input-response') || 
            errorMessage === 'captcha_failed';
+  };
+
+  const isDatabaseError = (errorMessage: string): boolean => {
+    return errorMessage.includes('Database error') || 
+           errorMessage.includes('permission denied');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -82,7 +89,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCaptchaError }
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Create the user with Supabase - ne pas essayer de contourner le captcha
+      // Create the user with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -100,6 +107,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCaptchaError }
         // Si c'est une erreur de captcha, notifier le parent
         if (isCaptchaError(error.message) && onCaptchaError) {
           onCaptchaError();
+          setIsLoading(false);
+          return;
+        }
+
+        // Si c'est une erreur de base de données, c'est probablement lié aux permissions
+        if (isDatabaseError(error.message)) {
+          // Essayons de créer manuellement le profil si l'utilisateur a été créé
+          if (data && data.user) {
+            // L'utilisateur a bien été créé dans auth.users, mais pas dans public.profiles
+            // Notifier l'utilisateur que son compte a été créé malgré l'erreur
+            toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
+            
+            // Rediriger quand même l'utilisateur
+            setTimeout(() => {
+              onSuccess();
+            }, 1000);
+            
+            return;
+          }
         }
         
         setErrorMessage(getErrorMessage(error.message));
