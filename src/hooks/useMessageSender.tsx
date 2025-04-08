@@ -24,6 +24,16 @@ export const useMessageSender = (
     try {
       setLoading(true);
       
+      // Fetch the user's profile to get their name
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single();
+      
+      const userName = profileError ? (user.email?.split('@')[0] || 'Utilisateur') : 
+                      (profileData?.name || user.email?.split('@')[0] || 'Utilisateur');
+      
       // Optimistic update - add message to UI immediately
       const optimisticId = crypto.randomUUID();
       const optimisticMessage: Message = {
@@ -33,7 +43,7 @@ export const useMessageSender = (
         is_assistant: false,
         created_at: new Date().toISOString(),
         room_id: 'general',
-        user_name: user.email?.split('@')[0] || 'Utilisateur'
+        user_name: userName
       };
       
       setMessages(prev => [...prev, optimisticMessage]);
@@ -42,7 +52,7 @@ export const useMessageSender = (
       const { data: messageSent, error: messageError } = await supabase
         .from('messages')
         .insert(userMessage)
-        .select('*, profiles(name)');
+        .select('*');
       
       if (messageError) {
         // Remove optimistic message on error
@@ -63,7 +73,7 @@ export const useMessageSender = (
                   is_assistant: false,
                   created_at: messageSent[0].created_at,
                   room_id: messageSent[0].room_id,
-                  user_name: messageSent[0].profiles?.name || user.email?.split('@')[0] || 'Utilisateur'
+                  user_name: userName
                 }
               : msg
           )

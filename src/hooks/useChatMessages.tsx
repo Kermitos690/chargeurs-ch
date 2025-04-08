@@ -15,13 +15,62 @@ export interface Message {
   user_name?: string;
 }
 
+export interface ActiveUser {
+  user_id: string;
+  name?: string;
+  last_active: string;
+}
+
 export const useChatMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [activeUsers, setActiveUsers] = useState<ActiveUser[]>([]);
   const { user } = useSupabaseAuth();
   const { fetchMessages } = useMessagesFetcher(setMessages);
   const { sendMessage } = useMessageSender(user, setMessages, setLoading);
+
+  // Fonction pour simuler les utilisateurs actifs
+  // Dans une application réelle, cela utiliserait Supabase Presence
+  useEffect(() => {
+    // Simuler quelques utilisateurs actifs pour la démo
+    if (user) {
+      const mockActiveUsers: ActiveUser[] = [
+        {
+          user_id: user.id,
+          name: user.email?.split('@')[0] || 'Vous',
+          last_active: new Date().toISOString()
+        }
+      ];
+      
+      // Ajouter des utilisateurs fictifs pour la démo
+      if (Math.random() > 0.5) {
+        mockActiveUsers.push({
+          user_id: 'user-2',
+          name: 'Marie',
+          last_active: new Date().toISOString()
+        });
+      }
+      
+      if (Math.random() > 0.3) {
+        mockActiveUsers.push({
+          user_id: 'user-3',
+          name: 'Jean',
+          last_active: new Date().toISOString()
+        });
+      }
+      
+      if (Math.random() > 0.7) {
+        mockActiveUsers.push({
+          user_id: 'user-4',
+          name: 'Sophie',
+          last_active: new Date().toISOString()
+        });
+      }
+      
+      setActiveUsers(mockActiveUsers);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -61,5 +110,5 @@ export const useChatMessages = () => {
     setUnreadCount(0);
   };
 
-  return { messages, loading, sendMessage, unreadCount, markAllAsRead };
+  return { messages, loading, sendMessage, unreadCount, markAllAsRead, activeUsers };
 };

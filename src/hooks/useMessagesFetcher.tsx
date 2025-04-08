@@ -12,9 +12,10 @@ export const useMessagesFetcher = (
       // Afficher un toast de chargement
       const loadingToast = toast.loading('Chargement des messages...');
       
+      // Fetch messages without join to profiles
       const { data, error } = await supabase
         .from('messages')
-        .select('*, profiles(name, email)') // Joindre les informations de profil
+        .select('*')
         .eq('room_id', roomId)
         .order('created_at', { ascending: true });
       
@@ -27,6 +28,21 @@ export const useMessagesFetcher = (
       }
       
       if (data) {
+        // Now separately fetch profiles for user_ids
+        const userIds = [...new Set(data.map(msg => msg.user_id))];
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, name')
+          .in('id', userIds);
+          
+        // Create a map of user_id to name
+        const userNamesMap = new Map();
+        if (profilesData && !profilesError) {
+          profilesData.forEach(profile => {
+            userNamesMap.set(profile.id, profile.name);
+          });
+        }
+        
         // Transform the data to match our Message interface
         const formattedMessages = data.map(msg => ({
           id: msg.id,
@@ -35,8 +51,8 @@ export const useMessagesFetcher = (
           is_assistant: Boolean(msg.is_assistant),
           created_at: msg.created_at,
           room_id: msg.room_id,
-          // Ajouter le nom de l'utilisateur s'il existe
-          user_name: msg.profiles?.name || 'Utilisateur'
+          // Get user name from the map, or fallback to email or 'Utilisateur'
+          user_name: userNamesMap.get(msg.user_id) || 'Utilisateur'
         }));
         
         setMessages(formattedMessages);

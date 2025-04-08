@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 const ChatInterface = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
-  const { messages, loading, sendMessage, activeUsers } = useChatMessages();
+  const { messages, loading, sendMessage, unreadCount, markAllAsRead, activeUsers } = useChatMessages();
   const navigate = useNavigate();
   const [hasUnread, setHasUnread] = useState(false);
 
