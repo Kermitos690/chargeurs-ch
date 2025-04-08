@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +19,7 @@ import {
 } from '@/components/ui/form';
 import { useQuery } from '@tanstack/react-query';
 import { getUserProfile, updateUserProfile } from '@/services/api';
-import { ArrowLeft, Save, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const profileFormSchema = z.object({

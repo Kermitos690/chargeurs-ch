@@ -11,7 +11,7 @@ import {
   Settings, 
   LogOut 
 } from 'lucide-react';
-import { logoutFromSupabase } from '@/services/supabase/auth';
+import { logoutAdmin } from '@/services/firebase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,12 +29,12 @@ const AdminSidebar = () => {
   ];
 
   const handleLogout = async () => {
-    const result = await logoutFromSupabase();
+    const result = await logoutAdmin();
     if (result.success) {
       toast.success('Déconnexion réussie');
       navigate('/admin/login');
     } else {
-      toast.error(`Erreur: ${result.success ? '' : (result as any).error || "Erreur inconnue"}`);
+      toast.error(`Erreur: ${result.error}`);
     }
   };
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,24 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Subscription {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  duration: 'monthly' | 'yearly';
-  features: string[];
-}
+import { getDocument, getCollection } from '@/services/firebase';
+import { Subscription, User as UserType } from '@/types/api';
 
 const Account = () => {
-  const { user, loading, userData } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
+  const [userData, setUserData] = useState<UserType | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,17 +32,20 @@ const Account = () => {
       if (user) {
         setLoadingSubscription(true);
         try {
-          if (userData?.subscriptionType) {
-            const mockSubscription: Subscription = {
-              id: userData.subscriptionType,
-              name: userData.subscriptionType === 'premium' ? 'Premium' : 'Basic',
-              price: userData.subscriptionType === 'premium' ? 19.99 : 9.99,
-              duration: 'monthly',
-              features: userData.subscriptionType === 'premium' 
-                ? ['Unlimited access', '24/7 support', 'Priority charging']
-                : ['Basic access', 'Email support', 'Standard charging']
-            };
-            setUserSubscription(mockSubscription);
+          // Récupérer les données utilisateur complètes
+          const userResult = await getDocument('users', user.uid);
+          
+          if (userResult.success && userResult.data) {
+            const userDataFromFirestore = userResult.data as UserType;
+            setUserData(userDataFromFirestore);
+            
+            // Si l'utilisateur a un abonnement, récupérer les détails
+            if (userDataFromFirestore.subscriptionType) {
+              const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
+              if (subResult.success && subResult.data) {
+                setUserSubscription(subResult.data as Subscription);
+              }
+            }
           }
         } catch (error) {
           console.error('Erreur lors de la récupération des données d\'abonnement:', error);
@@ -64,7 +61,7 @@ const Account = () => {
     };
 
     fetchUserSubscription();
-  }, [user, userData, toast]);
+  }, [user, toast]);
 
   if (loading) {
     return (
@@ -89,12 +86,14 @@ const Account = () => {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
+            {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {userData?.name || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {user?.displayName || 'Utilisateur'}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {/* Carte d'abonnement */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
@@ -119,6 +118,7 @@ const Account = () => {
                   </CardContent>
                 </Card>
                 
+                {/* Autres cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Factures récentes</CardTitle>
@@ -235,6 +235,7 @@ const Account = () => {
             )}
           </TabsContent>
           
+          {/* Profile tab content */}
           <TabsContent value="profile">
             <Card>
               <CardHeader>
@@ -247,7 +248,7 @@ const Account = () => {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Nom d'utilisateur</h4>
-                    <p className="text-gray-500">{userData?.name || 'Non défini'}</p>
+                    <p className="text-gray-500">{user?.displayName || 'Non défini'}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>

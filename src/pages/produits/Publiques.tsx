@@ -15,21 +15,21 @@ const ProduitsPubliques = () => {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       description: "Solutions de recharge adaptées aux zones urbaines à forte densité de population.",
       features: [
-        "Capacité de 10 à 20 powerbanks",
+        "Puissance de 22 à 50 kW",
         "Paiement par carte ou application",
         "Design urbain compact",
         "Résistance aux intempéries et au vandalisme",
-        "Installation sur trottoir ou espace public"
+        "Installation sur trottoir ou parking public"
       ]
     },
     {
       title: "Stations rapides",
       icon: <Timer className="h-6 w-6 text-primary" />,
-      description: "Stations haute performance pour les centres commerciaux et zones touristiques.",
+      description: "Stations haute puissance pour les axes routiers principaux et zones commerciales.",
       features: [
-        "Recharge ultra-rapide (30W)",
-        "Recharge complète en 30 minutes",
-        "Multiples types de connecteurs (USB-C, Lightning)",
+        "Puissance de 100 à 350 kW",
+        "Recharge en 15-30 minutes",
+        "Multiples connecteurs (CCS, CHAdeMO, Type 2)",
         "Écran tactile interactif",
         "Connectivité 4G/5G"
       ]
@@ -39,7 +39,7 @@ const ProduitsPubliques = () => {
       icon: <CreditCard className="h-6 w-6 text-primary" />,
       description: "Centres de recharge complets avec services additionnels pour les utilisateurs.",
       features: [
-        "10 à 30 powerbanks disponibles",
+        "4 à 12 points de charge",
         "Zone d'attente confortable",
         "WiFi gratuit",
         "Services de restauration",
@@ -55,7 +55,7 @@ const ProduitsPubliques = () => {
         "Analyses de fréquentation",
         "Gestion tarifaire dynamique",
         "Maintenance prédictive",
-        "Intégration aux réseaux de partage"
+        "Intégration aux réseaux de roaming"
       ]
     }
   ];
@@ -73,10 +73,10 @@ const ProduitsPubliques = () => {
     },
     {
       title: "Centres commerciaux",
-      description: "Transformez votre espace commercial en atout avec un service de recharge pour smartphones à vos clients pendant qu'ils font leurs achats.",
+      description: "Transformez votre parking en atout commercial en offrant un service de recharge à vos clients pendant qu'ils font leurs achats.",
       benefits: [
         "Augmentation du temps passé en magasin",
-        "Attraction d'une clientèle connectée",
+        "Attraction d'une clientèle à fort pouvoir d'achat",
         "Source de revenus additionnels",
         "Visibilité sur les applications de recharge"
       ]
@@ -88,7 +88,7 @@ const ProduitsPubliques = () => {
         "Service 5 étoiles pour vos clients",
         "Augmentation de la fidélité client",
         "Attraction d'une nouvelle clientèle",
-        "Positionnement innovant"
+        "Positionnement éco-responsable"
       ]
     }
   ];
@@ -102,7 +102,7 @@ const ProduitsPubliques = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Stations de Recharge Publiques</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Des solutions complètes pour le déploiement, l'exploitation et la maintenance 
-              de stations de recharge pour smartphones accessibles au public.
+              de stations de recharge accessibles au public.
             </p>
           </div>
 
@@ -152,15 +152,15 @@ const ProduitsPubliques = () => {
               <div className="bg-card border p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-2">Interopérabilité</h3>
                 <p className="text-muted-foreground">
-                  Compatibles avec tous les types de smartphones, nos stations permettent la recharge 
-                  avec n'importe quelle carte ou application de notre réseau.
+                  Compatibles avec tous les réseaux de roaming, nos stations permettent la recharge 
+                  avec n'importe quelle carte ou application du marché.
                 </p>
               </div>
               <div className="bg-card border p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-2">Évolutivité</h3>
                 <p className="text-muted-foreground">
                   Nos solutions sont modulaires et peuvent évoluer pour s'adapter à l'augmentation 
-                  de la demande et aux avancées technologiques des smartphones.
+                  du nombre de véhicules électriques et aux avancées technologiques.
                 </p>
               </div>
             </div>
@@ -193,7 +193,7 @@ const ProduitsPubliques = () => {
                 <h2 className="text-2xl font-bold mb-4">Processus de déploiement</h2>
                 <p className="mb-6">
                   Notre approche clé en main vous accompagne à travers toutes les étapes du déploiement 
-                  de votre infrastructure de recharge publique pour smartphones.
+                  de votre infrastructure de recharge publique.
                 </p>
                 <ol className="space-y-4">
                   <li className="flex gap-4">
@@ -214,7 +214,7 @@ const ProduitsPubliques = () => {
                     <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">3</div>
                     <div>
                       <h3 className="font-semibold">Installation et raccordement</h3>
-                      <p className="text-muted-foreground text-sm">Réalisation des travaux d'installation électrique et de mise en place.</p>
+                      <p className="text-muted-foreground text-sm">Réalisation des travaux de génie civil et d'installation électrique.</p>
                     </div>
                   </li>
                   <li className="flex gap-4">

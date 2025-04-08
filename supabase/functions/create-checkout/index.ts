@@ -20,7 +20,7 @@ serve(async (req) => {
     });
 
     // Récupération des données de la requête
-    const { items, successUrl, cancelUrl } = await req.json();
+    const { priceId, items, successUrl, cancelUrl } = await req.json();
 
     // Vérification des paramètres requis
     if (!items || !items.length) {

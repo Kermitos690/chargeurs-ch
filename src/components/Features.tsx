@@ -9,38 +9,32 @@ const Features = () => {
     {
       icon: <BatteryFull className="h-12 w-12 text-primary" />,
       title: "Autonomie garantie",
-      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos smartphones.",
-      link: "/features/charging"
+      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos appareils."
     },
     {
       icon: <MapPin className="h-12 w-12 text-primary" />,
       title: "Réseau étendu",
-      description: "Des bornes de location disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7.",
-      link: "/stations"
+      description: "Des bornes disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7."
     },
     {
       icon: <Clock className="h-12 w-12 text-primary" />,
       title: "Utilisation flexible",
-      description: "Location à la demande, sans engagement. Prenez une powerbank dans une borne et rendez-la dans une autre.",
-      link: "/subscriptions"
+      description: "Location à la demande, sans engagement. Prenez une powerbank dans une borne et rendez-la dans une autre."
     },
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Sécurité optimale",
-      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité et celle de vos appareils.",
-      link: "/features/security"
+      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité."
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,
       title: "Application mobile",
-      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application smartphone.",
-      link: "/features/connectivity"
+      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application."
     },
     {
       icon: <CreditCard className="h-12 w-12 text-primary" />,
-      title: "Paiement sécurisé",
-      description: "Payez en toute sécurité via Stripe ou TWINT, pour une expérience d'achat simple et sans souci.",
-      link: "/subscriptions"
+      title: "Tarification transparente",
+      description: "Payez uniquement pour la durée d'utilisation, sans frais cachés."
     }
   ];
 
@@ -50,7 +44,7 @@ const Features = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Pourquoi choisir chargeurs.ch ?</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Une solution pratique et écologique pour garder vos smartphones chargés à tout moment.
+            Une solution pratique et écologique pour rester connecté à tout moment.
           </p>
         </div>
         
@@ -58,14 +52,11 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-all group"
+              className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-all"
             >
               <div className="mb-5 text-primary">{feature.icon}</div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground mb-4">{feature.description}</p>
-              <Button variant="ghost" className="p-0 text-primary hover:text-primary/80 hover:bg-transparent group-hover:underline" asChild>
-                <Link to={feature.link}>En savoir plus</Link>
-              </Button>
+              <p className="text-muted-foreground">{feature.description}</p>
             </div>
           ))}
         </div>

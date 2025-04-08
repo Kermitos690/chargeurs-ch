@@ -1,12 +1,10 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Loader2 } from 'lucide-react';
-import { addToCart } from '@/services/cart/add';
-import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+import { ShoppingCart, Heart } from 'lucide-react';
+import { addToCart } from '@/services/cart';
 
 interface ProductCardProps {
   product: {
@@ -22,10 +20,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
   const {
     id,
     name,
@@ -42,17 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    setLoading(true);
-    try {
-      await addToCart(id, 1);
-      toast.success('Produit ajouté au panier');
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout au panier:', error);
-      toast.error('Erreur lors de l\'ajout au panier');
-    } finally {
-      setLoading(false);
-    }
+    await addToCart(id, 1, displayPrice);
   };
 
   return (
@@ -99,14 +83,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
           variant="default"
           className="w-full"
           onClick={handleAddToCart}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <ShoppingCart className="mr-2 h-4 w-4" />
-          )}
-          {loading ? 'Ajout en cours...' : 'Ajouter au panier'}
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          Ajouter
         </Button>
       </CardFooter>
     </Card>

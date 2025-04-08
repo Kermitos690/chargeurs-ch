@@ -126,7 +126,21 @@ const Conditions = () => {
 
             <Separator className="my-6" />
 
-            <h2>11. Contact</h2>
+            <h2>11. Garantie</h2>
+            <p>
+              Nos produits bénéficient des garanties suivantes:
+            </p>
+            <ul>
+              <li>Bornes de recharge: garantie de 24 mois à compter de la date d'achat</li>
+              <li>Powerbanks: garantie de 12 mois à compter de la date d'achat</li>
+            </ul>
+            <p>
+              Ces garanties s'appliquent uniquement dans le respect des précautions d'usage et de bonne utilisation des produits, et ne couvrent pas les dommages résultant d'une utilisation inappropriée, d'accidents, ou de modifications non autorisées.
+            </p>
+
+            <Separator className="my-6" />
+
+            <h2>12. Contact</h2>
             <p>
               Pour toute question relative aux présentes CGU, veuillez nous contacter à l'adresse suivante:
             </p>

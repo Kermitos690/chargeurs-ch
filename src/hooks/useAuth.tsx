@@ -1,140 +1,59 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
+import { User } from 'firebase/auth';
+import { useFirebaseAuth } from './useFirebaseAuth';
 
-interface AuthContextProps {
+interface AuthContextType {
   user: User | null;
-  session: Session | null;
-  loading: boolean;
+  userData: {
+    id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    subscriptionType?: string;
+  } | null;
+  loading: boolean;  // Renamed from 'isLoading' to match actual usage
   isAdmin: boolean;
-  isSuperAdmin: boolean;
-  userData: any | null;
+  isLoading: boolean; // Added to match the expected property in RentPowerBank
 }
 
-const AuthContext = createContext<AuthContextProps>({
+const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
+  userData: null,
   loading: true,
   isAdmin: false,
-  isSuperAdmin: false,
-  userData: null
+  isLoading: true  // Added with default value
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, userData, loading } = useFirebaseAuth();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [userData, setUserData] = useState<any | null>(null);
 
   useEffect(() => {
-    // Initial session check
-    const initializeAuth = async () => {
-      setLoading(true);
-      
-      // Get current session
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Error getting session:", error);
-        setLoading(false);
-        return;
-      }
-      
-      if (session) {
-        setUser(session.user);
-        setSession(session);
-        
-        // Check if user is admin
-        const { data: adminData } = await supabase
-          .from('admin_roles')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-          
-        setIsAdmin(!!adminData);
-        
-        // Check if user is superadmin
-        setIsSuperAdmin(adminData?.role === 'superadmin');
-        
-        // Get user profile data
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (profileData) {
-          setUserData({
-            id: session.user.id,
-            email: profileData.email,
-            name: profileData.name,
-            phone: profileData.phone,
-            subscriptionType: profileData.subscription_type
-          });
-        }
-      }
-      
-      setLoading(false);
-    };
-    
-    initializeAuth();
-    
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log("Auth state changed:", event);
-      
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setUser(newSession?.user || null);
-        setSession(newSession);
-        
-        if (newSession?.user) {
-          // Check if user is admin
-          const { data: adminData } = await supabase
-            .from('admin_roles')
-            .select('*')
-            .eq('user_id', newSession.user.id)
-            .maybeSingle();
-            
-          setIsAdmin(!!adminData);
-          setIsSuperAdmin(adminData?.role === 'superadmin');
-          
-          // Get user profile data
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', newSession.user.id)
-            .single();
-            
-          if (profileData) {
-            setUserData({
-              id: newSession.user.id,
-              email: profileData.email,
-              name: profileData.name,
-              phone: profileData.phone,
-              subscriptionType: profileData.subscription_type
-            });
-          }
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setSession(null);
-        setIsAdmin(false);
-        setIsSuperAdmin(false);
-        setUserData(null);
-      }
-    });
-    
-    // Clean up on unmount
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
+    // Check if user has admin role
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          // Check if admin custom claim exists
+          setIsAdmin(!!idTokenResult.claims.admin);
+        })
+        .catch((error) => {
+          console.error("Error getting token claims:", error);
+          setIsAdmin(false);
+        });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, isSuperAdmin, userData }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userData, 
+      loading, 
+      isAdmin, 
+      isLoading: loading // Map loading to isLoading for compatibility
+    }}>
       {children}
     </AuthContext.Provider>
   );
