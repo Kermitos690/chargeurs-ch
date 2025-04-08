@@ -55,6 +55,8 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
     // 2. Mettre à jour dans Supabase si disponible
     try {
       console.log("Tentative de mise à jour du profil dans Supabase");
+      
+      // Mise à jour de la table profiles
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -71,28 +73,24 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
         console.log("Mise à jour du profil Supabase réussie");
       }
       
-      // Si des détails utilisateur spécifiques sont fournis, les mettre à jour aussi
-      if (profileData.address || profileData.city || profileData.postalCode || 
-          profileData.firstName || profileData.lastName) {
-          
-        console.log("Mise à jour des détails utilisateur dans Supabase");
-        const { error: detailsError } = await supabase
-          .from('user_details')
-          .upsert({
-            id: userId,
-            first_name: profileData.firstName,
-            last_name: profileData.lastName,
-            address: profileData.address,
-            city: profileData.city,
-            postal_code: profileData.postalCode,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'id' });
-          
-        if (detailsError) {
-          console.error('Erreur Supabase lors de la mise à jour des détails utilisateur:', detailsError);
-        } else {
-          console.log("Mise à jour des détails utilisateur Supabase réussie");
-        }
+      // Mise à jour de la table user_details
+      console.log("Mise à jour des détails utilisateur dans Supabase");
+      const { error: detailsError } = await supabase
+        .from('user_details')
+        .upsert({
+          id: userId,
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+          address: profileData.address,
+          city: profileData.city,
+          postal_code: profileData.postalCode,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+      
+      if (detailsError) {
+        console.error('Erreur Supabase lors de la mise à jour des détails utilisateur:', detailsError);
+      } else {
+        console.log("Mise à jour des détails utilisateur Supabase réussie");
       }
     } catch (supabaseError) {
       console.error('Erreur lors de la mise à jour Supabase:', supabaseError);
@@ -153,16 +151,20 @@ export const getUserProfile = async (userId: string) => {
       }
       
       // Si des données ont été trouvées dans Supabase, les retourner
-      if (profileData) {
+      if (profileData || userDetails) {
         const combinedData = {
-          ...profileData,
-          firstName: userDetails?.first_name,
-          lastName: userDetails?.last_name,
-          address: userDetails?.address,
-          city: userDetails?.city,
-          postalCode: userDetails?.postal_code
+          ...(profileData || {}),
+          name: profileData?.name || '',
+          email: profileData?.email || '',
+          phone: profileData?.phone || '',
+          firstName: userDetails?.first_name || '',
+          lastName: userDetails?.last_name || '',
+          address: userDetails?.address || '',
+          city: userDetails?.city || '',
+          postalCode: userDetails?.postal_code || ''
         };
         
+        console.log("Données récupérées depuis Supabase:", combinedData);
         return { 
           success: true, 
           data: combinedData
@@ -174,28 +176,23 @@ export const getUserProfile = async (userId: string) => {
     }
     
     // 2. Si Supabase n'a pas de données, essayer Firestore
-    // Capturer l'erreur de permission Firestore si elle survient
     try {
       const userRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userRef);
       
       if (userDoc.exists()) {
+        const firestoreData = userDoc.data();
+        console.log("Données récupérées depuis Firestore:", firestoreData);
         return { 
           success: true, 
-          data: userDoc.data() 
+          data: firestoreData 
         };
       }
     } catch (firestoreError: any) {
       console.error('Erreur Firestore:', firestoreError);
-      
-      // Si c'est une erreur de permission, créons plutôt un profil avec les données disponibles
-      if (firestoreError.code === 'permission-denied') {
-        console.log('Permissions Firebase insuffisantes, création d\'un profil basique à partir des données d\'authentification');
-      }
     }
     
     // 3. Si aucune donnée n'est trouvée ou en cas d'erreur, créer un profil de base
-    // avec les informations disponibles dans Firebase Auth
     if (auth.currentUser) {
       const basicUserData = {
         id: userId,
@@ -211,44 +208,6 @@ export const getUserProfile = async (userId: string) => {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
-      
-      // Tenter de créer un document dans Firestore, mais ne pas échouer si cela ne fonctionne pas
-      try {
-        const userRef = doc(db, 'users', userId);
-        await setDoc(userRef, {
-          name: basicUserData.name,
-          email: basicUserData.email,
-          phone: basicUserData.phone,
-          address: basicUserData.address,
-          city: basicUserData.city,
-          postalCode: basicUserData.postalCode,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-      } catch (setError) {
-        console.error('Impossible de créer le profil utilisateur dans Firestore:', setError);
-      }
-      
-      // Tenter également de synchroniser avec Supabase
-      try {
-        await supabase
-          .from('profiles')
-          .upsert({
-            id: userId,
-            name: basicUserData.name,
-            email: basicUserData.email,
-            updated_at: basicUserData.updated_at
-          }, { onConflict: 'id' });
-        
-        await supabase
-          .from('user_details')
-          .upsert({
-            id: userId,
-            updated_at: basicUserData.updated_at
-          }, { onConflict: 'id' });
-      } catch (supabaseSetError) {
-        console.error('Impossible de créer le profil utilisateur dans Supabase:', supabaseSetError);
-      }
       
       return {
         success: true,
