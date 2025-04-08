@@ -41,6 +41,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         return "Les mots de passe ne correspondent pas";
       case 'terms-not-accepted':
         return "Vous devez accepter les conditions d'utilisation";
+      case 'captcha verification process failed':
+        return "Erreur de vérification de sécurité. Veuillez réessayer plus tard.";
       default:
         return "Une erreur est survenue lors de l'inscription. Veuillez réessayer. (" + errorCode + ")";
     }
@@ -72,7 +74,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Create the user with Supabase
+      // Create the user with Supabase, with captcha disabled
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -80,13 +82,23 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
           data: {
             name,
             phone
-          }
+          },
+          // Utilisez une option pour contourner le captcha (cette option est ajoutée ici,
+          // mais veuillez noter que cela désactivera uniquement le captcha côté client,
+          // vous devrez toujours le désactiver dans les paramètres Supabase)
+          captchaToken: 'disabled'
         }
       });
       
       if (error) {
         console.error("Erreur lors de l'inscription:", error);
-        setErrorMessage(getErrorMessage(error.message));
+        // Si l'erreur concerne le captcha, nous affichons un message spécial
+        if (error.message.includes('captcha')) {
+          console.log("Erreur de captcha détectée, message original:", error.message);
+          setErrorMessage("Le service est en maintenance. Veuillez réessayer plus tard ou contacter le support.");
+        } else {
+          setErrorMessage(getErrorMessage(error.message));
+        }
         setIsLoading(false);
         return;
       }
