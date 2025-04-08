@@ -113,4 +113,3 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => 
 };
 
 export default UserMenu;
-
