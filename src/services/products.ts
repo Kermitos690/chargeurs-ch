@@ -177,13 +177,14 @@ export const getSimilarProducts = async (productId: string, categoryId: string, 
 };
 
 // Récupérer les produits en vedette
-export const getFeaturedProducts = async (limit = 4) => {
+export const getFeaturedProducts = async (limit = 6) => {
   try {
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .eq('status', 'published')
       .eq('featured', true)
+      .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) throw error;
@@ -191,6 +192,46 @@ export const getFeaturedProducts = async (limit = 4) => {
     return data;
   } catch (error) {
     console.error('Erreur lors de la récupération des produits en vedette:', error);
+    throw error;
+  }
+};
+
+// Récupérer les nouveaux produits
+export const getNewProducts = async (limit = 6) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des nouveaux produits:', error);
+    throw error;
+  }
+};
+
+// Récupérer les produits en promotion
+export const getDiscountedProducts = async (limit = 6) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'published')
+      .not('sale_price', 'is', null)
+      .lt('sale_price', 'price') // Assurer que le prix de vente est inférieur au prix normal
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des produits en promotion:', error);
     throw error;
   }
 };
