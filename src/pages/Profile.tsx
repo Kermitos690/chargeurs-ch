@@ -1,77 +1,30 @@
 
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { getUserProfile } from '@/services/firebase/profile';
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Loader2 } from 'lucide-react';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { ArrowLeft, Save } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { getUserProfile, updateUserProfile } from '@/services/firebase/profile';
-
-const profileFormSchema = z.object({
-  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
-  email: z.string().email({ message: 'Adresse email invalide' }).optional(),
-  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().nullable(),
-  address: z.string().optional().nullable(),
-  city: z.string().optional().nullable(),
-  postalCode: z.string().optional().nullable(),
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-const passwordFormSchema = z.object({
-  currentPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
-  newPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
-  confirmPassword: z.string().min(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' }),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword"],
-});
-
-type PasswordFormValues = z.infer<typeof passwordFormSchema>;
+import ProfileSkeleton from '@/components/profile/ProfileSkeleton';
+import ProfileHeader from '@/components/profile/ProfileHeader';
+import UserInfoForm, { ProfileFormValues } from '@/components/profile/UserInfoForm';
+import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
+import NotificationsCard from '@/components/profile/NotificationsCard';
 
 const Profile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, userData, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
-
-  const profileForm = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      postalCode: '',
-    },
-  });
-
-  const passwordForm = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    },
+  const [profileFormValues, setProfileFormValues] = useState<ProfileFormValues>({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
   });
 
   // Rediriger si l'utilisateur n'est pas connecté
@@ -91,13 +44,13 @@ const Profile = () => {
         // Utiliser d'abord les données de userData si disponibles
         if (userData) {
           setProfileData(userData);
-          profileForm.reset({
+          setProfileFormValues({
             name: userData.name || '',
             email: userData.email || user.email || '',
             phone: userData.phone || '',
-            address: '',
-            city: '',
-            postalCode: '',
+            address: userData.address || '',
+            city: userData.city || '',
+            postalCode: userData.postalCode || '',
           });
         }
         
@@ -105,7 +58,7 @@ const Profile = () => {
         const response = await getUserProfile(user.uid);
         if (response.success && response.data) {
           setProfileData(response.data);
-          profileForm.reset({
+          setProfileFormValues({
             name: response.data.name || user.displayName || '',
             email: response.data.email || user.email || '',
             phone: response.data.phone || '',
@@ -127,66 +80,10 @@ const Profile = () => {
     };
 
     fetchUserProfileData();
-  }, [user, userData, profileForm, toast]);
-
-  const onSubmitProfile = async (data: ProfileFormValues) => {
-    if (!user) return;
-    
-    setIsSaving(true);
-    try {
-      const result = await updateUserProfile(user.uid, data);
-      
-      if (result.success) {
-        toast({
-          title: "Profil mis à jour",
-          description: "Vos informations ont été mises à jour avec succès."
-        });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de la mise à jour du profil:', error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue lors de la mise à jour de votre profil.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const onSubmitPassword = (data: PasswordFormValues) => {
-    // Dans une application réelle, cela appellerait une API pour mettre à jour le mot de passe
-    console.log('Password update data:', data);
-    
-    toast({
-      title: "Mot de passe mis à jour",
-      description: "Votre mot de passe a été changé avec succès."
-    });
-    
-    passwordForm.reset({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
-  };
+  }, [user, userData, toast]);
 
   if (loading || isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow pt-24 pb-16">
-          <div className="max-w-7xl mx-auto px-6 md:px-12">
-            <div className="text-center py-10">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-              <p className="mt-4">Chargement de votre profil...</p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -194,246 +91,22 @@ const Profile = () => {
       <Header />
       <main className="flex-grow pt-24 pb-16">
         <section className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="mb-8">
-            <Link to="/account" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Retour à mon compte
-            </Link>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Mon Profil</h1>
-            <p className="text-lg text-muted-foreground">
-              Gérez vos informations personnelles et de sécurité
-            </p>
-          </div>
+          <ProfileHeader 
+            title="Mon Profil" 
+            subtitle="Gérez vos informations personnelles et de sécurité" 
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informations Personnelles</CardTitle>
-                  <CardDescription>
-                    Mettez à jour vos informations personnelles
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
-                      <FormField
-                        control={profileForm.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nom complet</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Votre nom" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Votre email" {...field} disabled />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Téléphone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Votre numéro de téléphone" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="border-t pt-6 mt-6">
-                        <h3 className="font-medium mb-4">Adresse</h3>
-                        
-                        <FormField
-                          control={profileForm.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Rue</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Votre adresse" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                          <FormField
-                            control={profileForm.control}
-                            name="city"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ville</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Ville" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={profileForm.control}
-                            name="postalCode"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Code postal</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Code postal" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                      
-                      <Button type="submit" className="w-full md:w-auto" disabled={isSaving}>
-                        {isSaving ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Enregistrement...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="mr-2 h-4 w-4" />
-                            Enregistrer les modifications
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
+              <UserInfoForm 
+                userId={user.uid} 
+                initialValues={profileFormValues} 
+              />
             </div>
             
             <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Changer de mot de passe</CardTitle>
-                  <CardDescription>
-                    Mettez à jour votre mot de passe pour sécuriser votre compte
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...passwordForm}>
-                    <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} className="space-y-6">
-                      <FormField
-                        control={passwordForm.control}
-                        name="currentPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mot de passe actuel</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={passwordForm.control}
-                        name="newPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nouveau mot de passe</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={passwordForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirmer le mot de passe</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button type="submit" className="w-full">
-                        Mettre à jour le mot de passe
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-              
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>Notifications</CardTitle>
-                  <CardDescription>
-                    Gérez vos préférences de notification
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Emails de confirmation</p>
-                      <p className="text-sm text-muted-foreground">Recevoir un email de confirmation pour chaque location</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Notifications de rappel</p>
-                      <p className="text-sm text-muted-foreground">Rappels pour les locations de longue durée</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Offres promotionnelles</p>
-                      <p className="text-sm text-muted-foreground">Recevoir des offres spéciales et promotions</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    Enregistrer les préférences
-                  </Button>
-                </CardFooter>
-              </Card>
+              <PasswordChangeForm />
+              <NotificationsCard />
             </div>
           </div>
         </section>
