@@ -17,6 +17,7 @@ import AdminPowerbanks from './pages/admin/Powerbanks';
 import AdminStations from './pages/admin/Stations';
 import AdminPayments from './pages/admin/Payments';
 import AdminSettings from './pages/admin/Settings';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/auth/new-password" element={<NewPassword />} />
+        <Route path="/contact" element={<Contact />} />
         
         <Route path="/" element={<RouteGuard />}>
           <Route path="/stations" element={<StationsMap />} />
