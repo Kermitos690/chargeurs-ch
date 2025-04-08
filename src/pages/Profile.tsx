@@ -57,19 +57,21 @@ const Profile = () => {
           });
         }
         
-        // Ensuite, récupérer les données complètes depuis Firestore
+        // Ensuite, récupérer les données complètes depuis Firestore/Supabase
         const response = await getUserProfile(user.uid);
         if (response.success && response.data) {
-          setProfileData(response.data);
+          const data = response.data;
+          setProfileData(data);
           setProfileFormValues({
-            name: response.data.name || user.displayName || '',
-            email: response.data.email || user.email || '',
-            phone: response.data.phone || '',
-            address: response.data.address || '',
-            city: response.data.city || '',
-            postalCode: response.data.postalCode || '',
+            name: data.name || user.displayName || '',
+            email: data.email || user.email || '',
+            phone: data.phone || '',
+            address: data.address || '',
+            city: data.city || '',
+            postalCode: data.postalCode || '',
           });
         } else if (!response.success) {
+          // Afficher l'erreur mais continuer avec les données disponibles
           setError(response.error || "Erreur lors du chargement du profil");
         }
       } catch (error: any) {

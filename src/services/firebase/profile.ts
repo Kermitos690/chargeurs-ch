@@ -151,42 +151,92 @@ export const getUserProfile = async (userId: string) => {
     }
     
     // 2. Si Supabase n'a pas de données, essayer Firestore
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    
-    if (!userDoc.exists()) {
-      // Si l'utilisateur n'existe pas dans Firestore, créer un document de base
-      // avec les informations disponibles dans Firebase Auth
-      if (auth.currentUser) {
-        const basicUserData = {
-          name: auth.currentUser.displayName || '',
-          email: auth.currentUser.email || '',
-          phone: '',
-          address: '',
-          city: '',
-          postalCode: '',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        
-        await setDoc(userRef, basicUserData);
-        
-        return {
-          success: true,
-          data: basicUserData
+    // Capturer l'erreur de permission Firestore si elle survient
+    try {
+      const userRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        return { 
+          success: true, 
+          data: userDoc.data() 
         };
       }
+    } catch (firestoreError: any) {
+      console.error('Erreur Firestore:', firestoreError);
       
-      // Si aucun document n'existe et pas d'utilisateur connecté, renvoyer une erreur
-      return { 
-        success: false, 
-        error: 'Profil utilisateur non trouvé' 
+      // Si c'est une erreur de permission, créons plutôt un profil avec les données disponibles
+      if (firestoreError.code === 'permission-denied') {
+        console.log('Permissions Firebase insuffisantes, création d\'un profil basique à partir des données d\'authentification');
+      }
+    }
+    
+    // 3. Si aucune donnée n'est trouvée ou en cas d'erreur, créer un profil de base
+    // avec les informations disponibles dans Firebase Auth
+    if (auth.currentUser) {
+      const basicUserData = {
+        id: userId,
+        name: auth.currentUser.displayName || '',
+        email: auth.currentUser.email || '',
+        phone: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        firstName: '',
+        lastName: '',
+        subscription_type: 'basic',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // Tenter de créer un document dans Firestore, mais ne pas échouer si cela ne fonctionne pas
+      try {
+        const userRef = doc(db, 'users', userId);
+        await setDoc(userRef, {
+          name: basicUserData.name,
+          email: basicUserData.email,
+          phone: basicUserData.phone,
+          address: basicUserData.address,
+          city: basicUserData.city,
+          postalCode: basicUserData.postalCode,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      } catch (setError) {
+        console.error('Impossible de créer le profil utilisateur dans Firestore:', setError);
+      }
+      
+      // Tenter également de synchroniser avec Supabase
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            name: basicUserData.name,
+            email: basicUserData.email,
+            updated_at: basicUserData.updated_at
+          }, { onConflict: 'id' });
+        
+        await supabase
+          .from('user_details')
+          .upsert({
+            id: userId,
+            updated_at: basicUserData.updated_at
+          }, { onConflict: 'id' });
+      } catch (supabaseSetError) {
+        console.error('Impossible de créer le profil utilisateur dans Supabase:', supabaseSetError);
+      }
+      
+      return {
+        success: true,
+        data: basicUserData
       };
     }
     
+    // En dernier recours, si aucune donnée n'est disponible et l'utilisateur n'est pas connecté
     return { 
-      success: true, 
-      data: userDoc.data() 
+      success: false, 
+      error: 'Profil utilisateur non trouvé' 
     };
   } catch (error: any) {
     console.error('Erreur lors de la récupération du profil:', error);
