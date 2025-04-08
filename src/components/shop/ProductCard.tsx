@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Loader2 } from 'lucide-react';
-import { addToCart } from '@/services/supabase/cart';
+import { ShoppingCart, Loader2 } from 'lucide-react';
+import { addToCart } from '@/services/cart/add';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -43,9 +43,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (!user) {
+      toast.error('Veuillez vous connecter pour ajouter au panier');
+      navigate('/login');
+      return;
+    }
+    
     setLoading(true);
     try {
-      await addToCart(user?.id, id, 1);
+      await addToCart(id, 1);
       toast.success('Produit ajouté au panier');
     } catch (error) {
       console.error('Erreur lors de l\'ajout au panier:', error);

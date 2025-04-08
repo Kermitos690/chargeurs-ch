@@ -1,64 +1,86 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { initializeCart } from './session';
+import { getOrCreateCart } from '@/services/supabase/cart/types';
 
-/**
- * Ajoute un article au panier
- */
-export const addToCart = async (
-  productId: string, 
-  quantity: number = 1, 
-  price: number, 
-  variantId?: string, 
-  userId?: string
-) => {
+export const addToCart = async (productId: string, quantity: number = 1, variantId?: string) => {
   try {
-    const cartId = await initializeCart(userId);
-    if (!cartId) throw new Error('Erreur lors de l\'initialisation du panier');
-
-    // Vérifier si l'article existe déjà dans le panier
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('Vous devez être connecté pour ajouter des articles au panier');
+      return false;
+    }
+    
+    // Get or create cart
+    const cart = await getOrCreateCart(user.id);
+    
+    if (!cart) {
+      toast.error('Impossible de créer un panier');
+      return false;
+    }
+    
+    // Get product price
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('price')
+      .eq('id', productId)
+      .single();
+      
+    if (productError) throw productError;
+    
+    // Get variant price if applicable
+    let price = product.price;
+    if (variantId) {
+      const { data: variant, error: variantError } = await supabase
+        .from('product_variants')
+        .select('price')
+        .eq('id', variantId)
+        .single();
+        
+      if (!variantError && variant && variant.price) {
+        price = variant.price;
+      }
+    }
+    
+    // Check if the item already exists in the cart
     const { data: existingItems, error: fetchError } = await supabase
       .from('cart_items')
-      .select('id, quantity')
-      .eq('cart_id', cartId)
+      .select('*')
+      .eq('cart_id', cart.id)
       .eq('product_id', productId)
       .eq('variant_id', variantId || null);
-
+      
     if (fetchError) throw fetchError;
     
-    const existingItem = existingItems && existingItems.length > 0 ? existingItems[0] : null;
-
-    if (existingItem) {
-      // Mettre à jour la quantité si l'article existe déjà
+    if (existingItems && existingItems.length > 0) {
+      // Update quantity if item exists
       const { error: updateError } = await supabase
         .from('cart_items')
-        .update({ quantity: existingItem.quantity + quantity })
-        .eq('id', existingItem.id);
-
+        .update({ quantity: existingItems[0].quantity + quantity })
+        .eq('id', existingItems[0].id);
+        
       if (updateError) throw updateError;
-      
-      toast.success('Article ajouté au panier');
-      return true;
     } else {
-      // Ajouter un nouvel article sinon
+      // Add new item if it doesn't exist
       const { error: insertError } = await supabase
         .from('cart_items')
         .insert({
-          cart_id: cartId,
+          cart_id: cart.id,
           product_id: productId,
           variant_id: variantId || null,
           quantity,
-          price_at_add: price,
+          price_at_add: price
         });
-
+        
       if (insertError) throw insertError;
-      
-      toast.success('Article ajouté au panier');
-      return true;
     }
+    
+    toast.success('Article ajouté au panier');
+    return true;
   } catch (error) {
-    console.error('Erreur lors de l\'ajout au panier:', error);
+    console.error('Error adding item to cart:', error);
     toast.error('Impossible d\'ajouter l\'article au panier');
     return false;
   }

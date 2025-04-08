@@ -7,8 +7,7 @@ import { Loader2 } from 'lucide-react';
 import EmptyCart from '@/components/shop/cart/EmptyCart';
 import CartItemsList from '@/components/shop/cart/CartItemsList';
 import CartSummary from '@/components/shop/cart/CartSummary';
-import { getCartItems, clearCart } from '@/services/cart';
-import { calculateCartTotal } from '@/services/cart';
+import { getCartItems, clearCart, calculateCartTotal } from '@/services/cart';
 import { createCheckoutSession } from '@/services/checkout';
 
 const Cart: React.FC = () => {
@@ -55,7 +54,6 @@ const Cart: React.FC = () => {
       // La redirection sera gérée par createCheckoutSession
     } catch (error) {
       console.error('Erreur lors du checkout:', error);
-    } finally {
       setCheckoutLoading(false);
     }
   };

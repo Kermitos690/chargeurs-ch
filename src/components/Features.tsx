@@ -38,8 +38,8 @@ const Features = () => {
     },
     {
       icon: <CreditCard className="h-12 w-12 text-primary" />,
-      title: "Tarification transparente",
-      description: "Payez uniquement pour la durée d'utilisation de votre powerbank, sans frais cachés.",
+      title: "Paiement sécurisé",
+      description: "Payez en toute sécurité via Stripe ou TWINT, pour une expérience d'achat simple et sans souci.",
       link: "/subscriptions"
     }
   ];
