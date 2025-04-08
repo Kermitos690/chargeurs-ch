@@ -108,7 +108,22 @@ export const useRegistration = ({ onSuccess, onCaptchaError }: RegistrationHookP
         if (isDatabaseError(error.message)) {
           if (data && data.user) {
             // L'utilisateur a bien été créé dans auth.users, mais pas dans public.profiles
-            toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
+            console.log("Utilisateur créé dans auth.users mais pas dans profiles, considéré comme réussi");
+            toast.success("Votre compte a été créé avec succès!");
+            
+            // Se connecter automatiquement avec les identifiants fournis
+            try {
+              const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: formData.email,
+                password: formData.password,
+              });
+              
+              if (signInError) {
+                console.error("Erreur lors de la connexion automatique:", signInError);
+              }
+            } catch (signInErr) {
+              console.error("Exception lors de la connexion automatique:", signInErr);
+            }
             
             // Rediriger l'utilisateur
             setTimeout(() => {
@@ -136,8 +151,24 @@ export const useRegistration = ({ onSuccess, onCaptchaError }: RegistrationHookP
         return;
       }
       
+      // Se connecter automatiquement avec les identifiants fournis
+      try {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        if (signInError) {
+          console.error("Erreur lors de la connexion automatique après inscription:", signInError);
+        } else {
+          console.log("Connexion automatique réussie après inscription");
+        }
+      } catch (signInErr) {
+        console.error("Exception lors de la connexion automatique après inscription:", signInErr);
+      }
+      
       // Notification de succès
-      toast.success("Compte créé avec succès! Vous pouvez maintenant vous connecter.");
+      toast.success("Compte créé avec succès!");
       
       // Redirection après succès
       setTimeout(() => {
