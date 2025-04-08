@@ -9,6 +9,8 @@ export type AuthResult =
 
 export const loginWithSupabase = async (email: string, password: string): Promise<AuthResult> => {
   try {
+    console.log("Tentative de connexion avec:", { email });
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -17,6 +19,10 @@ export const loginWithSupabase = async (email: string, password: string): Promis
     if (error) {
       console.error("Erreur de connexion Supabase:", error);
       return { success: false, error: error.message };
+    }
+
+    if (!data.user) {
+      return { success: false, error: "Erreur lors de la connexion" };
     }
 
     // Vérifier si l'utilisateur a un rôle d'admin
@@ -28,8 +34,7 @@ export const loginWithSupabase = async (email: string, password: string): Promis
 
     if (roleError) {
       console.error("Erreur lors de la vérification du rôle:", roleError);
-      // Déconnexion car l'utilisateur n'a pas pu être vérifié
-      await supabase.auth.signOut();
+      // Ne pas déconnecter l'utilisateur car cela peut être dû à un problème de BDD temporaire
       return { success: false, error: "Erreur de vérification des droits d'accès" };
     }
 
@@ -89,6 +94,11 @@ export const createAdminAccount = async (email: string, password: string, role: 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name: role === 'superadmin' ? 'Super Administrateur' : 'Administrateur',
+        }
+      }
     });
 
     if (error) {
@@ -110,14 +120,25 @@ export const createAdminAccount = async (email: string, password: string, role: 
 
     if (roleError) {
       console.error("Erreur lors de l'attribution du rôle:", roleError);
-      // Suppression de l'utilisateur si l'attribution du rôle échoue
-      await supabase.auth.admin.deleteUser(data.user.id);
       return { success: false, error: "Erreur lors de l'attribution du rôle d'administrateur" };
+    }
+
+    // Créer le profil utilisateur
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: data.user.id,
+        name: role === 'superadmin' ? 'Super Administrateur' : 'Administrateur',
+        email: email
+      });
+
+    if (profileError) {
+      console.error("Erreur lors de la création du profil:", profileError);
     }
 
     return { 
       success: true, 
-      message: "Compte administrateur créé avec succès. Veuillez vérifier votre email pour confirmer votre compte."
+      message: "Compte administrateur créé avec succès."
     };
   } catch (error: any) {
     console.error("Erreur critique lors de la création du compte:", error);

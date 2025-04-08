@@ -32,6 +32,11 @@ export const createInitialAdmin = async (): Promise<boolean> => {
     const { data, error } = await supabase.auth.signUp({
       email: DEFAULT_ADMIN_EMAIL,
       password: DEFAULT_ADMIN_PASSWORD,
+      options: {
+        data: {
+          name: 'Administrateur',
+        }
+      }
     });
 
     if (error) {
@@ -57,7 +62,22 @@ export const createInitialAdmin = async (): Promise<boolean> => {
       return false;
     }
 
+    // Créer ou mettre à jour l'entrée dans la table profiles
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: data.user.id,
+        name: 'Administrateur',
+        email: DEFAULT_ADMIN_EMAIL
+      });
+
+    if (profileError) {
+      console.error("Erreur lors de la création du profil:", profileError);
+    }
+
     console.log("Compte admin initial créé avec succès");
+    toast.success("Compte administrateur créé avec succès");
+    
     return true;
   } catch (error) {
     console.error("Erreur inattendue lors de la création du compte admin:", error);

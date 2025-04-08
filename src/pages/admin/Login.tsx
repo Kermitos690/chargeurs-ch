@@ -15,11 +15,12 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Battery, Lock, Loader2, Settings, Shield, Key } from 'lucide-react';
+import { Battery, Lock, Loader2, Shield, Key, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { loginWithSupabase } from '@/services/supabase/auth';
 import { createInitialAdmin, getDefaultAdminCredentials, checkAdminAccountsExist } from '@/services/supabase/initialAdmin';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
   email: z.string().email('Adresse email invalide'),
@@ -33,6 +34,7 @@ const AdminLogin = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
   const [adminExists, setAdminExists] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Pulse effect for the logo
@@ -62,6 +64,7 @@ const AdminLogin = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       // Login with Supabase
       const result = await loginWithSupabase(values.email, values.password);
@@ -73,6 +76,7 @@ const AdminLogin = () => {
         });
         navigate('/admin/dashboard');
       } else {
+        setErrorMessage((result as any).error || 'Vérifiez vos identifiants');
         toast({
           variant: 'destructive',
           title: 'Erreur de connexion',
@@ -80,6 +84,7 @@ const AdminLogin = () => {
         });
       }
     } catch (error: any) {
+      setErrorMessage('Une erreur est survenue lors de la connexion');
       toast({
         variant: 'destructive',
         title: 'Erreur',
@@ -92,6 +97,7 @@ const AdminLogin = () => {
 
   const handleCreateAdmin = async () => {
     setIsCreatingAdmin(true);
+    setErrorMessage(null);
     try {
       const result = await createInitialAdmin();
       
@@ -110,6 +116,7 @@ const AdminLogin = () => {
         
         setAdminExists(true);
       } else {
+        setErrorMessage('Impossible de créer le compte administrateur');
         toast({
           variant: 'destructive',
           title: 'Erreur',
@@ -118,6 +125,7 @@ const AdminLogin = () => {
       }
     } catch (error) {
       console.error("Erreur lors de la création du compte admin:", error);
+      setErrorMessage('Une erreur est survenue lors de la création du compte');
       toast({
         variant: 'destructive',
         title: 'Erreur',
@@ -210,6 +218,13 @@ const AdminLogin = () => {
           className="mt-8 rounded-lg border border-gray-800 bg-gray-900/50 p-6 shadow-[0_0_15px_rgba(59,130,246,0.15)] backdrop-blur-sm"
           variants={itemVariants}
         >
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-4 bg-red-900/20 border-red-800">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="ml-2">{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -220,7 +235,7 @@ const AdminLogin = () => {
                     <FormLabel className="text-gray-300">Email</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="admin@example.com" 
+                        placeholder="admin@chargeurs.ch" 
                         {...field} 
                         type="email"
                         className="border-gray-700 bg-gray-800/50 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
