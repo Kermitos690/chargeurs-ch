@@ -16,6 +16,7 @@ import { signOut } from '@/services/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserData {
+  id?: string;
   name?: string;
   email?: string;
 }
@@ -23,19 +24,24 @@ interface UserData {
 interface UserMenuProps {
   user: any;
   userData: UserData | null;
+  handleLogout?: () => Promise<void>;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ user, userData }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogout = async () => {
+  const onLogout = async () => {
     try {
-      await signOut();
-      toast({
-        title: "Déconnexion réussie",
-        description: "Vous avez été déconnecté avec succès."
-      });
+      if (handleLogout) {
+        await handleLogout();
+      } else {
+        await signOut();
+        toast({
+          title: "Déconnexion réussie",
+          description: "Vous avez été déconnecté avec succès."
+        });
+      }
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
       toast({
@@ -96,7 +102,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData }) => {
           <span>Aide</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} >
+        <DropdownMenuItem onClick={onLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Se déconnecter</span>
         </DropdownMenuItem>

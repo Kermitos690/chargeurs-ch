@@ -11,6 +11,11 @@ interface AuthContextType {
     email?: string;
     phone?: string;
     subscriptionType?: string;
+    address?: string;
+    city?: string;
+    postalCode?: string;
+    firstName?: string;
+    lastName?: string;
   } | null;
   loading: boolean;  // Renamed from 'isLoading' to match actual usage
   isAdmin: boolean;
