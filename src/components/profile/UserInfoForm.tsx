@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,17 +36,18 @@ interface UserInfoFormProps {
 const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSavedValues, setLastSavedValues] = useState<ProfileFormValues | null>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: initialValues,
   });
 
-  // Mettre à jour le formulaire lorsque les valeurs initiales changent
   useEffect(() => {
     if (initialValues) {
       console.log("Réinitialisation du formulaire avec les valeurs:", initialValues);
       form.reset(initialValues);
+      setLastSavedValues(initialValues);
     }
   }, [initialValues, form]);
 
@@ -56,18 +56,38 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
     try {
       console.log("Envoi des données de profil complètes:", data);
       
-      // S'assurer que les valeurs vides sont envoyées comme des chaînes vides plutôt que null
+      const hasChanges = !lastSavedValues || 
+        Object.keys(data).some(key => {
+          const k = key as keyof ProfileFormValues;
+          return data[k] !== lastSavedValues[k];
+        });
+        
+      if (!hasChanges) {
+        console.log("Aucune modification détectée, annulation de la mise à jour");
+        toast({
+          title: "Aucune modification",
+          description: "Aucun changement détecté dans votre profil."
+        });
+        setIsSaving(false);
+        return;
+      }
+      
       const cleanedData = {
         ...data,
+        name: data.name.trim(),
+        email: data.email.trim(),
         phone: data.phone || "",
         address: data.address || "",
         city: data.city || "",
         postalCode: data.postalCode || "",
       };
       
+      console.log("Données nettoyées avant envoi:", cleanedData);
+      
       const result = await updateUserProfile(userId, cleanedData);
       
       if (result.success) {
+        setLastSavedValues(cleanedData);
         toast({
           title: "Profil mis à jour",
           description: "Vos informations ont été mises à jour avec succès."

@@ -19,30 +19,54 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
       };
     }
     
+    // Vérification et nettoyage des données du profil
+    if (!profileData) {
+      console.error("Données de profil invalides ou manquantes");
+      return {
+        success: false,
+        error: "Données de profil invalides ou manquantes"
+      };
+    }
+    
+    // Créer une copie propre des données
+    const cleanedData: ProfileData = {};
+    
+    // Nettoyer et valider chaque champ
+    if (profileData.name !== undefined) cleanedData.name = profileData.name.trim();
+    if (profileData.email !== undefined) cleanedData.email = profileData.email.trim();
+    if (profileData.phone !== undefined) cleanedData.phone = profileData.phone.trim();
+    if (profileData.address !== undefined) cleanedData.address = profileData.address.trim();
+    if (profileData.city !== undefined) cleanedData.city = profileData.city.trim();
+    if (profileData.postalCode !== undefined) cleanedData.postalCode = profileData.postalCode.trim();
+    if (profileData.firstName !== undefined) cleanedData.firstName = profileData.firstName.trim();
+    if (profileData.lastName !== undefined) cleanedData.lastName = profileData.lastName.trim();
+    
+    console.log("Données nettoyées:", cleanedData);
+    
     // Mise à jour dans Firestore
-    const firestoreSuccess = await updateFirestoreProfile(userId, profileData);
+    const firestoreSuccess = await updateFirestoreProfile(userId, cleanedData);
     
     // Mise à jour dans Supabase
-    const supabaseSuccess = await updateSupabaseProfile(userId, profileData);
+    const supabaseSuccess = await updateSupabaseProfile(userId, cleanedData);
     
     if (firestoreSuccess && supabaseSuccess) {
       console.log("Profil mis à jour avec succès dans Firestore et Supabase");
       return {
         success: true,
-        data: profileData
+        data: cleanedData
       };
     } else if (firestoreSuccess) {
       console.log("Profil mis à jour uniquement dans Firestore");
       return {
         success: true,
-        data: profileData,
+        data: cleanedData,
         error: "Échec de la mise à jour dans Supabase"
       };
     } else if (supabaseSuccess) {
       console.log("Profil mis à jour uniquement dans Supabase");
       return {
         success: true,
-        data: profileData,
+        data: cleanedData,
         error: "Échec de la mise à jour dans Firestore"
       };
     } else {

@@ -9,6 +9,8 @@ export interface ProfileData {
   postalCode?: string;
   firstName?: string;
   lastName?: string;
+  // Ajout d'un champ pour suivre la dernière modification
+  updatedAt?: Date;
 }
 
 export interface ProfileResponse {

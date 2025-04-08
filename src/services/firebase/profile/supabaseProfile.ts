@@ -12,16 +12,29 @@ export const updateSupabaseProfile = async (userId: string, profileData: Profile
       return false;
     }
     
+    // S'assurer que profileData n'est pas null ou undefined
+    if (!profileData) {
+      console.error('Données de profil invalides pour Supabase');
+      return false;
+    }
+    
     console.log("Tentative de mise à jour du profil dans Supabase");
+    
+    // Vérifier et nettoyer les valeurs du profil
+    const name = profileData.name !== undefined ? profileData.name : null;
+    const email = profileData.email !== undefined ? profileData.email : null;
+    const phone = profileData.phone !== undefined ? profileData.phone : null;
+    
+    console.log("Données à envoyer à Supabase profiles:", { id: userId, name, email, phone });
     
     // Mise à jour de la table profiles
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
         id: userId,
-        name: profileData.name,
-        email: profileData.email,
-        phone: profileData.phone,
+        name: name,
+        email: email,
+        phone: phone,
         updated_at: new Date().toISOString()
       }, { onConflict: 'id' });
     
@@ -32,19 +45,33 @@ export const updateSupabaseProfile = async (userId: string, profileData: Profile
       console.log("Mise à jour du profil Supabase réussie");
     }
     
+    // Préparer les données pour user_details
+    const firstName = profileData.firstName || 
+                      (name ? name.split(' ')[0] : null);
+    const lastName = profileData.lastName || 
+                    (name && name.split(' ').length > 1 ? 
+                      name.split(' ').slice(1).join(' ') : null);
+    
+    console.log("Données à envoyer à Supabase user_details:", { 
+      id: userId, 
+      first_name: firstName, 
+      last_name: lastName,
+      address: profileData.address,
+      city: profileData.city,
+      postal_code: profileData.postalCode
+    });
+    
     // Mise à jour de la table user_details pour stocker les adresses et noms
     console.log("Mise à jour des détails utilisateur dans Supabase");
     const { error: detailsError } = await supabase
       .from('user_details')
       .upsert({
         id: userId,
-        first_name: profileData.firstName || profileData.name?.split(' ')[0] || '',
-        last_name: profileData.lastName || 
-          (profileData.name?.split(' ').length > 1 ? 
-            profileData.name?.split(' ').slice(1).join(' ') : ''),
-        address: profileData.address,
-        city: profileData.city,
-        postal_code: profileData.postalCode,
+        first_name: firstName,
+        last_name: lastName,
+        address: profileData.address || null,
+        city: profileData.city || null,
+        postal_code: profileData.postalCode || null,
         updated_at: new Date().toISOString()
       }, { onConflict: 'id' });
     

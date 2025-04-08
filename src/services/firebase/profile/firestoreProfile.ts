@@ -13,6 +13,22 @@ export const updateFirestoreProfile = async (userId: string, profileData: Profil
       return false;
     }
     
+    // S'assurer que profileData n'est pas null ou undefined
+    if (!profileData) {
+      console.error('Données de profil invalides');
+      return false;
+    }
+    
+    // Créer une copie des données pour éviter toute modification accidentelle
+    const cleanedData = { ...profileData };
+    
+    // S'assurer que le nom n'est pas vide s'il est fourni
+    if (cleanedData.name !== undefined && cleanedData.name.trim() === '') {
+      console.warn('Nom vide détecté, sera enregistré comme null');
+    }
+    
+    console.log("Données du profil à envoyer à Firestore:", cleanedData);
+    
     const userRef = doc(db, 'users', userId);
     
     // Vérifier si le document existe
@@ -22,7 +38,7 @@ export const updateFirestoreProfile = async (userId: string, profileData: Profil
       // Créer le document s'il n'existe pas
       console.log("Création d'un nouveau profil utilisateur dans Firestore");
       await setDoc(userRef, {
-        ...profileData,
+        ...cleanedData,
         createdAt: new Date(),
         updatedAt: new Date()
       });
@@ -30,7 +46,7 @@ export const updateFirestoreProfile = async (userId: string, profileData: Profil
       // Mettre à jour le document existant
       console.log("Mise à jour du profil utilisateur existant dans Firestore");
       await updateDoc(userRef, {
-        ...profileData,
+        ...cleanedData,
         updatedAt: new Date()
       });
     }
