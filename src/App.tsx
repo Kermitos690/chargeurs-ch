@@ -12,7 +12,7 @@ import AdminLayout from './components/AdminLayout';
 import AuthGuard from './components/AuthGuard';
 import NewPassword from './pages/auth/NewPassword';
 import MFASetup from './pages/auth/MFASetup';
-import Stations from './pages/Stations';
+import StationsMap from './pages/StationsMap';
 import AdminPowerbanks from './pages/admin/Powerbanks';
 import AdminStations from './pages/admin/Stations';
 import AdminPayments from './pages/admin/Payments';
@@ -27,7 +27,7 @@ function App() {
         <Route path="/auth/new-password" element={<NewPassword />} />
         
         <Route path="/" element={<RouteGuard />}>
-          <Route path="/stations" element={<Stations />} />
+          <Route path="/stations" element={<StationsMap />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 
