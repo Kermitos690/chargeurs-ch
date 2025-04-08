@@ -1,5 +1,5 @@
 
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from './config';
 import { updateProfile as updateFirebaseProfile } from 'firebase/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,14 +28,19 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      throw new Error('Profil utilisateur non trouvé');
+      // Créer le document s'il n'existe pas
+      await setDoc(userRef, {
+        ...profileData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    } else {
+      // Mettre à jour le document existant
+      await updateDoc(userRef, {
+        ...profileData,
+        updatedAt: new Date()
+      });
     }
-    
-    // Mettre à jour le document Firestore
-    await updateDoc(userRef, {
-      ...profileData,
-      updatedAt: new Date()
-    });
     
     // 2. Mettre à jour dans Supabase si disponible
     try {
@@ -150,7 +155,29 @@ export const getUserProfile = async (userId: string) => {
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      throw new Error('Profil utilisateur non trouvé');
+      // Si l'utilisateur n'existe pas dans Firestore, créer un document de base
+      // avec les informations disponibles dans Firebase Auth
+      if (auth.currentUser) {
+        const basicUserData = {
+          name: auth.currentUser.displayName || '',
+          email: auth.currentUser.email || '',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        await setDoc(userRef, basicUserData);
+        
+        return {
+          success: true,
+          data: basicUserData
+        };
+      }
+      
+      // Si aucun document n'existe et pas d'utilisateur connecté, renvoyer une erreur
+      return { 
+        success: false, 
+        error: 'Profil utilisateur non trouvé' 
+      };
     }
     
     return { 
