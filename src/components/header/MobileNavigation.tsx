@@ -40,45 +40,58 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   return (
     <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DrawerTrigger asChild className="md:hidden">
-        <Button variant="ghost" size="icon">
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        <Button variant="ghost" size="icon" className="transition-all duration-300">
+          {isMenuOpen ? 
+            <X className="h-5 w-5 transition-all duration-300 animate-in fade-in-50" /> : 
+            <Menu className="h-5 w-5 transition-all duration-300 animate-in fade-in-50" />
+          }
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="p-0 h-[85vh] rounded-t-xl">
-        <DrawerOverlay className="bg-black/60" />
+      <DrawerContent className="p-0 h-[85vh] rounded-t-xl transition-all duration-300">
+        <DrawerOverlay className="bg-black/60 backdrop-blur-xs animate-in fade-in-75 duration-200" />
         
-        <div className="h-2 w-12 rounded-full bg-gray-300 mx-auto mb-2 mt-2" />
+        <div className="h-2 w-12 rounded-full bg-gray-300 mx-auto mb-2 mt-2 animate-in fade-in zoom-in-95 duration-200" />
         
         <div className="overflow-y-auto h-full pb-safe">
           {/* Main Navigation */}
-          <MenuSection title="Navigation" items={mainNavItems} />
+          <div className="animate-in slide-in-from-left-2 duration-300 delay-75">
+            <MenuSection title="Navigation" items={mainNavItems} />
+          </div>
           
-          <div className="h-px bg-gray-200 mx-6 my-2" />
+          <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-500 delay-100" />
           
           {/* Boutique Section */}
-          <MenuSection title="Boutique" items={shopNavItems} />
+          <div className="animate-in slide-in-from-left-2 duration-300 delay-150">
+            <MenuSection title="Boutique" items={shopNavItems} />
+          </div>
           
           {user && (
             <>
-              <div className="h-px bg-gray-200 mx-6 my-2" />
+              <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-500 delay-200" />
               
               {/* User Account Section */}
-              <UserSection handleLogout={handleLogout} />
+              <div className="animate-in slide-in-from-left-2 duration-300 delay-225">
+                <UserSection handleLogout={handleLogout} />
+              </div>
             </>
           )}
           
           {!user && (
             <>
-              <div className="h-px bg-gray-200 mx-6 my-2" />
+              <div className="h-px bg-gray-200 mx-6 my-2 animate-in fade-in duration-500 delay-200" />
               
               {/* Authentication Section */}
-              <AuthSection />
+              <div className="animate-in slide-in-from-left-2 duration-300 delay-225">
+                <AuthSection />
+              </div>
             </>
           )}
           
           {/* Footer */}
-          <MenuFooter />
+          <div className="animate-in fade-in slide-in-from-bottom-1 duration-300 delay-300">
+            <MenuFooter />
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

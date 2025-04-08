@@ -14,44 +14,76 @@ const UserSection: React.FC<UserSectionProps> = ({ handleLogout }) => {
       <h2 className="text-lg font-semibold mb-4 text-gray-800">Mon compte</h2>
       <div className="space-y-1">
         <DrawerClose asChild>
-          <NavLink to="/profile" className={({ isActive }) => 
-            `flex items-center p-3.5 rounded-lg text-base ${isActive 
-              ? "bg-green-50 text-green-600 font-medium" 
-              : "text-gray-700 hover:bg-gray-50"}`
-          }>
-            <User className="w-5 h-5 mr-3" strokeWidth={1.8} />
+          <NavLink 
+            to="/profile" 
+            className={({ isActive }) => 
+              `flex items-center p-3.5 rounded-lg text-base transition-all duration-200 
+              ${isActive 
+                ? "bg-green-50 text-green-600 font-medium" 
+                : "text-gray-700 hover:bg-gray-50"}`
+            }
+            style={{ 
+              opacity: 0,
+              animation: 'fadeInItem 0.3s ease forwards',
+              animationDelay: '50ms'
+            }}
+          >
+            <User className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
             Profil
           </NavLink>
         </DrawerClose>
         
         <DrawerClose asChild>
-          <NavLink to="/account" className={({ isActive }) => 
-            `flex items-center p-3.5 rounded-lg text-base ${isActive 
-              ? "bg-green-50 text-green-600 font-medium" 
-              : "text-gray-700 hover:bg-gray-50"}`
-          }>
-            <Settings className="w-5 h-5 mr-3" strokeWidth={1.8} />
+          <NavLink 
+            to="/account" 
+            className={({ isActive }) => 
+              `flex items-center p-3.5 rounded-lg text-base transition-all duration-200 
+              ${isActive 
+                ? "bg-green-50 text-green-600 font-medium" 
+                : "text-gray-700 hover:bg-gray-50"}`
+            }
+            style={{ 
+              opacity: 0,
+              animation: 'fadeInItem 0.3s ease forwards',
+              animationDelay: '100ms'
+            }}
+          >
+            <Settings className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
             Paramètres
           </NavLink>
         </DrawerClose>
         
         <DrawerClose asChild>
-          <NavLink to="/faq" className={({ isActive }) => 
-            `flex items-center p-3.5 rounded-lg text-base ${isActive 
-              ? "bg-green-50 text-green-600 font-medium" 
-              : "text-gray-700 hover:bg-gray-50"}`
-          }>
-            <HelpCircle className="w-5 h-5 mr-3" strokeWidth={1.8} />
+          <NavLink 
+            to="/faq" 
+            className={({ isActive }) => 
+              `flex items-center p-3.5 rounded-lg text-base transition-all duration-200 
+              ${isActive 
+                ? "bg-green-50 text-green-600 font-medium" 
+                : "text-gray-700 hover:bg-gray-50"}`
+            }
+            style={{ 
+              opacity: 0,
+              animation: 'fadeInItem 0.3s ease forwards',
+              animationDelay: '150ms'
+            }}
+          >
+            <HelpCircle className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
             Aide
           </NavLink>
         </DrawerClose>
         
         <DrawerClose asChild>
           <button 
-            className="flex items-center p-3.5 rounded-lg text-base w-full text-left text-gray-700 hover:bg-gray-50"
+            className="flex items-center p-3.5 rounded-lg text-base w-full text-left text-gray-700 hover:bg-gray-50 transition-all duration-200"
             onClick={handleLogout}
+            style={{ 
+              opacity: 0,
+              animation: 'fadeInItem 0.3s ease forwards',
+              animationDelay: '200ms'
+            }}
           >
-            <LogOut className="w-5 h-5 mr-3" strokeWidth={1.8} />
+            <LogOut className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
             Se déconnecter
           </button>
         </DrawerClose>
