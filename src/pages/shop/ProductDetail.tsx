@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -68,9 +67,8 @@ const ProductDetail: React.FC = () => {
     setAddingToCart(true);
     try {
       const variantId = selectedVariant?.id;
-      const price = selectedVariant?.price || product.sale_price || product.price;
       
-      const success = await addToCart(product.id, quantity, price, variantId);
+      const success = await addToCart(product.id, quantity, variantId);
       if (success) {
         toast.success('Produit ajouté au panier');
       }
