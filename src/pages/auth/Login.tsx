@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LoginHeader from '@/components/auth/LoginHeader';
 import LoginForm from '@/components/auth/LoginForm';
+import { toast } from 'sonner';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,6 +16,11 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/stations';
 
   const handleLoginSuccess = (redirectPath: string) => {
+    // Notification de succès
+    toast.success("Connexion réussie!");
+    
+    console.log("Redirection après connexion vers:", redirectPath);
+    
     // Rediriger vers la page précédente ou la page d'accueil
     navigate(redirectPath);
   };

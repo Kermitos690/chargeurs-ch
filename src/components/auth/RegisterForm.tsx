@@ -9,6 +9,7 @@ import LoginError from './LoginError';
 import RegisterFormFields from './RegisterFormFields';
 import RegisterButton from './RegisterButton';
 import RegisterFooter from './RegisterFooter';
+import { toast } from 'sonner';
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -23,7 +24,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
 
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
@@ -41,7 +42,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       case 'terms-not-accepted':
         return "Vous devez accepter les conditions d'utilisation";
       default:
-        return "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
+        return "Une erreur est survenue lors de l'inscription. Veuillez réessayer. (" + errorCode + ")";
     }
   };
 
@@ -98,10 +99,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         return;
       }
       
-      toast({
-        title: "Compte créé avec succès",
-        description: "Bienvenue sur chargeurs.ch !",
-      });
+      // Utilisez Sonner toast pour la notification
+      toast.success("Compte créé avec succès! Vous pouvez maintenant vous connecter.");
       
       // Reset form after successful registration
       setEmail('');
@@ -111,11 +110,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       setPhone('');
       setAcceptTerms(false);
       
-      // Maintenant, redirigeons l'utilisateur
-      onSuccess();
+      // Attendre un peu avant de rediriger pour que l'utilisateur voie le message de succès
+      setTimeout(() => {
+        // Maintenant, redirigeons l'utilisateur
+        onSuccess();
+      }, 1000);
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
-      setErrorMessage(getErrorMessage(error.message));
+      setErrorMessage(getErrorMessage(error.message || "unknown-error"));
+    } finally {
       setIsLoading(false);
     }
   };

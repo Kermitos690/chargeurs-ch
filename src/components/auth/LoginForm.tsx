@@ -9,6 +9,7 @@ import LoginError from './LoginError';
 import LoginFormFields from './LoginFormFields';
 import LoginButton from './LoginButton';
 import LoginFooter from './LoginFooter';
+import { toast } from 'sonner';
 
 interface LoginFormProps {
   onSuccess: (redirectPath: string) => void;
@@ -21,7 +22,7 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loginAttempts, setLoginAttempts] = useState(0);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
 
   // Limite le nombre de tentatives de connexion
   const MAX_LOGIN_ATTEMPTS = 5;
@@ -48,6 +49,23 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
     }
   }, []);
 
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'Invalid login credentials':
+        return "Email ou mot de passe incorrect";
+      case 'Email not confirmed':
+        return "Votre email n'a pas été confirmé. Veuillez vérifier votre boîte de réception";
+      case 'User not found':
+        return "Aucun compte trouvé avec cet email";
+      case 'Too many requests':
+        return "Trop de tentatives de connexion. Veuillez réessayer plus tard";
+      case 'network-request-failed':
+        return "Problème de connexion réseau. Vérifiez votre connexion internet";
+      default:
+        return "Une erreur est survenue lors de la connexion. Veuillez réessayer. (" + errorCode + ")";
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -61,14 +79,25 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
     }
     
     setIsLoading(true);
+    
+    // Validation de base
+    if (!email || !password) {
+      setError("Veuillez remplir tous les champs");
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      console.log("Tentative de connexion pour:", email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error("Erreur de connexion:", error);
+        
         // Incrémenter et enregistrer le nombre de tentatives
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
@@ -80,35 +109,30 @@ const LoginForm = ({ onSuccess, redirectPath = '/stations' }: LoginFormProps) =>
           localStorage.setItem('loginLockoutUntil', String(lockoutTime));
           setError(`Trop de tentatives échouées. Compte bloqué pendant 5 minutes.`);
         } else {
-          setError(error.message || "Email ou mot de passe incorrect");
+          setError(getErrorMessage(error.message));
         }
         
-        toast({
-          variant: "destructive",
-          title: "Erreur de connexion",
-          description: error.message || "Email ou mot de passe incorrect",
-        });
+        toast.error("Erreur de connexion: " + getErrorMessage(error.message));
       } else {
         // Réinitialiser les tentatives après une connexion réussie
         localStorage.removeItem('loginAttempts');
         localStorage.removeItem('loginLockoutUntil');
         
-        toast({
-          title: "Connexion réussie",
-          description: "Vous êtes maintenant connecté à votre compte",
-        });
+        toast.success("Connexion réussie! Bienvenue sur Chargeurs.ch");
         
-        // Rediriger vers la page précédente ou la page d'accueil
-        onSuccess(redirectPath);
+        console.log("Connexion réussie, redirection vers:", redirectPath);
+        
+        // Attendre un peu avant de rediriger pour que l'utilisateur voie le message de succès
+        setTimeout(() => {
+          // Rediriger vers la page précédente ou la page d'accueil
+          onSuccess(redirectPath);
+        }, 1000);
       }
     } catch (error: any) {
+      console.error("Erreur inattendue:", error);
       setError("Une erreur inattendue s'est produite. Veuillez réessayer plus tard.");
       
-      toast({
-        variant: "destructive",
-        title: "Erreur de connexion",
-        description: "Une erreur inattendue s'est produite",
-      });
+      toast.error("Erreur de connexion: Une erreur inattendue s'est produite");
     } finally {
       setIsLoading(false);
     }
