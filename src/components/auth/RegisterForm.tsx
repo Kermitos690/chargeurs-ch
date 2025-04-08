@@ -13,9 +13,10 @@ import { toast } from 'sonner';
 
 interface RegisterFormProps {
   onSuccess: () => void;
+  onCaptchaError?: () => void;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCaptchaError }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -47,6 +48,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       default:
         return "Une erreur est survenue lors de l'inscription. Veuillez réessayer. (" + errorCode + ")";
     }
+  };
+
+  const isCaptchaError = (errorMessage: string): boolean => {
+    return errorMessage.includes('captcha') || 
+           errorMessage.includes('invalid-input-response') || 
+           errorMessage === 'captcha_failed';
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -89,6 +96,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       
       if (error) {
         console.error("Erreur lors de l'inscription:", error);
+        
+        // Si c'est une erreur de captcha, notifier le parent
+        if (isCaptchaError(error.message) && onCaptchaError) {
+          onCaptchaError();
+        }
+        
         setErrorMessage(getErrorMessage(error.message));
         setIsLoading(false);
         return;

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import Header from '@/components/Header';
@@ -9,15 +9,44 @@ import RegisterForm from '@/components/auth/RegisterForm';
 import MaintenanceMessage from '@/components/auth/MaintenanceMessage';
 import { toast } from 'sonner';
 import { BrowserRouter } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const RegisterContent = () => {
   const navigate = useNavigate();
   const [showMaintenanceMessage, setShowMaintenanceMessage] = useState(false);
   
+  // Vérifier si la captcha protection est active
+  useEffect(() => {
+    const testCaptchaProtection = async () => {
+      try {
+        // Tentative de création d'un compte avec des identifiants factices pour tester
+        const { error } = await supabase.auth.signUp({
+          email: `test-${Date.now()}@example.com`,
+          password: 'test12345',
+        });
+        
+        // Si on reçoit une erreur de captcha, on affiche le message de maintenance
+        if (error && (error.message.includes('captcha') || error.message.includes('request disallowed'))) {
+          console.log("Captcha protection détectée:", error.message);
+          setShowMaintenanceMessage(true);
+        }
+      } catch (err) {
+        console.error("Erreur lors du test de captcha:", err);
+      }
+    };
+    
+    // Exécuter le test après le chargement du composant
+    testCaptchaProtection();
+  }, []);
+  
   const handleRegisterSuccess = () => {
     toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
     // Redirection vers stations après inscription réussie
     navigate('/stations');
+  };
+
+  const handleCaptchaError = () => {
+    setShowMaintenanceMessage(true);
   };
 
   return (
@@ -32,6 +61,7 @@ const RegisterContent = () => {
           <Card>
             <RegisterForm 
               onSuccess={handleRegisterSuccess} 
+              onCaptchaError={handleCaptchaError}
             />
           </Card>
         </div>
