@@ -14,8 +14,8 @@ const AuthSection: React.FC = () => {
             className="flex items-center justify-center p-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-medium transition-all duration-300 hover:scale-[1.02] active:scale-95"
             style={{ 
               opacity: 0,
-              animation: 'fadeInItem 0.3s ease forwards',
-              animationDelay: '100ms'
+              animation: 'fadeInItem 0.5s cubic-bezier(0.26, 0.54, 0.32, 1) forwards',
+              animationDelay: '150ms'
             }}
           >
             Se connecter
@@ -28,8 +28,8 @@ const AuthSection: React.FC = () => {
             className="flex items-center justify-center p-3 border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 rounded-lg text-base font-medium transition-all duration-300 hover:scale-[1.02] active:scale-95"
             style={{ 
               opacity: 0,
-              animation: 'fadeInItem 0.3s ease forwards',
-              animationDelay: '150ms'
+              animation: 'fadeInItem 0.5s cubic-bezier(0.26, 0.54, 0.32, 1) forwards',
+              animationDelay: '225ms'
             }}
           >
             S'inscrire
