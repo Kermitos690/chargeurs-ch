@@ -39,7 +39,10 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
           {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </SheetTrigger>
-      <SheetContent side="top" className="pt-16 pb-6 w-full h-[80vh] overflow-y-auto bg-white">
+      <SheetContent 
+        side="top" 
+        className="pt-16 pb-6 w-full h-[90vh] overflow-y-auto bg-white border-none shadow-lg"
+      >
         <div className="flex flex-col h-full">
           <div className="space-y-6 p-4">
             {!user && (
@@ -180,3 +183,4 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
 };
 
 export default MobileNavigation;
+
