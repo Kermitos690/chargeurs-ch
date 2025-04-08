@@ -24,32 +24,58 @@ export const useMessageSender = (
     try {
       setLoading(true);
       
-      // Send user message
+      // Optimistic update - add message to UI immediately
+      const optimisticId = crypto.randomUUID();
+      const optimisticMessage: Message = {
+        id: optimisticId,
+        content: content,
+        user_id: user.id,
+        is_assistant: false,
+        created_at: new Date().toISOString(),
+        room_id: 'general',
+        user_name: user.email?.split('@')[0] || 'Utilisateur'
+      };
+      
+      setMessages(prev => [...prev, optimisticMessage]);
+      
+      // Send user message to database
       const { data: messageSent, error: messageError } = await supabase
         .from('messages')
         .insert(userMessage)
-        .select();
+        .select('*, profiles(name)');
       
-      if (messageError) throw messageError;
+      if (messageError) {
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticId));
+        toast.error(`Erreur: ${messageError.message}`);
+        throw messageError;
+      }
       
       if (messageSent && messageSent[0]) {
-        const newMessage: Message = {
-          id: messageSent[0].id,
-          content: messageSent[0].content,
-          user_id: messageSent[0].user_id,
-          is_assistant: false,
-          created_at: messageSent[0].created_at,
-          room_id: messageSent[0].room_id
-        };
+        // Replace optimistic message with actual message from server
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === optimisticId 
+              ? {
+                  id: messageSent[0].id,
+                  content: messageSent[0].content,
+                  user_id: messageSent[0].user_id,
+                  is_assistant: false,
+                  created_at: messageSent[0].created_at,
+                  room_id: messageSent[0].room_id,
+                  user_name: messageSent[0].profiles?.name || user.email?.split('@')[0] || 'Utilisateur'
+                }
+              : msg
+          )
+        );
         
-        // Ajoutons le message à l'état local
-        setMessages(prev => [...prev, newMessage]);
+        toast.success('Message envoyé');
       }
       
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de l\'envoi du message:', error);
-      toast.error("Erreur lors de l'envoi du message");
+      toast.error(`Erreur d'envoi: ${error.message || 'Erreur inconnue'}`);
       setLoading(false);
     }
   }, [user, setMessages, setLoading]);
