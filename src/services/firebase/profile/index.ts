@@ -92,3 +92,4 @@ export const getUserProfile = async (userId: string): Promise<ProfileResponse> =
     };
   }
 };
+
