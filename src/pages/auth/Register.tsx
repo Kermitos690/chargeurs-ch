@@ -7,8 +7,9 @@ import Footer from '@/components/Footer';
 import RegisterHeader from '@/components/auth/RegisterHeader';
 import RegisterForm from '@/components/auth/RegisterForm';
 import { toast } from 'sonner';
+import { BrowserRouter } from 'react-router-dom';
 
-const Register = () => {
+const RegisterContent = () => {
   const navigate = useNavigate();
   
   const handleRegisterSuccess = () => {
@@ -29,6 +30,21 @@ const Register = () => {
       </main>
       <Footer />
     </div>
+  );
+};
+
+// Composant wrapper qui ne dépend pas de useNavigate
+const Register = () => {
+  // Vérifier si nous sommes déjà dans un contexte Router
+  if (typeof window !== 'undefined' && window.location.pathname === '/register') {
+    return <RegisterContent />;
+  }
+  
+  // Sinon, fournir un BrowserRouter
+  return (
+    <BrowserRouter>
+      <RegisterContent />
+    </BrowserRouter>
   );
 };
 

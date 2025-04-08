@@ -62,8 +62,8 @@ export const createUser = async (userData: Partial<User>): Promise<User | null> 
     // car il faut d'abord créer l'utilisateur dans auth puis la fonction trigger
     // s'occupera de créer le profil
     
-    // Erreur: TS erreur car subscription_type nécessite un type spécifique
-    const subscriptionType = userData.subscriptionType || 'basic';
+    // Fix pour l'erreur TS2322 - conversion explicite au type attendu
+    const subscriptionType = (userData.subscriptionType || 'basic') as "basic" | "premium" | "enterprise";
     
     toast.error("L'API d'administration ne peut pas créer directement des comptes utilisateurs. Les utilisateurs doivent s'inscrire via le formulaire d'inscription.");
     
@@ -77,13 +77,16 @@ export const createUser = async (userData: Partial<User>): Promise<User | null> 
 
 export const updateUser = async (id: string, userData: Partial<User>): Promise<User | null> => {
   try {
+    // Fix pour l'erreur TS2322 - conversion explicite au type attendu
+    const subscriptionType = (userData.subscriptionType || 'basic') as "basic" | "premium" | "enterprise";
+    
     const { data, error } = await supabase
       .from('profiles')
       .update({
         name: userData.name,
         email: userData.email,
         phone: userData.phone,
-        subscription_type: userData.subscriptionType || 'basic',
+        subscription_type: subscriptionType,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
