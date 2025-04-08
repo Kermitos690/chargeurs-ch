@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -17,19 +18,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useQuery } from '@tanstack/react-query';
-import { getUserProfile, updateUserProfile } from '@/services/api';
 import { ArrowLeft, Save } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { getUserProfile, updateUserProfile } from '@/services/firebase/profile';
 
 const profileFormSchema = z.object({
-  firstName: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }),
-  lastName: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
-  email: z.string().email({ message: 'Adresse email invalide' }),
-  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().or(z.literal('')),
-  address: z.string().optional().or(z.literal('')),
-  city: z.string().optional().or(z.literal('')),
-  postalCode: z.string().optional().or(z.literal('')),
+  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
+  email: z.string().email({ message: 'Adresse email invalide' }).optional(),
+  phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().nullable(),
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  postalCode: z.string().optional().nullable(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -47,20 +47,16 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 const Profile = () => {
   const { toast } = useToast();
-  
-  // Mock user ID for demo - would come from auth in a real app
-  const userId = "user123";
-
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => getUserProfile(userId),
-  });
+  const navigate = useNavigate();
+  const { user, userData, loading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      name: '',
       email: '',
       phone: '',
       address: '',
@@ -78,39 +74,90 @@ const Profile = () => {
     },
   });
 
-  // Update form values when user data is loaded
-  React.useEffect(() => {
-    if (userData?.data) {
-      profileForm.reset({
-        firstName: userData.data.firstName || '',
-        lastName: userData.data.lastName || '',
-        email: userData.data.email || '',
-        phone: userData.data.phone || '',
-        address: userData.data.address || '',
-        city: userData.data.city || '',
-        postalCode: userData.data.postalCode || '',
-      });
+  // Rediriger si l'utilisateur n'est pas connecté
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth/login');
     }
-  }, [userData, profileForm]);
+  }, [user, loading, navigate]);
+
+  // Charger les données du profil utilisateur
+  useEffect(() => {
+    const fetchUserProfileData = async () => {
+      if (!user) return;
+      
+      setIsLoading(true);
+      try {
+        // Utiliser d'abord les données de userData si disponibles
+        if (userData) {
+          setProfileData(userData);
+          profileForm.reset({
+            name: userData.name || '',
+            email: userData.email || user.email || '',
+            phone: userData.phone || '',
+            address: '',
+            city: '',
+            postalCode: '',
+          });
+        }
+        
+        // Ensuite, récupérer les données complètes depuis Firestore
+        const response = await getUserProfile(user.uid);
+        if (response.success && response.data) {
+          setProfileData(response.data);
+          profileForm.reset({
+            name: response.data.name || user.displayName || '',
+            email: response.data.email || user.email || '',
+            phone: response.data.phone || '',
+            address: response.data.address || '',
+            city: response.data.city || '',
+            postalCode: response.data.postalCode || '',
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du profil:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger vos informations de profil.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfileData();
+  }, [user, userData, profileForm, toast]);
 
   const onSubmitProfile = async (data: ProfileFormValues) => {
+    if (!user) return;
+    
+    setIsSaving(true);
     try {
-      await updateUserProfile(userId, data);
-      toast({
-        title: "Profile mis à jour",
-        description: "Vos informations ont été mises à jour avec succès."
-      });
-    } catch (error) {
+      const result = await updateUserProfile(user.uid, data);
+      
+      if (result.success) {
+        toast({
+          title: "Profil mis à jour",
+          description: "Vos informations ont été mises à jour avec succès."
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la mise à jour du profil:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour de votre profil.",
+        description: error.message || "Une erreur est survenue lors de la mise à jour de votre profil.",
         variant: "destructive"
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const onSubmitPassword = (data: PasswordFormValues) => {
-    // In a real app, this would call an API to update the password
+    // Dans une application réelle, cela appellerait une API pour mettre à jour le mot de passe
     console.log('Password update data:', data);
     
     toast({
@@ -125,7 +172,7 @@ const Profile = () => {
     });
   };
 
-  if (isLoading) {
+  if (loading || isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -170,35 +217,19 @@ const Profile = () => {
                 <CardContent>
                   <Form {...profileForm}>
                     <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={profileForm.control}
-                          name="firstName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Prénom</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Votre prénom" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={profileForm.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nom</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Votre nom" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FormField
+                        control={profileForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nom complet</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Votre nom" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
                       <FormField
                         control={profileForm.control}
@@ -207,7 +238,7 @@ const Profile = () => {
                           <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input placeholder="Votre email" {...field} />
+                              <Input placeholder="Votre email" {...field} disabled />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -276,9 +307,18 @@ const Profile = () => {
                         </div>
                       </div>
                       
-                      <Button type="submit" className="w-full md:w-auto">
-                        <Save className="mr-2 h-4 w-4" />
-                        Enregistrer les modifications
+                      <Button type="submit" className="w-full md:w-auto" disabled={isSaving}>
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enregistrement...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Enregistrer les modifications
+                          </>
+                        )}
                       </Button>
                     </form>
                   </Form>
@@ -361,7 +401,7 @@ const Profile = () => {
                       <p className="text-sm text-muted-foreground">Recevoir un email de confirmation pour chaque location</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked />
+                      <input type="checkbox" className="sr-only peer" defaultChecked />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
@@ -372,7 +412,7 @@ const Profile = () => {
                       <p className="text-sm text-muted-foreground">Rappels pour les locations de longue durée</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked />
+                      <input type="checkbox" className="sr-only peer" defaultChecked />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>

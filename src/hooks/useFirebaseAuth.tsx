@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db, authStateListener } from '@/services/firebase';
 
 interface UserData {
@@ -10,6 +10,10 @@ interface UserData {
   email?: string;
   phone?: string;
   subscriptionType?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  updatedAt?: Date;
 }
 
 export const useFirebaseAuth = () => {
@@ -18,32 +22,74 @@ export const useFirebaseAuth = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    const unsubscribe = authStateListener(async (authUser) => {
+    let userDataUnsubscribe: (() => void) | null = null;
+
+    const authUnsubscribe = authStateListener(async (authUser) => {
       setLoading(true);
+      
+      // Nettoyer l'abonnement précédent si existant
+      if (userDataUnsubscribe) {
+        userDataUnsubscribe();
+        userDataUnsubscribe = null;
+      }
       
       if (authUser) {
         setUser(authUser);
         
         try {
-          // Fetch additional user data from Firestore
+          // Récupérer la référence du document utilisateur
           const userDocRef = doc(db, 'users', authUser.uid);
+          
+          // Vérifier si le document existe
           const userDocSnap = await getDoc(userDocRef);
           
           if (userDocSnap.exists()) {
+            // Définir les données utilisateur initiales
+            const userDataFromFirestore = userDocSnap.data();
             setUserData({ 
               id: authUser.uid,
-              ...userDocSnap.data() as Omit<UserData, 'id'>
+              ...userDataFromFirestore as Omit<UserData, 'id'>
+            });
+            
+            // Mettre en place un écouteur temps réel pour les mises à jour futures
+            userDataUnsubscribe = onSnapshot(userDocRef, (doc) => {
+              if (doc.exists()) {
+                setUserData({ 
+                  id: authUser.uid,
+                  ...doc.data() as Omit<UserData, 'id'>
+                });
+              }
             });
           } else {
-            // Create basic user data if doesn't exist in Firestore
+            // Créer des données utilisateur de base si elles n'existent pas dans Firestore
+            const basicUserData: Omit<UserData, 'id'> = {
+              email: authUser.email || undefined,
+              name: authUser.displayName || undefined,
+              subscriptionType: 'basic',
+              updatedAt: new Date()
+            };
+            
+            // Enregistrer les données utilisateur de base dans Firestore
+            await setDoc(userDocRef, basicUserData);
+            
+            // Définir les données utilisateur initiales
             setUserData({ 
               id: authUser.uid,
-              email: authUser.email || undefined,
-              name: authUser.displayName || undefined
+              ...basicUserData
+            });
+            
+            // Mettre en place un écouteur temps réel pour les mises à jour futures
+            userDataUnsubscribe = onSnapshot(userDocRef, (doc) => {
+              if (doc.exists()) {
+                setUserData({ 
+                  id: authUser.uid,
+                  ...doc.data() as Omit<UserData, 'id'>
+                });
+              }
             });
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Erreur lors de la récupération des données utilisateur:", error);
         }
       } else {
         setUser(null);
@@ -53,7 +99,12 @@ export const useFirebaseAuth = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      authUnsubscribe();
+      if (userDataUnsubscribe) {
+        userDataUnsubscribe();
+      }
+    };
   }, []);
 
   return { user, userData, loading };
