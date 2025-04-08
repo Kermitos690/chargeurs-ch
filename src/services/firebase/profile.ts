@@ -73,14 +73,16 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
         console.log("Mise à jour du profil Supabase réussie");
       }
       
-      // Mise à jour de la table user_details
+      // Mise à jour de la table user_details pour stocker les adresses et noms
       console.log("Mise à jour des détails utilisateur dans Supabase");
       const { error: detailsError } = await supabase
         .from('user_details')
         .upsert({
           id: userId,
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
+          first_name: profileData.firstName || profileData.name?.split(' ')[0] || '',
+          last_name: profileData.lastName || 
+            (profileData.name?.split(' ').length > 1 ? 
+              profileData.name?.split(' ').slice(1).join(' ') : ''),
           address: profileData.address,
           city: profileData.city,
           postal_code: profileData.postalCode,
