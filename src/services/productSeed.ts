@@ -9,8 +9,8 @@ export const seedProducts = async () => {
     
     // First, ensure categories exist
     const categories = [
-      { id: 'powerbanks', name: 'Powerbanks', slug: 'powerbanks', description: 'Batteries portables de recharge' },
-      { id: 'stations', name: 'Bornes de recharge', slug: 'stations', description: 'Stations de recharge pour véhicules électriques' },
+      { id: 'powerbanks', name: 'Powerbanks', slug: 'powerbanks', description: 'Batteries portables de recharge pour smartphones' },
+      { id: 'cables', name: 'Câbles et adaptateurs', slug: 'cables', description: 'Câbles de recharge et adaptateurs pour tous vos appareils' },
       { id: 'goodies', name: 'Goodies', slug: 'goodies', description: 'Produits dérivés et accessoires' },
       { id: 'gift-cards', name: 'Cartes cadeaux', slug: 'gift-cards', description: 'Cartes cadeaux pour offrir des recharges' }
     ];
@@ -70,51 +70,49 @@ export const seedProducts = async () => {
           dimensions: '160 x 80 x 22mm'
         })
       },
-      // Charging Stations
+      // Charging Cables
       {
-        id: 'cs-home-basic',
-        name: 'Station Domicile Basic',
-        slug: 'station-domicile-basic',
-        description: 'Borne de recharge domestique 7kW avec câble intégré Type 2, idéale pour une installation résidentielle.',
-        price: 899,
-        category_id: 'stations',
-        stock_quantity: 35,
+        id: 'cable-usbc-lightning',
+        name: 'Câble USB-C vers Lightning',
+        slug: 'cable-usbc-lightning',
+        description: 'Câble de charge rapide USB-C vers Lightning pour iPhone, certifié MFi, 1m.',
+        price: 19.90,
+        category_id: 'cables',
+        stock_quantity: 200,
         featured: true,
         is_digital: false,
-        main_image_url: 'https://images.unsplash.com/photo-1618390408023-9e696f0f4b0e',
+        main_image_url: 'https://images.unsplash.com/photo-1600490722773-35753aea6332',
         specifications: JSON.stringify({
-          power: '7kW',
-          connector: 'Type 2',
-          installation: 'Murale',
-          connectivity: 'Wi-Fi',
-          dimensions: '450 x 250 x 140mm'
+          length: '1m',
+          material: 'Nylon tressé renforcé',
+          compatibility: 'iPhone, iPad, iPod',
+          maxOutput: '20W'
         })
       },
       {
-        id: 'cs-pro-22kw',
-        name: 'Station Pro 22kW',
-        slug: 'station-pro-22kw',
-        description: 'Borne de recharge triphasée 22kW avec authentification RFID et connexion réseau pour gestion à distance.',
-        price: 1599,
-        category_id: 'stations',
-        stock_quantity: 20,
+        id: 'cable-usbc-usbc',
+        name: 'Câble USB-C vers USB-C',
+        slug: 'cable-usbc-usbc',
+        description: 'Câble de charge rapide USB-C vers USB-C, compatible PD 100W, 2m.',
+        price: 24.90,
+        category_id: 'cables',
+        stock_quantity: 150,
         featured: false,
         is_digital: false,
-        main_image_url: 'https://images.unsplash.com/photo-1558435091-c3d950121fa2',
+        main_image_url: 'https://images.unsplash.com/photo-1624365169457-0156390f9838',
         specifications: JSON.stringify({
-          power: '22kW',
-          connector: 'Type 2',
-          installation: 'Sur pied ou murale',
-          connectivity: 'Wi-Fi, Ethernet, 4G',
-          authentication: 'RFID, App mobile'
+          length: '2m',
+          material: 'Nylon tressé renforcé',
+          compatibility: 'Smartphones, tablettes, ordinateurs portables',
+          maxOutput: '100W'
         })
       },
       // Goodies
       {
         id: 'goodies-tshirt',
-        name: 'T-shirt Eco-Power',
-        slug: 't-shirt-eco-power',
-        description: 'T-shirt 100% coton bio avec impression Eco-Power. Disponible en plusieurs tailles.',
+        name: 'T-shirt Power On',
+        slug: 't-shirt-power-on',
+        description: 'T-shirt 100% coton bio avec impression Power On. Disponible en plusieurs tailles.',
         price: 24.90,
         category_id: 'goodies',
         stock_quantity: 100,

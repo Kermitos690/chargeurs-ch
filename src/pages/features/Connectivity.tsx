@@ -10,14 +10,14 @@ const Connectivity = () => {
   const connectivityFeatures = [
     {
       icon: <Wifi className="h-12 w-12 text-primary" />,
-      title: "Connectivité Wi-Fi intégrée",
-      description: "Connectez votre powerbank à votre réseau Wi-Fi pour un suivi en temps réel et des mises à jour automatiques.",
+      title: "Connexion sans fil",
+      description: "Nos bornes de powerbanks sont connectées au WiFi pour assurer la disponibilité en temps réel des informations.",
       action: "/produits/premium"
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,
       title: "Application Mobile Intuitive",
-      description: "Contrôlez votre powerbank, suivez votre consommation et planifiez vos recharges depuis votre smartphone.",
+      description: "Localisez les bornes, louez et rendez vos powerbanks depuis votre smartphone en quelques clics.",
       action: "/contact"
     },
     {
@@ -40,8 +40,8 @@ const Connectivity = () => {
     },
     {
       icon: <Router className="h-12 w-12 text-primary" />,
-      title: "Connectivité 4G/5G",
-      description: "Option de connectivité cellulaire pour une connexion fiable même sans Wi-Fi disponible.",
+      title: "Alertes en temps réel",
+      description: "Recevez des notifications instantanées sur l'état de vos locations et les bornes disponibles à proximité.",
       action: "/produits/premium"
     }
   ];
@@ -52,11 +52,11 @@ const Connectivity = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Connectivité Intelligente</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Nos powerbanks sont entièrement connectées pour vous offrir un contrôle total, des analyses détaillées et une expérience utilisateur optimale.
+            Notre réseau de bornes de powerbanks est entièrement connecté pour vous offrir une expérience utilisateur optimale.
           </p>
           <div className="mt-6">
             <Button asChild size="lg" className="rounded-full">
-              <Link to="/produits">Découvrir nos produits connectés</Link>
+              <Link to="/stations">Découvrir nos bornes connectées</Link>
             </Button>
           </div>
         </div>
@@ -67,14 +67,14 @@ const Connectivity = () => {
               <div className="text-white">
                 <h2 className="text-3xl font-bold mb-4">Restez connecté à tout moment</h2>
                 <p className="mb-6">
-                  Notre écosystème connecté vous permet de contrôler et surveiller vos powerbanks à distance, de recevoir des notifications en temps réel et d'optimiser votre consommation d'énergie.
+                  Notre écosystème connecté vous permet de localiser les bornes, de vérifier la disponibilité des powerbanks et de gérer vos locations facilement.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Connectivité Wi-Fi et 4G/5G</span>
+                    <span>Bornes connectées en temps réel</span>
                   </li>
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
@@ -86,7 +86,7 @@ const Connectivity = () => {
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Mises à jour automatiques à distance</span>
+                    <span>Notifications push et alertes</span>
                   </li>
                 </ul>
                 <div className="mt-6">
@@ -98,7 +98,7 @@ const Connectivity = () => {
               <div className="rounded-lg overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1605648916361-9bc12ad6a569" 
-                  alt="Application mobile de contrôle de powerbank" 
+                  alt="Application mobile de location de powerbank" 
                   className="w-full h-auto"
                 />
               </div>
@@ -126,26 +126,26 @@ const Connectivity = () => {
         </div>
 
         <div className="bg-muted rounded-xl p-8 text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Compatible avec votre maison intelligente</h2>
+          <h2 className="text-3xl font-bold mb-4">Simplicité et efficacité</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Intégrez vos powerbanks avec vos autres appareils connectés pour une expérience domotique complète.
+            Notre application vous permet de gérer vos locations de powerbanks en quelques clics, où que vous soyez.
           </p>
           <div className="flex flex-wrap justify-center gap-8 mb-8">
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Apple_HomeKit_logo.svg/1200px-Apple_HomeKit_logo.svg.png" alt="Apple HomeKit" className="max-h-12" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/App_Store_%28iOS%29.svg/2048px-App_Store_%28iOS%29.svg.png" alt="App Store" className="max-h-12" />
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Works_With_Google_Assistant_badge.svg/1200px-Works_With_Google_Assistant_badge.svg.png" alt="Google Assistant" className="max-h-12" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Google_Play_Arrow_logo.svg/1200px-Google_Play_Arrow_logo.svg.png" alt="Google Play" className="max-h-12" />
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Alexa_actionable_notifications_icon.svg/1200px-Alexa_actionable_notifications_icon.svg.png" alt="Amazon Alexa" className="max-h-12" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1667px-Apple_logo_black.svg.png" alt="Apple Pay" className="max-h-12" />
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md w-24 h-24 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/IFTTT_Logo.svg/1200px-IFTTT_Logo.svg.png" alt="IFTTT" className="max-h-12" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Google_Pay_Logo_%282020%29.svg/1200px-Google_Pay_Logo_%282020%29.svg.png" alt="Google Pay" className="max-h-12" />
             </div>
           </div>
           <Button asChild>
-            <Link to="/produits">Découvrir nos produits compatibles</Link>
+            <Link to="/stations">Trouver une borne près de chez vous</Link>
           </Button>
         </div>
       </div>

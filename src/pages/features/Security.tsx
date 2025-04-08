@@ -10,22 +10,22 @@ const Security = () => {
     {
       icon: <Lock className="h-12 w-12 text-electric-blue" />,
       title: "Authentification sécurisée",
-      description: "Système d'identification à double facteur pour protéger l'accès à vos powerbanks et à vos données de recharge."
+      description: "Système d'identification à double facteur pour protéger l'accès à vos powerbanks et à vos données personnelles."
     },
     {
       icon: <Shield className="h-12 w-12 text-electric-blue" />,
       title: "Protection électrique",
-      description: "Protections intégrées contre les surtensions, les courts-circuits et les défauts d'isolation pour une sécurité maximale."
+      description: "Protections intégrées contre les surtensions, les courts-circuits et les défauts d'isolation pour protéger vos smartphones."
     },
     {
       icon: <AlertTriangle className="h-12 w-12 text-electric-blue" />,
       title: "Détection d'anomalies",
-      description: "Algorithmes avancés qui détectent les comportements anormaux et peuvent interrompre la recharge en cas de problème."
+      description: "Algorithmes qui détectent les comportements anormaux et peuvent interrompre la recharge en cas de problème."
     },
     {
       icon: <Eye className="h-12 w-12 text-electric-blue" />,
       title: "Surveillance 24/7",
-      description: "Système de supervision permanent de vos powerbanks avec alertes en temps réel."
+      description: "Système de supervision permanent de notre réseau de powerbanks avec alertes en temps réel."
     },
     {
       icon: <FileCheck className="h-12 w-12 text-electric-blue" />,
@@ -45,7 +45,7 @@ const Security = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Sécurité Avancée</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Protection optimale pour vos appareils, vos données et vos paiements grâce à nos systèmes de sécurité intégrés de pointe.
+            Protection optimale pour vos smartphones, vos données et vos paiements grâce à nos systèmes de sécurité intégrés.
           </p>
         </div>
 
@@ -68,13 +68,13 @@ const Security = () => {
                     <div className="h-5 w-5 rounded-full bg-electric-blue/50 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Chiffrement de bout en bout des données</span>
+                    <span>Chiffrement de bout en bout de vos données</span>
                   </li>
                   <li className="flex items-center">
                     <div className="h-5 w-5 rounded-full bg-electric-blue/50 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Authentification multi-facteurs</span>
+                    <span>Authentification multi-facteurs pour les locations</span>
                   </li>
                 </ul>
               </div>
@@ -139,12 +139,12 @@ const Security = () => {
         </div>
 
         <div className="bg-electric-blue text-white rounded-xl overflow-hidden py-12 px-8 text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Découvrez notre livre blanc sur la sécurité</h2>
+          <h2 className="text-3xl font-bold mb-4">Découvrez notre guide de sécurité</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Téléchargez notre document technique détaillant notre approche complète de la sécurité des powerbanks.
+            Téléchargez notre guide détaillant les meilleures pratiques pour la recharge sécurisée de vos smartphones.
           </p>
           <Button variant="secondary" size="lg">
-            Télécharger le livre blanc
+            Télécharger le guide
           </Button>
         </div>
 
@@ -152,7 +152,7 @@ const Security = () => {
           <h2 className="text-2xl font-bold mb-6 text-center">Questions fréquentes sur la sécurité</h2>
           <div className="space-y-4">
             <div className="bg-card p-6 rounded-lg shadow">
-              <h3 className="font-medium mb-2">Les powerbanks présentent-elles des risques pour mon appareil ?</h3>
+              <h3 className="font-medium mb-2">Les powerbanks présentent-elles des risques pour mon smartphone ?</h3>
               <p className="text-muted-foreground">Non, nos powerbanks intègrent plusieurs niveaux de protection qui assurent une recharge sécurisée pour votre smartphone. Des systèmes de contrôle surveillent en permanence les paramètres électriques pour prévenir tout dommage.</p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow">

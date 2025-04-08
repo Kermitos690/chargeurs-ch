@@ -17,8 +17,8 @@ const Features = () => {
   const features = [
     {
       icon: <BatteryFull className="h-10 w-10 text-primary" />,
-      title: "Rechargez n'importe où",
-      description: "Accédez à nos bornes dans les bars et restaurants de Lausanne."
+      title: "Powerbanks à louer",
+      description: "Accédez à nos batteries portables dans les bars et restaurants de Lausanne."
     },
     {
       icon: <MapPin className="h-10 w-10 text-primary" />,
@@ -65,7 +65,7 @@ const Features = () => {
           <div className="text-center mb-16">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Nos Solutions de Powerbanks</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Découvrez notre réseau de bornes de location de powerbanks, disponibles dans les bars et restaurants de Lausanne pour garder vos appareils chargés en permanence.
+              Découvrez notre réseau de bornes de location de powerbanks, disponibles dans les bars et restaurants de Lausanne pour garder vos smartphones chargés en permanence.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ const Features = () => {
                 <ol className="space-y-4">
                   <li className="flex gap-3">
                     <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">1</span>
-                    <span>Nous installons gratuitement une borne dans votre établissement</span>
+                    <span>Nous installons gratuitement une borne de powerbanks dans votre établissement</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">2</span>

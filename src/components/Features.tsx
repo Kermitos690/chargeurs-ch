@@ -9,13 +9,13 @@ const Features = () => {
     {
       icon: <BatteryFull className="h-12 w-12 text-primary" />,
       title: "Autonomie garantie",
-      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos appareils.",
+      description: "Ne tombez plus jamais en panne de batterie. Nos powerbanks offrent une recharge rapide et efficace pour tous vos smartphones.",
       link: "/features/charging"
     },
     {
       icon: <MapPin className="h-12 w-12 text-primary" />,
       title: "Réseau étendu",
-      description: "Des bornes disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7.",
+      description: "Des bornes de location disponibles partout dans le canton de Vaud, accessibles 24h/24 et 7j/7.",
       link: "/stations"
     },
     {
@@ -27,19 +27,19 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Sécurité optimale",
-      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité.",
+      description: "Powerbanks certifiées et régulièrement vérifiées pour garantir votre sécurité et celle de vos appareils.",
       link: "/features/security"
     },
     {
       icon: <Smartphone className="h-12 w-12 text-primary" />,
       title: "Application mobile",
-      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application.",
+      description: "Localisez les bornes, vérifiez la disponibilité et gérez vos locations depuis notre application smartphone.",
       link: "/features/connectivity"
     },
     {
       icon: <CreditCard className="h-12 w-12 text-primary" />,
       title: "Tarification transparente",
-      description: "Payez uniquement pour la durée d'utilisation, sans frais cachés.",
+      description: "Payez uniquement pour la durée d'utilisation de votre powerbank, sans frais cachés.",
       link: "/subscriptions"
     }
   ];
@@ -50,7 +50,7 @@ const Features = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Pourquoi choisir chargeurs.ch ?</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Une solution pratique et écologique pour rester connecté à tout moment.
+            Une solution pratique et écologique pour garder vos smartphones chargés à tout moment.
           </p>
         </div>
         

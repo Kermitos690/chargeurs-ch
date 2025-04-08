@@ -19,7 +19,7 @@ export const getUsers = async (): Promise<User[]> => {
       name: item.name || 'N/A',
       email: item.email || 'N/A',
       phone: item.phone || 'N/A',
-      subscriptionType: item.subscription_type,
+      subscriptionType: (item.subscription_type || 'basic') as "basic" | "premium" | "enterprise",
       createdAt: item.created_at
     }));
   } catch (error: any) {
@@ -46,7 +46,7 @@ export const getUserById = async (id: string): Promise<User | null> => {
       name: data.name || 'N/A',
       email: data.email || 'N/A',
       phone: data.phone || 'N/A',
-      subscriptionType: data.subscription_type,
+      subscriptionType: (data.subscription_type || 'basic') as "basic" | "premium" | "enterprise",
       createdAt: data.created_at
     };
   } catch (error: any) {
@@ -102,7 +102,7 @@ export const updateUser = async (id: string, userData: Partial<User>): Promise<U
       name: data.name,
       email: data.email,
       phone: data.phone,
-      subscriptionType: data.subscription_type,
+      subscriptionType: data.subscription_type as "basic" | "premium" | "enterprise",
       createdAt: data.created_at
     };
   } catch (error: any) {

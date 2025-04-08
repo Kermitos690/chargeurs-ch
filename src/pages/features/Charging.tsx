@@ -18,8 +18,8 @@ const Charging = () => {
     },
     {
       icon: <Clock className="h-12 w-12 text-electric-blue" />,
-      title: "Planification intelligente",
-      description: "Programmez vos sessions de recharge aux heures qui vous conviennent grâce à notre application mobile intuitive."
+      title: "Location flexible",
+      description: "Louez une powerbank pour une heure, une journée ou plus selon vos besoins dans nos bornes de recharge."
     },
     {
       icon: <Shield className="h-12 w-12 text-electric-blue" />,
@@ -28,13 +28,13 @@ const Charging = () => {
     },
     {
       icon: <BarChart4 className="h-12 w-12 text-electric-blue" />,
-      title: "Analyse de consommation",
-      description: "Suivez et optimisez votre consommation d'énergie grâce à des rapports détaillés et personnalisés."
+      title: "Suivi de consommation",
+      description: "Suivez votre utilisation des powerbanks via notre application mobile et optimisez votre consommation."
     },
     {
       icon: <Settings className="h-12 w-12 text-electric-blue" />,
-      title: "Maintenance prédictive",
-      description: "Nos systèmes intelligents détectent les problèmes potentiels avant qu'ils n'affectent vos sessions de recharge."
+      title: "Maintenance assurée",
+      description: "Nos powerbanks sont régulièrement vérifiées et remplacées pour vous garantir une expérience optimale."
     }
   ];
 
@@ -44,7 +44,7 @@ const Charging = () => {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Recharge Rapide et Efficace</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Découvrez notre technologie de pointe pour une recharge rapide, fiable et adaptée à tous les appareils mobiles.
+            Découvrez notre technologie de pointe pour une recharge rapide, fiable et adaptée à tous les smartphones.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ const Charging = () => {
                     <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center mr-2">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <span>Régulation intelligente de la charge</span>
+                    <span>Disponible dans nos bornes de location</span>
                   </li>
                 </ul>
               </div>
