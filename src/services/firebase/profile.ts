@@ -161,6 +161,10 @@ export const getUserProfile = async (userId: string) => {
         const basicUserData = {
           name: auth.currentUser.displayName || '',
           email: auth.currentUser.email || '',
+          phone: '',
+          address: '',
+          city: '',
+          postalCode: '',
           createdAt: new Date(),
           updatedAt: new Date()
         };
