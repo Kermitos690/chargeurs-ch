@@ -13,5 +13,8 @@ export * from './firestore';
 // Storage services
 export * from './storage';
 
+// Profile services
+export * from './profile';
+
 // Utilities
 export * from './utils';
