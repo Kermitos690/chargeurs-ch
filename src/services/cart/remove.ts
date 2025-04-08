@@ -4,59 +4,40 @@ import { toast } from 'sonner';
 import { getOrCreateSessionId } from './session';
 
 /**
- * Supprime un article du panier
+ * Vide complètement le panier d'un utilisateur
  */
-export const removeCartItem = async (itemId: string) => {
+export const clearCart = async (userId?: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from('cart_items')
-      .delete()
-      .eq('id', itemId);
-
-    if (error) throw error;
-    
-    toast.success('Article supprimé du panier');
-    return true;
-  } catch (error) {
-    console.error('Erreur lors de la suppression de l\'article:', error);
-    toast.error('Impossible de supprimer l\'article');
-    return false;
-  }
-};
-
-/**
- * Vide le panier
- */
-export const clearCart = async (userId?: string) => {
-  try {
-    const sessionId = getOrCreateSessionId();
-    
-    // Construire la requête de manière sécurisée
+    // Trouver le panier approprié
     let cartQuery = supabase.from('carts').select('id');
     
     if (userId) {
       cartQuery = cartQuery.eq('user_id', userId);
     } else {
+      const sessionId = getOrCreateSessionId();
       cartQuery = cartQuery.eq('session_id', sessionId);
     }
     
-    // Trouver l'ID du panier
     const { data: carts, error: cartError } = await cartQuery;
-
-    if (cartError) throw cartError;
     
-    const cart = carts && carts.length > 0 ? carts[0] : null;
-    if (!cart) return true;
-
+    if (cartError || !carts || carts.length === 0) {
+      console.error('Erreur ou panier introuvable:', cartError);
+      return false;
+    }
+    
     // Supprimer tous les articles du panier
-    const { error: deleteError } = await supabase
+    const { error } = await supabase
       .from('cart_items')
       .delete()
-      .eq('cart_id', cart.id);
-
-    if (deleteError) throw deleteError;
+      .eq('cart_id', carts[0].id);
+      
+    if (error) {
+      console.error('Erreur lors du vidage du panier:', error);
+      toast.error('Impossible de vider le panier');
+      return false;
+    }
     
-    toast.success('Panier vidé');
+    toast.success('Panier vidé avec succès');
     return true;
   } catch (error) {
     console.error('Erreur lors du vidage du panier:', error);

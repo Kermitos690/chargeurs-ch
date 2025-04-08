@@ -43,12 +43,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user) {
-      toast.error('Veuillez vous connecter pour ajouter au panier');
-      navigate('/login');
-      return;
-    }
-    
     setLoading(true);
     try {
       await addToCart(id, 1);

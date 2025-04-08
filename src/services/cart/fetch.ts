@@ -5,13 +5,13 @@ import { getOrCreateSessionId } from './session';
 import { CartItem } from './types';
 
 /**
- * Récupère le contenu du panier
+ * Récupère les articles du panier
  */
 export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
   try {
     const sessionId = getOrCreateSessionId();
     
-    // Construire la requête de manière sécurisée
+    // Construire la requête de panier
     let cartQuery = supabase.from('carts').select('id');
     
     if (userId) {
@@ -20,15 +20,18 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
       cartQuery = cartQuery.eq('session_id', sessionId);
     }
     
-    // D'abord, trouver l'ID du panier
+    // Trouver l'ID du panier
     const { data: carts, error: cartError } = await cartQuery;
 
-    if (cartError) throw cartError;
+    if (cartError) {
+      console.error('Erreur lors de la récupération du panier:', cartError);
+      return [];
+    }
     
     const cart = carts && carts.length > 0 ? carts[0] : null;
     if (!cart) return [];
 
-    // Ensuite, récupérer les articles du panier avec les détails des produits
+    // Récupérer les articles du panier avec détails
     const { data: cartItems, error: itemsError } = await supabase
       .from('cart_items')
       .select(`
@@ -53,8 +56,12 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
       `)
       .eq('cart_id', cart.id);
 
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      console.error('Erreur lors de la récupération des articles:', itemsError);
+      return [];
+    }
 
+    // Formater les données pour correspondre à notre type CartItem
     return cartItems.map(item => ({
       id: item.id,
       quantity: item.quantity,
@@ -79,7 +86,6 @@ export const getCartItems = async (userId?: string): Promise<CartItem[]> => {
     }));
   } catch (error) {
     console.error('Erreur lors de la récupération du panier:', error);
-    toast.error('Impossible de récupérer le contenu du panier');
     return [];
   }
 };

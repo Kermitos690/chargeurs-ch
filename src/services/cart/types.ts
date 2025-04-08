@@ -1,25 +1,31 @@
 
-/**
- * Types pour le service de panier
- */
-
+// Types pour les services de panier
 export interface CartItem {
   id: string;
   quantity: number;
-  priceAtAdd: number;
   product: {
     id: string;
     name: string;
     slug: string;
-    imageUrl?: string;
     price: number;
-    regularPrice: number;
+    sale_price?: number;
+    image_url?: string;
   };
   variant?: {
     id: string;
     name: string;
-    imageUrl?: string;
     price: number;
-    attributes: Record<string, any>;
+    image_url?: string;
+    attributes?: Record<string, any>;
   } | null;
+  priceAtAdd: number;
+}
+
+export interface Cart {
+  id: string;
+  user_id?: string;
+  session_id?: string;
+  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
 }

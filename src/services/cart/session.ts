@@ -1,56 +1,91 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Génère ou récupère un ID de session pour les utilisateurs non connectés
+ * Récupère ou crée un ID de session pour les utilisateurs non connectés
  */
 export const getOrCreateSessionId = (): string => {
   let sessionId = localStorage.getItem('cart_session_id');
+  
   if (!sessionId) {
-    sessionId = crypto.randomUUID();
+    sessionId = uuidv4();
     localStorage.setItem('cart_session_id', sessionId);
   }
+  
   return sessionId;
 };
 
 /**
- * Initialise un panier pour un utilisateur (connecté ou non)
+ * Récupère ou crée un panier pour l'utilisateur ou la session
  */
-export const initializeCart = async (userId?: string) => {
+export const getOrCreateCart = async (userId?: string) => {
   try {
+    // Construire la requête appropriée selon que l'utilisateur est connecté ou non
+    let query = supabase.from('carts');
     const sessionId = getOrCreateSessionId();
     
-    // Construire la condition de requête de manière sécurisée
-    let query = supabase.from('carts').select('id');
-    
     if (userId) {
-      query = query.eq('user_id', userId);
+      // Pour les utilisateurs connectés
+      const { data: existingCarts, error: fetchError } = await query
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+        
+      if (fetchError) {
+        console.error('Erreur lors de la recherche du panier:', fetchError);
+        return null;
+      }
+      
+      // Retourner le panier existant s'il existe
+      if (existingCarts) {
+        return existingCarts;
+      }
+      
+      // Créer un nouveau panier pour l'utilisateur
+      const { data: newCart, error: createError } = await query
+        .insert({ user_id: userId })
+        .select()
+        .single();
+        
+      if (createError) {
+        console.error('Erreur lors de la création du panier:', createError);
+        return null;
+      }
+      
+      return newCart;
     } else {
-      query = query.eq('session_id', sessionId);
+      // Pour les utilisateurs non connectés (panier basé sur la session)
+      const { data: existingCarts, error: fetchError } = await query
+        .select('*')
+        .eq('session_id', sessionId)
+        .maybeSingle();
+        
+      if (fetchError) {
+        console.error('Erreur lors de la recherche du panier:', fetchError);
+        return null;
+      }
+      
+      // Retourner le panier existant s'il existe
+      if (existingCarts) {
+        return existingCarts;
+      }
+      
+      // Créer un nouveau panier pour la session
+      const { data: newCart, error: createError } = await query
+        .insert({ session_id: sessionId })
+        .select()
+        .single();
+        
+      if (createError) {
+        console.error('Erreur lors de la création du panier:', createError);
+        return null;
+      }
+      
+      return newCart;
     }
-    
-    const { data: existingCarts, error: fetchError } = await query;
-
-    if (fetchError) throw fetchError;
-    
-    const existingCart = existingCarts && existingCarts.length > 0 ? existingCarts[0] : null;
-
-    if (!existingCart) {
-      const { data: newCart, error: createError } = await supabase
-        .from('carts')
-        .insert({
-          user_id: userId || null,
-          session_id: !userId ? sessionId : null,
-        })
-        .select('id');
-
-      if (createError) throw createError;
-      return newCart[0].id;
-    }
-
-    return existingCart.id;
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation du panier:', error);
+    console.error('Erreur lors de la récupération ou création du panier:', error);
     return null;
   }
 };
