@@ -103,6 +103,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         description: "Bienvenue sur chargeurs.ch !",
       });
       
+      // Reset form after successful registration
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setName('');
+      setPhone('');
+      setAcceptTerms(false);
+      
       // Maintenant, redirigeons l'utilisateur
       onSuccess();
     } catch (error: any) {

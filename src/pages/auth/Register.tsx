@@ -14,6 +14,7 @@ const RegisterContent = () => {
   
   const handleRegisterSuccess = () => {
     toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
+    // Redirection vers stations après inscription réussie
     navigate('/stations');
   };
 
@@ -33,7 +34,7 @@ const RegisterContent = () => {
   );
 };
 
-// Composant wrapper qui ne dépend pas de useNavigate
+// Composant wrapper qui utilise le router correctement
 const Register = () => {
   // Vérifier si nous sommes déjà dans un contexte Router
   if (typeof window !== 'undefined' && window.location.pathname === '/register') {
