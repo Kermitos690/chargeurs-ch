@@ -8,6 +8,11 @@ import { ProfileData } from './types';
  */
 export const updateFirestoreProfile = async (userId: string, profileData: ProfileData): Promise<boolean> => {
   try {
+    if (!userId || !db) {
+      console.error('ID utilisateur ou instance Firestore invalide');
+      return false;
+    }
+    
     const userRef = doc(db, 'users', userId);
     
     // Vérifier si le document existe
@@ -42,6 +47,11 @@ export const updateFirestoreProfile = async (userId: string, profileData: Profil
  */
 export const getFirestoreProfile = async (userId: string) => {
   try {
+    if (!userId || !db) {
+      console.error('ID utilisateur ou instance Firestore invalide');
+      return null;
+    }
+    
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
     

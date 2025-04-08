@@ -10,6 +10,15 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
   try {
     console.log("Mise à jour du profil utilisateur:", userId, profileData);
     
+    // Vérification de la validité de l'ID utilisateur
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+      console.error("ID utilisateur invalide:", userId);
+      return {
+        success: false,
+        error: "ID utilisateur invalide ou manquant"
+      };
+    }
+    
     // Mise à jour dans Firestore
     const firestoreSuccess = await updateFirestoreProfile(userId, profileData);
     
@@ -57,6 +66,14 @@ export const updateUserProfile = async (userId: string, profileData: ProfileData
  */
 export const getUserProfile = async (userId: string): Promise<ProfileResponse> => {
   try {
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+      console.error("ID utilisateur invalide:", userId);
+      return {
+        success: false,
+        error: "ID utilisateur invalide ou manquant"
+      };
+    }
+    
     console.log("Récupération du profil utilisateur:", userId);
     
     // Récupérer depuis Firestore
@@ -92,4 +109,3 @@ export const getUserProfile = async (userId: string): Promise<ProfileResponse> =
     };
   }
 };
-

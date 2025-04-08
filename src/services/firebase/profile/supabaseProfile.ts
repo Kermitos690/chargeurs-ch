@@ -7,6 +7,11 @@ import { ProfileData } from './types';
  */
 export const updateSupabaseProfile = async (userId: string, profileData: ProfileData): Promise<boolean> => {
   try {
+    if (!userId || !supabase) {
+      console.error('ID utilisateur ou instance Supabase invalide');
+      return false;
+    }
+    
     console.log("Tentative de mise à jour du profil dans Supabase");
     
     // Mise à jour de la table profiles
@@ -62,6 +67,11 @@ export const updateSupabaseProfile = async (userId: string, profileData: Profile
  */
 export const getSupabaseProfile = async (userId: string) => {
   try {
+    if (!userId || !supabase) {
+      console.error('ID utilisateur ou instance Supabase invalide');
+      return null;
+    }
+    
     // Récupérer les données de base du profil
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
