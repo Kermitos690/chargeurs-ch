@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
@@ -15,17 +14,14 @@ const RegisterContent = () => {
   const navigate = useNavigate();
   const [showMaintenanceMessage, setShowMaintenanceMessage] = useState(false);
   
-  // Vérifier si la captcha protection est active
   useEffect(() => {
     const testCaptchaProtection = async () => {
       try {
-        // Tentative de création d'un compte avec des identifiants factices pour tester
         const { error } = await supabase.auth.signUp({
           email: `test-${Date.now()}@example.com`,
           password: 'test12345',
         });
         
-        // Si on reçoit une erreur de captcha, on affiche le message de maintenance
         if (error && (error.message.includes('captcha') || error.message.includes('request disallowed'))) {
           console.log("Captcha protection détectée:", error.message);
           setShowMaintenanceMessage(true);
@@ -35,13 +31,11 @@ const RegisterContent = () => {
       }
     };
     
-    // Exécuter le test après le chargement du composant
     testCaptchaProtection();
   }, []);
   
   const handleRegisterSuccess = () => {
     toast.success("Votre compte a été créé avec succès! Vous pouvez maintenant vous connecter.");
-    // Redirection vers stations après inscription réussie
     navigate('/stations');
   };
 
@@ -71,14 +65,11 @@ const RegisterContent = () => {
   );
 };
 
-// Composant wrapper qui utilise le router correctement
 const Register = () => {
-  // Vérifier si nous sommes déjà dans un contexte Router
   if (typeof window !== 'undefined' && window.location.pathname === '/register') {
     return <RegisterContent />;
   }
   
-  // Sinon, fournir un BrowserRouter
   return (
     <BrowserRouter>
       <RegisterContent />
