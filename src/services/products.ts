@@ -93,6 +93,25 @@ export const getProducts = async (filters: ProductFilters = {}) => {
   }
 };
 
+// Récupérer les produits par catégorie
+export const getProductsByCategory = async (categorySlug: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, product_categories(name, slug)')
+      .eq('product_categories.slug', categorySlug)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error) {
+    console.error(`Erreur lors de la récupération des produits de la catégorie ${categorySlug}:`, error);
+    return [];
+  }
+};
+
 // Récupérer un produit par son slug
 export const getProductBySlug = async (slug: string) => {
   try {
