@@ -20,7 +20,7 @@ import { updateUserProfile } from '@/services/firebase/profile';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
-  email: z.string().email({ message: 'Adresse email invalide' }).optional(),
+  email: z.string().email({ message: 'Adresse email invalide' }),
   phone: z.string().min(10, { message: 'Numéro de téléphone invalide' }).optional().nullable(),
   address: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
@@ -100,7 +100,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ userId, initialValues }) =>
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Votre email" {...field} disabled />
+                    <Input placeholder="Votre email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
