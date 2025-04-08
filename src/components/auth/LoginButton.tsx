@@ -4,18 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Loader2, LogIn } from 'lucide-react';
 
 interface LoginButtonProps {
-  isLoading: boolean;
   isDisabled: boolean;
 }
 
-const LoginButton: React.FC<LoginButtonProps> = ({ isLoading, isDisabled }) => {
+const LoginButton: React.FC<LoginButtonProps> = ({ isDisabled }) => {
   return (
-    <Button 
-      type="submit" 
-      className="w-full" 
-      disabled={isLoading || isDisabled}
+    <Button
+      type="submit"
+      className="w-full"
+      disabled={isDisabled}
     >
-      {isLoading ? (
+      {isDisabled ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Connexion en cours...

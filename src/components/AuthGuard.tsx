@@ -1,11 +1,10 @@
-
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 interface AuthGuardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
 }
@@ -34,7 +33,7 @@ const AuthGuard = ({ children, adminOnly = false, superAdminOnly = false }: Auth
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <>{children}</>;
+  return <>{children || <Outlet />}</>;
 };
 
 export default AuthGuard;

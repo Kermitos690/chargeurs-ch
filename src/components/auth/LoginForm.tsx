@@ -58,11 +58,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectPath = '/stati
         // L'utilisateur a MFA activé
         const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         
-        if (mfaData.nextLevel === 'aal2' && mfaData.currentLevel === 'aal1' && mfaData.nextFactor) {
-          // MFA requis, afficher l'interface de vérification
-          setMfaFactorId(mfaData.nextFactor.id);
-          setIsLoading(false);
-          return;
+        console.log("MFA Data:", mfaData);
+        
+        if (mfaData.nextLevel === 'aal2' && mfaData.currentLevel === 'aal1') {
+          // Récupérer les facteurs MFA
+          const { data: factorsData } = await supabase.auth.mfa.listFactors();
+          
+          console.log("MFA Factors:", factorsData);
+          
+          if (factorsData.totp && factorsData.totp.length > 0) {
+            // Prendre le premier facteur TOTP
+            const factor = factorsData.totp[0];
+            setMfaFactorId(factor.id);
+            setIsLoading(false);
+            return;
+          }
         }
       }
       
@@ -126,9 +136,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectPath = '/stati
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
-            isLoading={isLoading}
           />
-          <LoginButton isLoading={isLoading} />
+          <LoginButton isDisabled={isLoading} />
         </form>
       </CardContent>
       <LoginFooter />

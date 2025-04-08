@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Stations from './pages/Stations';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import RouteGuard from './components/RouteGuard';
@@ -8,14 +8,15 @@ import Profile from './pages/Profile';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
-import AdminPowerbanks from './pages/admin/Powerbanks';
-import AdminStations from './pages/admin/Stations';
-import AdminPayments from './pages/admin/Payments';
-import AdminSettings from './pages/admin/Settings';
 import AdminLayout from './components/AdminLayout';
 import AuthGuard from './components/AuthGuard';
 import NewPassword from './pages/auth/NewPassword';
 import MFASetup from './pages/auth/MFASetup';
+import Stations from './pages/Stations';
+import AdminPowerbanks from './pages/admin/Powerbanks';
+import AdminStations from './pages/admin/Stations';
+import AdminPayments from './pages/admin/Payments';
+import AdminSettings from './pages/admin/Settings';
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AuthGuard adminOnly />} >
+        <Route path="/admin" element={<AuthGuard adminOnly />}>
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
           <Route path="/admin/powerbanks" element={<AdminLayout><AdminPowerbanks /></AdminLayout>} />

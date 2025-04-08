@@ -1,23 +1,21 @@
 
 import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface LoginFormFieldsProps {
   email: string;
-  setEmail: (email: string) => void;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
   password: string;
-  setPassword: (password: string) => void;
-  isDisabled: boolean;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LoginFormFields: React.FC<LoginFormFieldsProps> = ({ 
-  email, 
-  setEmail, 
-  password, 
-  setPassword, 
-  isDisabled 
+const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
 }) => {
   return (
     <>
@@ -26,17 +24,20 @@ const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
         <Input
           id="email"
           type="email"
-          placeholder="nom@exemple.com"
-          required
+          placeholder="votre@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          disabled={isDisabled}
+          required
         />
       </div>
+
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Mot de passe</Label>
-          <Link to="/reset-password" className="text-sm text-primary hover:underline">
+          <Link
+            to="/auth/reset-password"
+            className="text-sm text-primary hover:underline"
+          >
             Mot de passe oublié?
           </Link>
         </div>
@@ -44,10 +45,9 @@ const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
           id="password"
           type="password"
           placeholder="••••••••"
-          required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          disabled={isDisabled}
+          required
         />
       </div>
     </>

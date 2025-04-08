@@ -45,7 +45,7 @@ const MFASetup: React.FC = () => {
       if (data.totp && data.totp.length > 0) {
         setExistingFactors(data.totp);
         // Vérifier si un facteur est déjà vérifié
-        const verifiedFactor = data.totp.find(factor => factor.verified);
+        const verifiedFactor = data.totp.find(factor => factor.status === 'verified');
         if (verifiedFactor) {
           setSetupComplete(true);
         }
@@ -325,3 +325,104 @@ const MFASetup: React.FC = () => {
 };
 
 export default MFASetup;
+
+// Helper functions that were kept from the original code
+const startTOTPSetup = async () => {
+  try {
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    const { data, error } = await supabase.auth.mfa.enroll({
+      factorType: 'totp'
+    });
+    
+    if (error) {
+      throw error;
+    }
+    
+    if (data?.id && data?.totp) {
+      setFactorId(data.id);
+      setQrCode(data.totp.qr_code);
+    } else {
+      throw new Error("Données TOTP manquantes dans la réponse");
+    }
+  } catch (error: any) {
+    console.error("Erreur lors de la configuration TOTP:", error);
+    setErrorMessage("Erreur lors de la configuration de l'authentification à deux facteurs. Veuillez réessayer.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const verifyTOTP = async () => {
+  if (!factorId || !verifyCode || verifyCode.length !== 6) {
+    setErrorMessage("Veuillez entrer un code à 6 chiffres valide");
+    return;
+  }
+  
+  try {
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    const { data, error } = await supabase.auth.mfa.challenge({
+      factorId: factorId
+    });
+    
+    if (error) {
+      throw error;
+    }
+    
+    const challengeId = data.id;
+    
+    const { data: verifyData, error: verifyError } = await supabase.auth.mfa.verify({
+      factorId: factorId,
+      challengeId: challengeId,
+      code: verifyCode
+    });
+    
+    if (verifyError) {
+      throw verifyError;
+    }
+    
+    // Vérification réussie
+    setSetupComplete(true);
+    setQrCode(null);
+    setFactorId(null);
+    setVerifyCode('');
+    toast.success("Configuration MFA réussie! Votre compte est maintenant plus sécurisé.");
+    
+    // Rafraîchir la liste des facteurs
+    checkExistingFactors();
+  } catch (error: any) {
+    console.error("Erreur lors de la vérification TOTP:", error);
+    setErrorMessage("Le code entré est incorrect. Veuillez réessayer.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const disableMFA = async (factorId: string) => {
+  try {
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    const { error } = await supabase.auth.mfa.unenroll({
+      factorId: factorId
+    });
+    
+    if (error) {
+      throw error;
+    }
+    
+    toast.success("L'authentification à deux facteurs a été désactivée.");
+    setSetupComplete(false);
+    
+    // Rafraîchir la liste des facteurs
+    checkExistingFactors();
+  } catch (error: any) {
+    console.error("Erreur lors de la désactivation MFA:", error);
+    setErrorMessage("Erreur lors de la désactivation de l'authentification à deux facteurs. Veuillez réessayer.");
+  } finally {
+    setIsLoading(false);
+  }
+};
