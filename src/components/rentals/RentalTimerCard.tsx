@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Rental } from '@/types/api';
 import { Clock, Battery, CreditCard } from 'lucide-react';
-import { calculateRentalFees, formatCurrency } from '@/services/rentalPayment';
+import { calculateRentalFees, formatCurrency } from '@/services/qrPayment';
 
 interface RentalTimerCardProps {
   rental: Rental;

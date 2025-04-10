@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserRentals, getStations } from '@/services/api';
-import { completeRental, calculateRentalFees, formatCurrency } from '@/services/rentalPayment';
+import { completeRental } from '@/services/rentalPayment';
+import { calculateRentalFees, formatCurrency } from '@/services/qrPayment';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
