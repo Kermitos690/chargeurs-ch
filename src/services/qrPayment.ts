@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -106,6 +105,11 @@ export const cancelQRPaymentSession = async (sessionId: string): Promise<{
     console.error('Erreur lors de l\'annulation du paiement:', error);
     return { success: false, error: error.message };
   }
+};
+
+// Format currency amounts to display with currency symbol
+export const formatCurrency = (amount: number): string => {
+  return `${amount.toFixed(2)} CHF`;
 };
 
 // Calculer les frais de location en fonction de la durée
