@@ -1,15 +1,4 @@
 
-import { Timestamp } from 'firebase/firestore';
-
-// Timestamp converters
-export const fromTimestamp = (timestamp: Timestamp) => {
-  return timestamp ? timestamp.toDate() : null;
-};
-
-export const toTimestamp = (date: Date) => {
-  return date ? Timestamp.fromDate(date) : null;
-};
-
 // Formatter les prix
 export const formatPrice = (price: number, locale = 'fr-CH', currency = 'CHF') => {
   return new Intl.NumberFormat(locale, {
@@ -28,4 +17,14 @@ export const formatDate = (date: Date | null, locale = 'fr-CH') => {
     month: 'long',
     day: 'numeric',
   }).format(date);
+};
+
+// Convertir Timestamp Supabase
+export const fromTimestamp = (timestamp: string | null) => {
+  return timestamp ? new Date(timestamp) : null;
+};
+
+// Convertir date vers timestamp
+export const toTimestamp = (date: Date) => {
+  return date ? date.toISOString() : null;
 };

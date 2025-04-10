@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { updateUserProfile } from '@/services/firebase/profile';
+import { updateUserProfile } from '@/services/profile';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),

@@ -1,20 +1,7 @@
+// Ce fichier est maintenu pour la compatibilité avec le code existant
+// mais il réexporte désormais des fonctions de Supabase
 
-// Export all firebase services from a single entry point
-
-// Config and initialized services
-export * from './config';
-
-// Authentication services
-export * from './auth';
-
-// Firestore services
-export * from './firestore';
-
-// Storage services
-export * from './storage';
-
-// Profile services
-export * from './profile';
-
-// Utilities
+// Réexporter des utilitaires de formatage
 export * from './utils';
+
+// Cette structure sera progressivement migrée vers une structure Supabase pure

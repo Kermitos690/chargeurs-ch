@@ -1,146 +1,102 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
-interface QRPaymentParams {
+export interface QRPaymentParams {
   amount: number;
   description: string;
-  expiresIn?: number; // Durée de validité en secondes, par défaut 120 (2 min)
+  expiresIn?: number;
   metadata?: Record<string, any>;
 }
 
-interface QRPaymentResponse {
+export interface QRPaymentResult {
   success: boolean;
-  qrCodeUrl?: string;
   sessionId?: string;
+  qrCodeUrl?: string;
   testMode?: boolean;
   error?: string;
 }
 
-// Créer une session de paiement QR Code
-export const createQRPaymentSession = async ({
-  amount,
-  description,
-  expiresIn = 120, // 2 minutes par défaut
-  metadata = {}
-}: QRPaymentParams): Promise<QRPaymentResponse> => {
+export const createQRPaymentSession = async (params: QRPaymentParams): Promise<QRPaymentResult> => {
   try {
+    // Obtenir l'utilisateur actuel
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error('Vous devez être connecté pour effectuer cette opération');
-      return { success: false, error: 'Non authentifié' };
+      return { success: false, error: 'Utilisateur non authentifié' };
     }
     
-    // Appel à la fonction edge pour créer la session QR code
+    // Appeler l'Edge Function
     const { data, error } = await supabase.functions.invoke('create-qr-payment', {
       body: {
         userId: user.id,
-        amount,
-        description,
-        expiresIn,
-        metadata
+        ...params
       }
     });
     
     if (error) {
-      console.error('Erreur lors de la création du QR code de paiement:', error);
-      toast.error('Impossible de générer le QR code de paiement');
-      return { success: false, error: error.message };
+      console.error('Erreur lors de la création du QR code:', error);
+      return { success: false, error: error.message || 'Erreur lors de la création du QR code' };
+    }
+    
+    // Vérifier la réponse
+    if (!data.sessionId || !data.qrCodeUrl) {
+      return { success: false, error: 'Réponse invalide du serveur' };
     }
     
     return { 
       success: true, 
+      sessionId: data.sessionId, 
       qrCodeUrl: data.qrCodeUrl,
-      sessionId: data.sessionId,
-      testMode: data.testMode
+      testMode: data.testMode || false
     };
-  } catch (error) {
-    console.error('Erreur lors de la création du QR code de paiement:', error);
-    toast.error('Une erreur est survenue lors de la génération du QR code');
-    return { success: false, error: error.message };
+  } catch (error: any) {
+    console.error('Erreur lors de la création du QR code:', error);
+    return { success: false, error: error.message || 'Erreur inattendue' };
   }
 };
 
-// Vérifier le statut d'une session de paiement QR Code
-export const checkQRPaymentStatus = async (sessionId: string): Promise<{
-  success: boolean;
-  status?: 'pending' | 'completed' | 'expired' | 'canceled';
-  error?: string;
-}> => {
+export const checkQRPaymentStatus = async (sessionId: string): Promise<any> => {
   try {
     const { data, error } = await supabase.functions.invoke('check-qr-payment-status', {
       body: { sessionId }
     });
     
     if (error) {
-      console.error('Erreur lors de la vérification du statut du paiement:', error);
-      return { success: false, error: error.message };
+      console.error('Erreur lors de la vérification du statut:', error);
+      return { success: false, error: error.message || 'Erreur lors de la vérification du statut' };
     }
     
-    return { 
-      success: true, 
-      status: data.status
-    };
-  } catch (error) {
-    console.error('Erreur lors de la vérification du statut du paiement:', error);
-    return { success: false, error: error.message };
+    return { success: true, ...data };
+  } catch (error: any) {
+    console.error('Erreur lors de la vérification du statut:', error);
+    return { success: false, error: error.message || 'Erreur inattendue' };
   }
 };
 
-// Annuler une session de paiement QR Code
-export const cancelQRPaymentSession = async (sessionId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> => {
+export const cancelQRPaymentSession = async (sessionId: string): Promise<any> => {
   try {
     const { data, error } = await supabase.functions.invoke('cancel-qr-payment', {
       body: { sessionId }
     });
     
     if (error) {
-      console.error('Erreur lors de l\'annulation du paiement:', error);
-      return { success: false, error: error.message };
+      console.error('Erreur lors de l\'annulation de la session:', error);
+      return { success: false, error: error.message || 'Erreur lors de l\'annulation de la session' };
     }
     
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de l\'annulation du paiement:', error);
-    return { success: false, error: error.message };
+    return { success: true, ...data };
+  } catch (error: any) {
+    console.error('Erreur lors de l\'annulation de la session:', error);
+    return { success: false, error: error.message || 'Erreur inattendue' };
   }
 };
 
-// Format currency amounts to display with currency symbol
-export const formatCurrency = (amount: number): string => {
-  return `${amount.toFixed(2)} CHF`;
-};
-
-// Calculer les frais de location en fonction de la durée
-export const calculateRentalFees = (startTime: string, hourlyRate: number = 2): {
-  totalHours: number;
-  totalAmount: number;
-  breakdown: string;
-} => {
-  const start = new Date(startTime);
-  const now = new Date();
-  const diffInMs = now.getTime() - start.getTime();
-  
-  // Calculer les heures (arrondi à l'heure supérieure pour la facturation)
-  const diffInHours = diffInMs / (1000 * 60 * 60);
-  const totalHours = Math.ceil(diffInHours);
-  const totalAmount = totalHours * hourlyRate;
-  
-  // Créer une explication du calcul
-  const breakdown = `
-    Début de location: ${start.toLocaleString('fr-FR')}
-    Durée: ${totalHours} heure(s) (${(diffInHours).toFixed(2)} heures exactes)
-    Tarif horaire: ${hourlyRate.toFixed(2)} CHF/heure
-    Total: ${totalHours} × ${hourlyRate.toFixed(2)} = ${totalAmount.toFixed(2)} CHF
-  `;
-  
-  return {
-    totalHours,
-    totalAmount,
-    breakdown
-  };
+// Fonction utilitaire pour formater les montants
+export const formatCurrency = (amount: number, locale = 'fr-CH', currency = 'CHF') => {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
 };

@@ -1,7 +1,7 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User } from 'firebase/auth';
-import { useFirebaseAuth } from './useFirebaseAuth';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -17,9 +17,9 @@ interface AuthContextType {
     firstName?: string;
     lastName?: string;
   } | null;
-  loading: boolean;  // Renamed from 'isLoading' to match actual usage
+  loading: boolean;
   isAdmin: boolean;
-  isLoading: boolean; // Added to match the expected property in RentPowerBank
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,29 +27,92 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   isAdmin: false,
-  isLoading: true  // Added with default value
+  isLoading: true
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, userData, loading } = useFirebaseAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<AuthContextType['userData']>(null);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check if user has admin role
-    if (user) {
-      user.getIdTokenResult()
-        .then((idTokenResult) => {
-          // Check if admin custom claim exists
-          setIsAdmin(!!idTokenResult.claims.admin);
-        })
-        .catch((error) => {
-          console.error("Error getting token claims:", error);
-          setIsAdmin(false);
-        });
-    } else {
+    // Vérifier la session actuelle
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setUser(session.user);
+        await checkUserRole(session.user.id);
+        await fetchUserData(session.user.id);
+      }
+      setLoading(false);
+    };
+
+    checkSession();
+
+    // S'abonner aux changements d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        setUser(session.user);
+        await checkUserRole(session.user.id);
+        await fetchUserData(session.user.id);
+      } else {
+        setUser(null);
+        setUserData(null);
+        setIsAdmin(false);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const checkUserRole = async (userId: string) => {
+    try {
+      const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error("Erreur vérification rôle admin:", error);
       setIsAdmin(false);
     }
-  }, [user]);
+  };
+
+  const fetchUserData = async (userId: string) => {
+    try {
+      // Récupérer le profil
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      // Récupérer les détails utilisateur
+      const { data: userDetails } = await supabase
+        .from('user_details')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (profileData || userDetails) {
+        setUserData({
+          id: userId,
+          name: profileData?.name,
+          email: profileData?.email,
+          phone: profileData?.phone,
+          subscriptionType: profileData?.subscription_type,
+          firstName: userDetails?.first_name,
+          lastName: userDetails?.last_name,
+          address: userDetails?.address,
+          city: userDetails?.city,
+          postalCode: userDetails?.postal_code
+        });
+      }
+    } catch (error) {
+      console.error('Erreur récupération données utilisateur:', error);
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ 
@@ -57,7 +120,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       userData, 
       loading, 
       isAdmin, 
-      isLoading: loading // Map loading to isLoading for compatibility
+      isLoading: loading
     }}>
       {children}
     </AuthContext.Provider>
