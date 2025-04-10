@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Station } from '@/types/api';
-import { MapPin, BatteryMedium, AlertCircle } from 'lucide-react';
+import { MapPin, BatteryMedium, AlertCircle, Navigation } from 'lucide-react';
+import { formatDistance } from '@/utils/geo';
 
 interface StationsListProps {
   isLoading: boolean;
@@ -9,6 +10,8 @@ interface StationsListProps {
   filteredStations: Station[];
   selectedStation: string | null;
   setSelectedStation: (id: string) => void;
+  userLocation: {latitude: number | null, longitude: number | null} | null;
+  stationsWithDistance: Array<Station & {distance: number | null}>;
 }
 
 const StationsList: React.FC<StationsListProps> = ({
@@ -16,7 +19,8 @@ const StationsList: React.FC<StationsListProps> = ({
   error,
   filteredStations,
   selectedStation,
-  setSelectedStation
+  setSelectedStation,
+  stationsWithDistance
 }) => {
   if (isLoading) {
     return (
@@ -36,7 +40,7 @@ const StationsList: React.FC<StationsListProps> = ({
     );
   }
 
-  if (filteredStations.length === 0) {
+  if (stationsWithDistance.length === 0) {
     return (
       <div className="p-8 text-center text-muted-foreground">
         Aucune borne ne correspond à votre recherche.
@@ -44,9 +48,17 @@ const StationsList: React.FC<StationsListProps> = ({
     );
   }
 
+  // Trier les stations par distance si disponible
+  const sortedStations = [...stationsWithDistance].sort((a, b) => {
+    if (a.distance === null && b.distance === null) return 0;
+    if (a.distance === null) return 1;
+    if (b.distance === null) return -1;
+    return a.distance - b.distance;
+  });
+
   return (
-    <div className="max-h-[500px] overflow-y-auto">
-      {filteredStations.map((station) => (
+    <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+      {sortedStations.map((station) => (
         <div 
           key={station.id}
           className={`p-4 border-b cursor-pointer hover:bg-muted/50 transition-colors ${
@@ -58,10 +70,10 @@ const StationsList: React.FC<StationsListProps> = ({
             <h3 className="font-medium">{station.name}</h3>
             <span className={`px-2 py-0.5 rounded text-xs ${
               station.status === 'online' 
-                ? 'bg-green-100 text-green-800' 
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
                 : station.status === 'offline'
-                ? 'bg-red-100 text-red-800'
-                : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
             }`}>
               {station.status === 'online' ? 'En ligne' : station.status === 'offline' ? 'Hors ligne' : 'Maintenance'}
             </span>
@@ -70,11 +82,19 @@ const StationsList: React.FC<StationsListProps> = ({
             <MapPin size={14} />
             {station.location}
           </p>
-          <div className="flex items-center gap-2 text-sm">
-            <BatteryMedium size={16} />
-            <span>
-              <span className="font-medium">{station.availablePowerBanks}</span>/{station.totalSlots} powerbanks disponibles
-            </span>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <BatteryMedium size={16} />
+              <span>
+                <span className="font-medium">{station.availablePowerBanks}</span>/{station.totalSlots} powerbanks
+              </span>
+            </div>
+            {station.distance !== null && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Navigation size={12} />
+                {formatDistance(station.distance)}
+              </div>
+            )}
           </div>
         </div>
       ))}

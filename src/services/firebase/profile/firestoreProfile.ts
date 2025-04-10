@@ -27,6 +27,13 @@ export const updateFirestoreProfile = async (userId: string, profileData: Profil
       console.warn('Nom vide détecté, sera enregistré comme null');
     }
     
+    // Nettoyage des données de chaînes pour éviter les espaces en début/fin
+    Object.keys(cleanedData).forEach(key => {
+      if (typeof cleanedData[key] === 'string') {
+        cleanedData[key] = cleanedData[key].trim();
+      }
+    });
+    
     console.log("Données du profil à envoyer à Firestore:", cleanedData);
     
     const userRef = doc(db, 'users', userId);

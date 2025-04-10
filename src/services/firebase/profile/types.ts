@@ -11,6 +11,11 @@ export interface ProfileData {
   lastName?: string;
   // Ajout d'un champ pour suivre la dernière modification
   updatedAt?: Date;
+  // Ajout des préférences utilisateur
+  preferences?: {
+    darkMode?: boolean;
+    useGeolocation?: boolean;
+  };
 }
 
 export interface ProfileResponse {

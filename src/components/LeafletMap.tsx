@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Station } from '@/types/api';
 
@@ -34,18 +34,30 @@ const selectedStationIcon = new Icon({
   className: 'selected-marker'
 });
 
+// Icône pour le marqueur de l'utilisateur
+const userIcon = new Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface LeafletMapProps {
   stations: Station[];
   selectedStation: string | null;
   onStationSelect: (stationId: string) => void;
   height?: string;
+  userLocation?: {latitude: number | null, longitude: number | null} | null;
 }
 
 const LeafletMap: React.FC<LeafletMapProps> = ({
   stations,
   selectedStation,
   onStationSelect,
-  height = '100%'
+  height = '100%',
+  userLocation
 }) => {
   useEffect(() => {
     // Ensure the CSS for Leaflet is loaded
@@ -61,20 +73,49 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
     };
   }, []);
 
-  // Default center on Lausanne
-  const center = [46.519962, 6.633597];
+  // Default center on Lausanne if no user location
+  const defaultCenter: LatLngExpression = [46.519962, 6.633597];
+  
+  // Use user location if available
+  const center = userLocation && userLocation.latitude && userLocation.longitude 
+    ? [userLocation.latitude, userLocation.longitude] as LatLngExpression
+    : defaultCenter;
 
   return (
     <div style={{ width: '100%', height: height }}>
       <MapContainer 
-        center={[center[0], center[1]]} 
-        zoom={14} 
+        center={center} 
+        zoom={userLocation?.latitude ? 15 : 14} 
         style={{ width: '100%', height: '100%' }}
+        className="z-0"
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        
+        {userLocation && userLocation.latitude && userLocation.longitude && (
+          <>
+            <Marker
+              position={[userLocation.latitude, userLocation.longitude]}
+              icon={userIcon}
+            >
+              <Popup>
+                <div>
+                  <h3 className="font-semibold">Votre position</h3>
+                </div>
+              </Popup>
+            </Marker>
+            <Circle 
+              center={[userLocation.latitude, userLocation.longitude]}
+              radius={300}
+              fillColor="blue"
+              fillOpacity={0.1}
+              color="blue"
+              weight={1}
+            />
+          </>
+        )}
         
         {stations.map((station) => (
           <Marker

@@ -236,6 +236,36 @@ export type Database = {
         }
         Relationships: []
       }
+      powerbanks: {
+        Row: {
+          battery_level: number | null
+          code: string
+          created_at: string | null
+          id: string
+          station_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          battery_level?: number | null
+          code: string
+          created_at?: string | null
+          id?: string
+          station_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          battery_level?: number | null
+          code?: string
+          created_at?: string | null
+          id?: string
+          station_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       product_categories: {
         Row: {
           created_at: string
@@ -413,6 +443,106 @@ export type Database = {
         }
         Relationships: []
       }
+      rentals: {
+        Row: {
+          cost: number | null
+          created_at: string | null
+          end_station_id: string | null
+          end_time: string | null
+          id: string
+          powerbank_id: string
+          start_station_id: string | null
+          start_time: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string | null
+          end_station_id?: string | null
+          end_time?: string | null
+          id?: string
+          powerbank_id: string
+          start_station_id?: string | null
+          start_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string | null
+          end_station_id?: string | null
+          end_time?: string | null
+          id?: string
+          powerbank_id?: string
+          start_station_id?: string | null
+          start_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_end_station_id_fkey"
+            columns: ["end_station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_powerbank_id_fkey"
+            columns: ["powerbank_id"]
+            isOneToOne: false
+            referencedRelation: "powerbanks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_start_station_id_fkey"
+            columns: ["start_station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stations: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       system_config: {
         Row: {
           created_at: string | null
@@ -436,6 +566,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          payment_intent_id: string | null
+          status: string | null
+          type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_intent_id?: string | null
+          status?: string | null
+          type: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_intent_id?: string | null
+          status?: string | null
+          type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user: {
         Row: {
@@ -482,6 +656,30 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
