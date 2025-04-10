@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -12,6 +13,7 @@ interface QRPaymentResponse {
   success: boolean;
   qrCodeUrl?: string;
   sessionId?: string;
+  testMode?: boolean;
   error?: string;
 }
 
@@ -50,7 +52,8 @@ export const createQRPaymentSession = async ({
     return { 
       success: true, 
       qrCodeUrl: data.qrCodeUrl,
-      sessionId: data.sessionId
+      sessionId: data.sessionId,
+      testMode: data.testMode
     };
   } catch (error) {
     console.error('Erreur lors de la création du QR code de paiement:', error);

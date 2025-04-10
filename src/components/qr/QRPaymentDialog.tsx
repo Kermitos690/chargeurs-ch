@@ -11,12 +11,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, Clock, CreditCard, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   createQRPaymentSession, 
   checkQRPaymentStatus, 
-  cancelQRPaymentSession 
+  cancelQRPaymentSession,
+  formatCurrency
 } from '@/services/qrPayment';
 
 interface QRPaymentDialogProps {
@@ -42,6 +43,7 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
   const [status, setStatus] = useState<'loading' | 'ready' | 'processing' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes en secondes
+  const [isTestMode, setIsTestMode] = useState(false);
   const statusCheckInterval = useRef<number | null>(null);
   const timerInterval = useRef<number | null>(null);
 
@@ -95,6 +97,8 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
         setSessionId(result.sessionId);
         setStatus('ready');
         setTimeLeft(120);
+        // Vérifier si nous sommes en mode test
+        setIsTestMode(result.testMode === true);
         
         // Démarrer la vérification du statut toutes les 2 secondes
         statusCheckInterval.current = window.setInterval(() => {
@@ -175,6 +179,20 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
     onClose();
   };
 
+  // Simuler un paiement réussi en mode test
+  const handleTestPay = () => {
+    if (sessionId) {
+      clearInterval(statusCheckInterval.current!);
+      setStatus('success');
+      toast.success('Paiement simulé avec succès ! (Mode test)');
+      
+      // Appeler le callback de succès après un court délai
+      setTimeout(() => {
+        onSuccess(sessionId);
+      }, 1500);
+    }
+  };
+
   const cleanup = () => {
     if (statusCheckInterval.current) clearInterval(statusCheckInterval.current);
     if (timerInterval.current) clearInterval(timerInterval.current);
@@ -182,6 +200,7 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
     setSessionId(null);
     setStatus('loading');
     setErrorMessage(null);
+    setIsTestMode(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -196,13 +215,14 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
         <DialogHeader>
           <DialogTitle>
             {status === 'success' ? 'Paiement confirmé' : 'Scanner pour payer'}
+            {isTestMode && status !== 'success' && <span className="ml-2 text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">MODE TEST</span>}
           </DialogTitle>
           <DialogDescription>
             {status === 'success' 
               ? 'Votre paiement a été traité avec succès.'
               : status === 'error'
                 ? 'Une erreur est survenue.'
-                : `Scannez le QR code pour procéder au paiement de ${amount.toFixed(2)} CHF`
+                : `Scannez le QR code pour procéder au paiement de ${formatCurrency(amount)}`
             }
           </DialogDescription>
         </DialogHeader>
@@ -217,6 +237,15 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
 
           {status === 'ready' && qrCodeUrl && (
             <div className="flex flex-col items-center">
+              {isTestMode && (
+                <Alert variant="warning" className="mb-4 bg-amber-50 border-amber-200">
+                  <Info className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800">
+                    Mode test activé. Les paiements ne seront pas réellement traités.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="relative mb-4">
                 <img 
                   src={qrCodeUrl} 
@@ -240,8 +269,18 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
               
               <div className="mt-4 bg-muted p-3 rounded-md w-full">
                 <p className="font-medium text-center">{description}</p>
-                <p className="text-center text-lg font-bold">{amount.toFixed(2)} CHF</p>
+                <p className="text-center text-lg font-bold">{formatCurrency(amount)}</p>
               </div>
+
+              {isTestMode && (
+                <Button 
+                  onClick={handleTestPay} 
+                  className="mt-4 bg-amber-500 hover:bg-amber-600"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Simuler un paiement réussi
+                </Button>
+              )}
             </div>
           )}
 
@@ -252,8 +291,16 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
               </div>
               <p className="text-center text-lg font-medium mb-2">Paiement réussi !</p>
               <p className="text-center text-sm text-muted-foreground">
-                Votre paiement de {amount.toFixed(2)} CHF a été traité avec succès.
+                Votre paiement de {formatCurrency(amount)} a été traité avec succès.
               </p>
+              {isTestMode && (
+                <Alert variant="warning" className="mt-4 bg-amber-50 border-amber-200 w-full">
+                  <Info className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800">
+                    Ceci est un paiement de test. Aucune carte n'a été débitée.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
 
