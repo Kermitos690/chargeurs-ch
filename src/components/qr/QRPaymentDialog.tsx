@@ -238,7 +238,7 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
           {status === 'ready' && qrCodeUrl && (
             <div className="flex flex-col items-center">
               {isTestMode && (
-                <Alert variant="warning" className="mb-4 bg-amber-50 border-amber-200">
+                <Alert className="mb-4 bg-amber-50 border-amber-200">
                   <Info className="h-4 w-4 text-amber-600" />
                   <AlertDescription className="text-amber-800">
                     Mode test activé. Les paiements ne seront pas réellement traités.
@@ -294,7 +294,7 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
                 Votre paiement de {formatCurrency(amount)} a été traité avec succès.
               </p>
               {isTestMode && (
-                <Alert variant="warning" className="mt-4 bg-amber-50 border-amber-200 w-full">
+                <Alert className="mt-4 bg-amber-50 border-amber-200 w-full">
                   <Info className="h-4 w-4 text-amber-600" />
                   <AlertDescription className="text-amber-800">
                     Ceci est un paiement de test. Aucune carte n'a été débitée.
