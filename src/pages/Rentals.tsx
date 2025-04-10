@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserRentals, getStations } from '@/services/api';
-import { completeRental, calculateRentalCost, formatCurrency } from '@/services/rentalPayment';
+import { completeRental, calculateRentalFees, formatCurrency } from '@/services/rentalPayment';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -20,9 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from 'lucide-react';
+import RentalTimerCard from '@/components/rentals/RentalTimerCard';
 
 const Rentals = () => {
-  // Mock user ID for demo - would come from auth in a real app
   const userId = "user123";
   const navigate = useNavigate();
   const [isReturnDialogOpen, setIsReturnDialogOpen] = useState(false);
@@ -39,7 +38,6 @@ const Rentals = () => {
     queryFn: getStations,
   });
 
-  // Helper to find station name by ID
   const getStationName = (stationId: string) => {
     if (!stationsData?.data) return "Station inconnue";
     const station = stationsData.data.find((s) => s.id === stationId);
@@ -66,12 +64,11 @@ const Rentals = () => {
     return `${hours}h ${minutes}min`;
   };
 
-  // New helper function to extract hours as number for cost calculation
   const getHoursFromDuration = (startTime: string, endTime?: string) => {
     const start = new Date(startTime);
     const end = endTime ? new Date(endTime) : new Date();
     const diffInMs = end.getTime() - start.getTime();
-    return Math.ceil(diffInMs / (1000 * 60 * 60)); // Return hours as number, rounded up
+    return Math.ceil(diffInMs / (1000 * 60 * 60));
   };
 
   const handleReturnPowerBank = (rental) => {
@@ -85,23 +82,20 @@ const Rentals = () => {
     setIsProcessing(true);
     
     try {
-      // Pour la démonstration, nous utilisons une station fixe comme point de retour
-      // Dans une application réelle, cela serait déterminé par la borne où la powerbank est rendue
       const endStationId = "station002"; 
       
-      // Calculer le montant final à facturer en fonction de la durée
-      const finalAmount = getHoursFromDuration(selectedRental.startTime) * 2;
+      const { totalAmount } = calculateRentalFees(selectedRental.startTime);
       
       const result = await completeRental({
         rentalId: selectedRental.id,
         endStationId: endStationId,
-        finalAmount: finalAmount
+        finalAmount: totalAmount
       });
       
       if (result.success) {
         toast.success('Powerbank restituée avec succès');
         setIsReturnDialogOpen(false);
-        refetch(); // Rafraîchir les données
+        refetch();
       } else {
         toast.error('Erreur lors de la restitution: ' + (result.error || 'Veuillez réessayer'));
       }
@@ -161,64 +155,15 @@ const Rentals = () => {
               {rentalsData && (
                 <>
                   {rentalsData.data && rentalsData.data.filter(rental => rental.status === 'active').length > 0 ? (
-                    <div className="grid gap-8">
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                       {rentalsData.data
                         .filter(rental => rental.status === 'active')
                         .map((rental) => (
-                          <Card key={rental.id} className="overflow-hidden">
-                            <CardHeader className="bg-primary/10">
-                              <CardTitle className="flex items-center gap-2">
-                                <Battery size={20} />
-                                Powerbank #{rental.powerBankId.slice(-4)}
-                              </CardTitle>
-                              <CardDescription>
-                                Location active
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                              <div className="grid gap-4">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Station de départ</p>
-                                    <p className="flex items-center gap-1">
-                                      <MapPin size={16} className="text-primary" />
-                                      {getStationName(rental.startStationId)}
-                                    </p>
-                                  </div>
-                                  <div className="text-right">
-                                    <p className="text-sm font-medium text-muted-foreground">Date de début</p>
-                                    <p className="flex items-center gap-1 justify-end">
-                                      <Clock size={16} className="text-primary" />
-                                      {formatDate(rental.startTime)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium text-muted-foreground">Durée</p>
-                                  <p className="font-medium text-lg">{calculateDuration(rental.startTime)}</p>
-                                </div>
-                                <div className="flex justify-between items-center mt-2 p-3 bg-primary/5 rounded-md">
-                                  <div>
-                                    <p className="text-sm font-medium text-primary">Pré-autorisation</p>
-                                    <p className="font-medium">{formatCurrency(rental.maxAmount || 30)}</p>
-                                  </div>
-                                  <div className="text-right">
-                                    <p className="text-sm font-medium text-primary">Coût actuel</p>
-                                    <p className="font-medium">{formatCurrency(calculateRentalCost(rental.startTime))}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                            <CardFooter className="border-t bg-muted/30 flex justify-between">
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <CreditCard size={16} className="mr-1" />
-                                Facturation à la restitution
-                              </div>
-                              <Button onClick={() => handleReturnPowerBank(rental)}>
-                                Retourner
-                              </Button>
-                            </CardFooter>
-                          </Card>
+                          <RentalTimerCard 
+                            key={rental.id} 
+                            rental={rental} 
+                            onReturn={() => handleReturnPowerBank(rental)}
+                          />
                         ))}
                     </div>
                   ) : (
@@ -303,7 +248,6 @@ const Rentals = () => {
         </section>
       </main>
       
-      {/* Dialogue de confirmation de retour */}
       <Dialog open={isReturnDialogOpen} onOpenChange={setIsReturnDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -331,7 +275,9 @@ const Rentals = () => {
                 </div>
                 <div className="flex justify-between pt-2 border-t">
                   <span className="font-medium">Montant total</span>
-                  <span className="font-medium text-primary">{formatCurrency(calculateRentalCost(selectedRental.startTime))}</span>
+                  <span className="font-medium text-primary">
+                    {formatCurrency(calculateRentalFees(selectedRental.startTime).totalAmount)}
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">

@@ -55,7 +55,10 @@ const StationDetails: React.FC<StationDetailsProps> = ({ station, onClose, userD
         </div>
       </div>
       <div className="flex justify-end">
-        <Button size="sm" as="a" href={getDirectionsUrl()} target="_blank" rel="noopener noreferrer">
+        <Button 
+          size="sm" 
+          onClick={() => window.open(getDirectionsUrl(), '_blank', 'noopener,noreferrer')}
+        >
           Obtenir l'itinéraire
         </Button>
       </div>

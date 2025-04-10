@@ -9,12 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, CreditCard, CheckCircle, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, CreditCard, CheckCircle, AlertCircle, ShieldCheck, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { startRentalWithPreAuth } from '@/services/rentalPayment';
 import { useAuth } from '@/hooks/useAuth';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import QRPaymentDialog from '@/components/qr/QRPaymentDialog';
 
 // Remplacer par votre clé publique Stripe
 const stripePromise = loadStripe('pk_test_yourStripePublicKey');
@@ -125,6 +127,8 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<{ clientSecret: string; rentalId: string } | null>(null);
+  const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'card' | 'qr'>('card');
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -179,8 +183,14 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
     setTimeout(() => {
       if (onSuccess) onSuccess();
       setIsDialogOpen(false);
+      setIsQRDialogOpen(false);
       navigate('/rentals');
     }, 2000);
+  };
+
+  const handleQRPaymentClick = () => {
+    setIsDialogOpen(false);
+    setIsQRDialogOpen(true);
   };
 
   return (
@@ -206,26 +216,65 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
               <p>Préparation de votre location...</p>
             </div>
           ) : paymentInfo ? (
-            <Elements 
-              stripe={stripePromise} 
-              options={{
-                clientSecret: paymentInfo.clientSecret,
-                appearance: {
-                  theme: 'stripe',
-                  variables: {
-                    colorPrimary: '#10b981',
-                    colorBackground: '#ffffff',
-                    colorText: '#1e293b',
-                  }
-                }
-              }}
-            >
-              <PaymentForm 
-                clientSecret={paymentInfo.clientSecret} 
-                onSuccess={handlePaymentSuccess}
-                onCancel={() => setIsDialogOpen(false)}
-              />
-            </Elements>
+            <Tabs defaultValue="card" value={activeTab} onValueChange={(value) => setActiveTab(value as 'card' | 'qr')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="card">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Carte bancaire
+                </TabsTrigger>
+                <TabsTrigger value="qr">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  QR Code
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="card" className="mt-4">
+                <Elements 
+                  stripe={stripePromise} 
+                  options={{
+                    clientSecret: paymentInfo.clientSecret,
+                    appearance: {
+                      theme: 'stripe',
+                      variables: {
+                        colorPrimary: '#10b981',
+                        colorBackground: '#ffffff',
+                        colorText: '#1e293b',
+                      }
+                    }
+                  }}
+                >
+                  <PaymentForm 
+                    clientSecret={paymentInfo.clientSecret} 
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={() => setIsDialogOpen(false)}
+                  />
+                </Elements>
+              </TabsContent>
+              
+              <TabsContent value="qr" className="mt-4">
+                <div className="space-y-4">
+                  <div className="bg-muted p-4 rounded-md">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Pré-autorisation</span>
+                      <span className="font-medium">{MAX_RENTAL_AMOUNT.toFixed(2)} CHF</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Ce montant n'est pas débité immédiatement. Seule la durée effective de location sera facturée.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col items-center py-4">
+                    <QrCode className="h-16 w-16 text-primary mb-4" />
+                    <p className="text-center mb-4">
+                      Paiement rapide et sécurisé par QR code. Scannez et payez directement depuis votre téléphone.
+                    </p>
+                    <Button onClick={handleQRPaymentClick}>
+                      Générer un QR code
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           ) : (
             <>
               <div className="space-y-4">
@@ -273,6 +322,15 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
           )}
         </DialogContent>
       </Dialog>
+      
+      <QRPaymentDialog
+        isOpen={isQRDialogOpen}
+        onClose={() => setIsQRDialogOpen(false)}
+        onSuccess={handlePaymentSuccess}
+        amount={MAX_RENTAL_AMOUNT}
+        description="Pré-autorisation pour location de powerbank"
+        metadata={{ rentalId: paymentInfo?.rentalId }}
+      />
     </>
   );
 };
