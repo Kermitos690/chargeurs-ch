@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Loader2 } from 'lucide-react';
+import { addToCart } from '@/services/cart';
+import { toast } from 'sonner';
 
 interface AccessorySpec {
   id: number;
@@ -19,6 +21,29 @@ interface AccessoryCardProps {
 }
 
 const AccessoryCard: React.FC<AccessoryCardProps> = ({ item }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAddToCart = async () => {
+    setIsLoading(true);
+    try {
+      // Convertir le prix de format "XX CHF" à un nombre
+      const priceStr = item.price.replace(' CHF', '').trim();
+      const price = parseFloat(priceStr);
+      
+      if (isNaN(price)) {
+        throw new Error('Prix invalide');
+      }
+      
+      await addToCart(item.id.toString(), 1, price);
+      toast.success(`${item.name} ajouté au panier`);
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout au panier:', error);
+      toast.error('Impossible d\'ajouter ce produit au panier');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card key={item.id} className="flex flex-col h-full">
       <div className="h-48 overflow-hidden">
@@ -49,8 +74,16 @@ const AccessoryCard: React.FC<AccessoryCardProps> = ({ item }) => {
         </ul>
       </CardContent>
       <CardFooter>
-        <Button className="w-full flex items-center gap-2">
-          <ShoppingCart className="h-4 w-4" />
+        <Button 
+          className="w-full flex items-center gap-2"
+          onClick={handleAddToCart}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ShoppingCart className="h-4 w-4" />
+          )}
           Ajouter au panier
         </Button>
       </CardFooter>

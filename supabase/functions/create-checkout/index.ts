@@ -1,82 +1,63 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@12.16.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
-  // Gestion des requêtes OPTIONS (CORS)
-  if (req.method === 'OPTIONS') {
+  // Gérer les demandes CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialisation de Stripe avec la clé secrète
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
+    // Initialiser le client Stripe avec la clé secrète
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2023-10-16",
     });
 
-    // Récupération des données de la requête
-    const { priceId, items, successUrl, cancelUrl } = await req.json();
-
-    // Vérification des paramètres requis
-    if (!items || !items.length) {
-      return new Response(
-        JSON.stringify({ error: 'Les articles sont requis' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Extraire les détails de la requête
+    const { items, successUrl, cancelUrl } = await req.json();
+    
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new Error("Le panier est vide ou invalide");
     }
 
-    // Préparation des line_items pour Stripe Checkout
-    const lineItems = items.map((item: { id: string, quantity: number, price: number, name: string }) => ({
+    // Créer les articles pour Stripe
+    const lineItems = items.map((item) => ({
       price_data: {
-        currency: 'chf',
+        currency: "chf",
         product_data: {
           name: item.name,
-          metadata: {
-            productId: item.id,
-          },
         },
-        unit_amount: Math.round(item.price * 100), // Conversion en centimes
+        unit_amount: Math.round(item.price * 100), // Convertir en centimes
       },
       quantity: item.quantity,
     }));
 
-    // Création de la session Stripe Checkout
+    // Créer une session de checkout
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'twint'], // Inclusion de TWINT comme méthode de paiement
+      payment_method_types: ["card"],
       line_items: lineItems,
-      mode: 'payment',
-      success_url: successUrl || `${req.headers.get('origin')}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${req.headers.get('origin')}/checkout/cancel`,
-      billing_address_collection: 'required',
-      shipping_address_collection: {
-        allowed_countries: ['CH'], // Suisse uniquement
-      },
-      phone_number_collection: {
-        enabled: true,
-      },
-      locale: 'fr', // Interface en français
-      allow_promotion_codes: true,
-      metadata: {
-        orderId: crypto.randomUUID(),
-      },
+      mode: "payment",
+      success_url: successUrl || `${req.headers.get("origin")}/shop/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${req.headers.get("origin")}/shop/checkout-cancel`,
     });
 
-    // Retour de l'URL de redirection vers Stripe Checkout
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    // Retourner l'URL de la session
+    return new Response(JSON.stringify({ url: session.url }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    console.error('Erreur lors de la création de la session Checkout:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error("Erreur lors de la création de la session de checkout:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
