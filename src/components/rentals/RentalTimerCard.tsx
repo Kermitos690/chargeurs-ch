@@ -1,14 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Rental } from '@/types/api';
-import { Clock, Battery, CreditCard } from 'lucide-react';
-import { calculateRentalFees, formatCurrency } from '@/services/qrPayment';
+import { Battery, Map, CreditCard, Clock } from 'lucide-react';
+import { formatDate, formatTime, formatDuration } from '@/utils/dateUtils';
+import { calculateRentalFees } from '@/services/qrPayment';
 
 interface RentalTimerCardProps {
-  rental: Rental;
-  onReturn?: () => void;
+  rental: {
+    id: string;
+    powerBankId: string;
+    startTime: string;
+    startStationId: string;
+    status: string;
+  };
+  onReturn: () => void;
 }
 
 const RentalTimerCard: React.FC<RentalTimerCardProps> = ({ rental, onReturn }) => {

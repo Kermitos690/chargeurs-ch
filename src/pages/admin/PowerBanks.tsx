@@ -11,11 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  getCollection,
-  deleteDocument,
-  updateDocument
-} from '@/services/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import { PowerBank } from '@/types/api';
 import { toast } from 'sonner';
 import { 
@@ -44,35 +40,47 @@ const AdminPowerBanks = () => {
   const fetchPowerBanks = async () => {
     setLoading(true);
     
-    const response = await getCollection('powerBanks');
-    if (response.success) {
-      // Make sure the data conforms to PowerBank type
-      const typedData = response.data.map((item: any) => ({
+    try {
+      const { data, error } = await supabase
+        .from('powerbanks')
+        .select('*');
+        
+      if (error) throw error;
+      
+      // Convertir les données au format attendu
+      const typedData = data.map((item: any) => ({
         id: item.id,
-        serialNumber: item.serialNumber || 'N/A',
-        batteryLevel: item.batteryLevel || 0,
+        serialNumber: item.code || 'N/A',
+        batteryLevel: item.battery_level || 0,
         capacity: item.capacity || 0,
         status: item.status || 'maintenance',
-        lastUpdated: item.lastUpdated
+        lastUpdated: item.updated_at
       }));
+      
       setPowerBanks(typedData);
-    } else {
-      toast.error(`Erreur: ${response.error}`);
+    } catch (error: any) {
+      console.error("Erreur lors de la récupération des powerbanks:", error);
+      toast.error(`Erreur: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleDelete = async (id: string, serialNumber: string) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la powerbank ${serialNumber} ?`)) {
-      const response = await deleteDocument('powerBanks', id);
-      
-      if (response.success) {
+      try {
+        const { error } = await supabase
+          .from('powerbanks')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+        
         toast.success(`Powerbank ${serialNumber} supprimée avec succès`);
-        // Refresh list
         fetchPowerBanks();
-      } else {
-        toast.error(`Erreur: ${response.error}`);
+      } catch (error: any) {
+        console.error("Erreur lors de la suppression:", error);
+        toast.error(`Erreur: ${error.message}`);
       }
     }
   };
@@ -87,11 +95,13 @@ const AdminPowerBanks = () => {
       // For demo purpose, we'll generate a random battery level
       const newBatteryLevel = Math.floor(Math.random() * 100);
       
-      // Update in Firestore
-      await updateDocument('powerBanks', powerBank.id, {
-        batteryLevel: newBatteryLevel,
-        lastUpdated: new Date()
-      });
+      // Update in database
+      const { error } = await supabase
+        .from('powerbanks')
+        .update({ battery_level: newBatteryLevel, updated_at: new Date().toISOString() })
+        .eq('id', powerBank.id);
+        
+      if (error) throw error;
       
       // Update local state
       setPowerBanks(prevBanks => 
@@ -101,9 +111,9 @@ const AdminPowerBanks = () => {
       );
       
       toast.success(`Niveau de batterie de ${powerBank.serialNumber} mis à jour`);
-    } catch (error) {
-      toast.error("Erreur lors de la mise à jour du niveau de batterie");
-      console.error(error);
+    } catch (error: any) {
+      console.error("Erreur lors de la mise à jour:", error);
+      toast.error(`Erreur: ${error.message}`);
     } finally {
       setRefreshing(prev => ({ ...prev, [powerBank.id]: false }));
     }

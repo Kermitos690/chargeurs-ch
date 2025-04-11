@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,18 +7,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/components/ui/use-toast';
-import { getDocument, getCollection } from '@/services/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Subscription, User as UserType } from '@/types/api';
 
 const Account = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, userData } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [userProfileData, setUserProfileData] = useState<UserType | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -33,19 +32,27 @@ const Account = () => {
         setLoadingSubscription(true);
         try {
           // Récupérer les données utilisateur complètes
-          const userResult = await getDocument('users', user.uid);
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
           
-          if (userResult.success && userResult.data) {
-            const userDataFromFirestore = userResult.data as UserType;
-            setUserData(userDataFromFirestore);
+          if (profileError) throw profileError;
+          
+          setUserProfileData(profileData);
+          
+          // Si l'utilisateur a un abonnement, récupérer les détails
+          if (profileData.subscription_type) {
+            const { data: subscriptionData, error: subscriptionError } = await supabase
+              .from('subscriptions')
+              .select('*')
+              .eq('id', profileData.subscription_type)
+              .single();
             
-            // Si l'utilisateur a un abonnement, récupérer les détails
-            if (userDataFromFirestore.subscriptionType) {
-              const subResult = await getDocument('subscriptions', userDataFromFirestore.subscriptionType);
-              if (subResult.success && subResult.data) {
-                setUserSubscription(subResult.data as Subscription);
-              }
-            }
+            if (subscriptionError) throw subscriptionError;
+            
+            setUserSubscription(subscriptionData);
           }
         } catch (error) {
           console.error('Erreur lors de la récupération des données d\'abonnement:', error);
@@ -72,6 +79,9 @@ const Account = () => {
     );
   }
 
+  // Calculer le nom d'affichage
+  const displayName = userData?.name || user?.email?.split('@')[0] || 'Utilisateur';
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -86,14 +96,12 @@ const Account = () => {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
-            {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Bienvenue, {user?.displayName || 'Utilisateur'}</CardTitle>
+                <CardTitle>Bienvenue, {displayName}</CardTitle>
                 <CardDescription>Gérez votre compte et vos services</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Carte d'abonnement */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
@@ -118,7 +126,6 @@ const Account = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Autres cartes d'information */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Factures récentes</CardTitle>
@@ -235,7 +242,6 @@ const Account = () => {
             )}
           </TabsContent>
           
-          {/* Profile tab content */}
           <TabsContent value="profile">
             <Card>
               <CardHeader>
@@ -248,7 +254,7 @@ const Account = () => {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Nom d'utilisateur</h4>
-                    <p className="text-gray-500">{user?.displayName || 'Non défini'}</p>
+                    <p className="text-gray-500">{displayName}</p>
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Email</h4>

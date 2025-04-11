@@ -15,8 +15,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Battery, Loader2, UserPlus, AlertCircle } from 'lucide-react';
-import { auth, createUserWithEmailAndPassword, updateProfile, db } from '@/services/firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -35,12 +34,16 @@ const Register = () => {
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
       case 'auth/email-already-in-use':
+      case 'email-already-in-use':
         return "Cette adresse email est déjà utilisée par un autre compte";
       case 'auth/invalid-email':
+      case 'invalid-email':
         return "Format d'adresse email invalide";
       case 'auth/weak-password':
+      case 'weak-password':
         return "Le mot de passe est trop faible (minimum 6 caractères)";
       case 'auth/network-request-failed':
+      case 'network-request-failed':
         return "Problème de connexion réseau. Vérifiez votre connexion internet.";
       case 'passwords-dont-match':
         return "Les mots de passe ne correspondent pas";
@@ -68,7 +71,7 @@ const Register = () => {
     
     // Validation du mot de passe
     if (password.length < 6) {
-      setErrorMessage(getErrorMessage('auth/weak-password'));
+      setErrorMessage(getErrorMessage('weak-password'));
       return;
     }
     
@@ -77,34 +80,31 @@ const Register = () => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Create the user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      console.log("Compte créé avec succès, uid:", user.uid);
-      
-      // Update the user profile with the name
-      await updateProfile(user, { displayName: name });
-      console.log("Profil mis à jour avec le nom:", name);
-      
-      // Create a user document in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        id: user.uid,
-        email: email,
-        name: name,
-        phone: phone,
-        subscriptionType: 'basic',
-        createdAt: new Date()
+      // Créer un utilisateur avec Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            phone
+          }
+        }
       });
       
-      console.log("Document utilisateur créé dans Firestore");
+      if (error) throw error;
       
-      toast({
-        title: "Compte créé avec succès",
-        description: "Bienvenue sur chargeurs.ch !",
-      });
+      console.log("Compte créé avec succès, id:", data.user?.id);
       
-      navigate('/stations');
+      // Récupérer le user.id pour les étapes futures
+      if (data.user) {      
+        toast({
+          title: "Compte créé avec succès",
+          description: "Bienvenue sur chargeurs.ch !",
+        });
+        
+        navigate('/stations');
+      }
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
       setErrorMessage(getErrorMessage(error.code));

@@ -45,7 +45,7 @@ const Profile = () => {
       setError(null);
       
       try {
-        console.log("Chargement des données de profil pour", user.uid);
+        console.log("Chargement des données de profil pour", user.id);
         
         // Utiliser d'abord les données de userData si disponibles
         if (userData) {
@@ -67,7 +67,7 @@ const Profile = () => {
         
         // Ensuite, récupérer les données complètes depuis Firestore/Supabase
         console.log("Récupération des données complètes depuis le service de profil");
-        const response = await getUserProfile(user.uid);
+        const response = await getUserProfile(user.id);
         
         if (response.success && response.data) {
           console.log("Données reçues du service de profil:", response.data);
@@ -77,7 +77,7 @@ const Profile = () => {
           
           // Utiliser toutes les données disponibles
           const formValues = {
-            name: data.name || userData?.name || user.displayName || '',
+            name: data.name || userData?.name || '',
             email: data.email || userData?.email || user.email || '',
             phone: data.phone || userData?.phone || '',
             address: data.address || userData?.address || '',
@@ -132,7 +132,7 @@ const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <UserInfoForm 
-                userId={user?.uid} 
+                userId={user?.id} 
                 initialValues={profileFormValues} 
               />
             </div>

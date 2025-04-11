@@ -35,7 +35,7 @@ export function ThemeToggle() {
     // Enregistrer la préférence dans le profil utilisateur si connecté
     if (user) {
       try {
-        await updateUserProfile(user.uid, {
+        await updateUserProfile(user.id, {
           preferences: {
             darkMode: newMode
           }

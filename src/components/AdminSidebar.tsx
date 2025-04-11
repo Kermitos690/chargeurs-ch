@@ -11,7 +11,7 @@ import {
   Settings, 
   LogOut 
 } from 'lucide-react';
-import { logoutAdmin } from '@/services/firebase';
+import { logoutAdmin } from '@/services/auth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 

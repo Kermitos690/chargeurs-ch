@@ -76,6 +76,11 @@ export const loginAdmin = async (email: string, password: string) => {
   }
 };
 
+// Admin logout service
+export const logoutAdmin = async () => {
+  return logoutUser();
+};
+
 // Password reset service
 export const resetPassword = async (email: string) => {
   try {
@@ -99,84 +104,6 @@ export const resetPassword = async (email: string) => {
       error: errorMessage, 
       code: error.code || 'unknown',
       details: error.message
-    };
-  }
-};
-
-// Registration service
-export const registerUser = async (name: string, email: string, password: string, phone: string) => {
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          phone
-        }
-      }
-    });
-    
-    if (error) throw error;
-    
-    return { 
-      success: true, 
-      user: data.user,
-      message: "Compte créé avec succès. Veuillez vérifier votre email."
-    };
-  } catch (error: any) {
-    console.error("Erreur lors de la création du compte:", error);
-    
-    let errorMessage = "Une erreur est survenue lors de l'inscription";
-    if (error.message.includes('already registered')) {
-      errorMessage = "Cette adresse email est déjà utilisée";
-    }
-    
-    return {
-      success: false,
-      error: errorMessage,
-      code: error.code,
-      details: error.message
-    };
-  }
-};
-
-// Password update service
-export const updatePassword = async (password: string) => {
-  try {
-    const { error } = await supabase.auth.updateUser({
-      password
-    });
-    
-    if (error) throw error;
-    
-    return { success: true };
-  } catch (error: any) {
-    console.error('Erreur lors de la mise à jour du mot de passe:', error);
-    return { 
-      success: false, 
-      error: error.message 
-    };
-  }
-};
-
-// Complete password reset
-export const completePasswordReset = async (password: string) => {
-  try {
-    const { error } = await supabase.auth.updateUser({
-      password
-    });
-    
-    if (error) throw error;
-    
-    return { success: true };
-  } catch (error: any) {
-    console.error("Erreur lors de la confirmation de réinitialisation:", error);
-    
-    return {
-      success: false,
-      error: error.message,
-      code: error.code || "unknown"
     };
   }
 };

@@ -11,11 +11,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  getCollection, 
-  deleteDocument,
-  fromTimestamp
-} from '@/services/firebase';
+import { supabase } from '@/integrations/supabase/client';
+import { fromTimestamp } from '@/services/firebase/utils';
 import { toast } from 'sonner';
 import { Loader2, Search, Edit, Trash2 } from 'lucide-react';
 import { User } from '@/types/api';
@@ -32,35 +29,60 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     
-    const response = await getCollection('users');
-    if (response.success) {
-      // Make sure the data conforms to User type
-      const typedData = response.data.map((item: any) => ({
+    try {
+      // Joindre profiles et user_details pour avoir toutes les informations
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          name,
+          email,
+          phone,
+          subscription_type,
+          created_at,
+          user_details (
+            first_name,
+            last_name,
+            address,
+            city,
+            postal_code
+          )
+        `);
+        
+      if (error) throw error;
+      
+      // Formater les données
+      const typedData = data.map((item: any) => ({
         id: item.id,
         name: item.name || 'N/A',
         email: item.email || 'N/A',
         phone: item.phone || 'N/A',
-        subscriptionType: item.subscriptionType,
-        createdAt: item.createdAt
+        subscriptionType: item.subscription_type,
+        createdAt: item.created_at
       }));
+      
       setUsers(typedData);
-    } else {
-      toast.error(`Erreur: ${response.error}`);
+    } catch (error: any) {
+      console.error("Erreur lors de la récupération des utilisateurs:", error);
+      toast.error(`Erreur: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${name} ?`)) {
-      const response = await deleteDocument('users', id);
-      
-      if (response.success) {
+      try {
+        // Note: la suppression de l'utilisateur dans auth.users gérera les cascades
+        const { error } = await supabase.auth.admin.deleteUser(id);
+        
+        if (error) throw error;
+        
         toast.success(`Utilisateur ${name} supprimé avec succès`);
-        // Refresh users list
         fetchUsers();
-      } else {
-        toast.error(`Erreur: ${response.error}`);
+      } catch (error: any) {
+        console.error("Erreur lors de la suppression:", error);
+        toast.error(`Erreur: ${error.message}`);
       }
     }
   };

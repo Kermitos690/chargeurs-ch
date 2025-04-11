@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { clearCart } from '@/services/cart'; 
 import { toast } from 'sonner';
-import { auth } from '@/services/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import CartIcon from './shop/CartIcon';
@@ -38,8 +38,10 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await clearCart(user?.uid); 
-      await auth.signOut();
+      if (user) {
+        await clearCart(user.id); 
+      }
+      await supabase.auth.signOut();
       navigate('/auth/login');
       toast.success("Déconnexion réussie !");
     } catch (error: any) {

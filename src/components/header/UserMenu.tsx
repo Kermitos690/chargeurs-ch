@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
-import { auth } from '@/services/firebase/config';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserData {
@@ -36,8 +36,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, userData, handleLogout }) => 
       if (handleLogout) {
         await handleLogout();
       } else {
-        // Call signOut from Firebase auth directly
-        await auth.signOut();
+        // Call signOut from Supabase auth directly
+        await supabase.auth.signOut();
         toast({
           title: "Déconnexion réussie",
           description: "Vous avez été déconnecté avec succès."
