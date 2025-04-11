@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Table, 
@@ -16,6 +15,7 @@ import { fromTimestamp } from '@/services/firebase/utils';
 import { toast } from 'sonner';
 import { Loader2, Search, Edit, Trash2 } from 'lucide-react';
 import { User } from '@/types/api';
+import { formatDate } from '@/utils/dateUtils';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -26,12 +26,10 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
-  // Modification de la méthode formatant les données
   const fetchUsers = async () => {
     setLoading(true);
     
     try {
-      // Joindre profiles et user_details pour avoir toutes les informations
       const { data, error } = await supabase
         .from('profiles')
         .select(`
@@ -52,7 +50,6 @@ const AdminUsers = () => {
         
       if (error) throw error;
       
-      // Formater les données
       const typedData = data.map((item: any) => ({
         id: item.id,
         name: item.name || 'N/A',
@@ -74,7 +71,6 @@ const AdminUsers = () => {
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${name} ?`)) {
       try {
-        // Note: la suppression de l'utilisateur dans auth.users gérera les cascades
         const { error } = await supabase.auth.admin.deleteUser(id);
         
         if (error) throw error;
@@ -93,17 +89,15 @@ const AdminUsers = () => {
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Fonction sécurisée pour formater la date
   const formatCreatedAt = (dateString?: string | Date): string => {
     if (!dateString) return 'N/A';
     
     try {
-      // Si dateString est déjà une chaîne, on l'utilise directement
       const dateValue = typeof dateString === 'string' 
         ? dateString 
         : dateString.toISOString();
       
-      return new Date(dateValue).toLocaleDateString();
+      return new Date(dateValue).toLocaleDateString('fr-FR');
     } catch (error) {
       console.error("Erreur de format de date:", error);
       return 'N/A';
