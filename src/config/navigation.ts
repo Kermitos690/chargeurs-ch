@@ -1,20 +1,38 @@
+import { MainNavItem } from "@/types"
 
-export type NavItem = {
-  path: string;
-  label: string;
-};
+interface DocsConfig {
+  mainNav: MainNavItem[]
+}
 
-export const mainNavItems: NavItem[] = [
-  { path: '/', label: 'Accueil' },
-  { path: '/features', label: 'Fonctionnalités' },
-  { path: '/about', label: 'À propos' },
-  { path: '/contact', label: 'Contact' },
-];
-
-export const productNavItems: NavItem[] = [
-  { path: '/produits', label: 'Tous les produits' },
-  { path: '/produits/accessoires', label: 'Accessoires' },
-  { path: '/produits/residentiels', label: 'Résidentiels' },
-  { path: '/produits/entreprises', label: 'Entreprises' },
-  { path: '/produits/publiques', label: 'Publiques' },
-];
+export const docsConfig: DocsConfig = {
+  mainNav: [
+    {
+      title: "Accueil",
+      href: "/",
+    },
+    {
+      title: "Produits",
+      href: "/produits",
+    },
+    {
+      name: "Boutique",
+      href: "/boutique",
+    },
+    {
+      title: "Accessoires",
+      href: "/accessoires",
+    },
+    {
+      title: "Blog",
+      href: "/blog",
+    },
+    {
+      title: "À propos",
+      href: "/a-propos",
+    },
+    {
+      title: "Contact",
+      href: "/contact",
+    },
+  ],
+}
