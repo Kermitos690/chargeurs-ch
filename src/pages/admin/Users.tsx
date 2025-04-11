@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Table, 
@@ -92,6 +93,23 @@ const AdminUsers = () => {
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Fonction sécurisée pour formater la date
+  const formatCreatedAt = (dateString?: string | Date): string => {
+    if (!dateString) return 'N/A';
+    
+    try {
+      // Si dateString est déjà une chaîne, on l'utilise directement
+      const dateValue = typeof dateString === 'string' 
+        ? dateString 
+        : dateString.toISOString();
+      
+      return new Date(dateValue).toLocaleDateString();
+    } catch (error) {
+      console.error("Erreur de format de date:", error);
+      return 'N/A';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -145,7 +163,7 @@ const AdminUsers = () => {
                   {user.subscriptionType ? user.subscriptionType.charAt(0).toUpperCase() + user.subscriptionType.slice(1) : 'Aucun'}
                 </TableCell>
                 <TableCell>
-                  {user.createdAt ? new Date(fromTimestamp(user.createdAt)).toLocaleDateString() : 'N/A'}
+                  {formatCreatedAt(user.createdAt)}
                 </TableCell>
                 <TableCell className="text-right flex justify-end space-x-2">
                   <Button size="sm" variant="ghost">
