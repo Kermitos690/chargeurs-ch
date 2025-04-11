@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -110,25 +109,42 @@ export const addToCart = async (
   }
 };
 
-// Récupérer le contenu du panier
+// Récupérer le contenu du panier - version améliorée
 export const getCartItems = async (userId?: string) => {
   try {
     const sessionId = getOrCreateSessionId();
+    console.log('Session ID:', sessionId); // Log pour débogage
     
     // Construire la requête de manière sécurisée
     let cartQuery = supabase.from('carts').select('id');
     
     if (userId) {
       cartQuery = cartQuery.eq('user_id', userId);
+      console.log('Recherche du panier pour l\'utilisateur:', userId);
     } else {
       cartQuery = cartQuery.eq('session_id', sessionId);
+      console.log('Recherche du panier pour la session:', sessionId);
     }
     
     // D'abord, trouver l'ID du panier
     const { data: cart, error: cartError } = await cartQuery.maybeSingle();
 
-    if (cartError) throw cartError;
-    if (!cart) return [];
+    if (cartError) {
+      console.error('Erreur lors de la récupération du panier:', cartError);
+      throw cartError;
+    }
+    
+    if (!cart) {
+      console.log('Aucun panier trouvé, création d\'un nouveau panier...');
+      const cartId = await initializeCart(userId);
+      if (!cartId) {
+        console.error('Échec de la création d\'un nouveau panier');
+        return [];
+      }
+      return []; // Panier vide pour un nouveau panier
+    }
+
+    console.log('Panier trouvé avec ID:', cart.id);
 
     // Ensuite, récupérer les articles du panier avec les détails des produits
     const { data: cartItems, error: itemsError } = await supabase
@@ -137,6 +153,8 @@ export const getCartItems = async (userId?: string) => {
         id,
         quantity,
         price_at_add,
+        product_id,
+        variant_id,
         products (
           id,
           name,
@@ -155,28 +173,42 @@ export const getCartItems = async (userId?: string) => {
       `)
       .eq('cart_id', cart.id);
 
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      console.error('Erreur lors de la récupération des articles:', itemsError);
+      throw itemsError;
+    }
 
-    return cartItems.map(item => ({
-      id: item.id,
-      quantity: item.quantity,
-      priceAtAdd: item.price_at_add,
-      product: {
-        id: item.products.id,
-        name: item.products.name,
-        slug: item.products.slug,
-        imageUrl: item.products.image_url,
-        price: item.products.sale_price || item.products.price,
-        regularPrice: item.products.price,
-      },
-      variant: item.product_variants ? {
-        id: item.product_variants.id,
-        name: item.product_variants.name,
-        imageUrl: item.product_variants.image_url,
-        price: item.product_variants.price,
-        attributes: item.product_variants.attributes,
-      } : null,
-    }));
+    console.log('Articles du panier récupérés:', cartItems.length);
+
+    // Transformation des données avec vérification
+    return cartItems.map(item => {
+      // Vérifier que les relations products existent
+      if (!item.products) {
+        console.warn(`Article ${item.id} sans produit associé (product_id: ${item.product_id})`);
+        return null;
+      }
+
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        priceAtAdd: item.price_at_add,
+        product: {
+          id: item.products.id,
+          name: item.products.name,
+          slug: item.products.slug,
+          imageUrl: item.products.image_url,
+          price: item.products.sale_price || item.products.price,
+          regularPrice: item.products.price,
+        },
+        variant: item.product_variants ? {
+          id: item.product_variants.id,
+          name: item.product_variants.name,
+          imageUrl: item.product_variants.image_url,
+          price: item.product_variants.price,
+          attributes: item.product_variants.attributes,
+        } : null,
+      };
+    }).filter(item => item !== null); // Filtrer les articles sans produit associé
   } catch (error) {
     console.error('Erreur lors de la récupération du panier:', error);
     toast.error('Impossible de récupérer le contenu du panier');

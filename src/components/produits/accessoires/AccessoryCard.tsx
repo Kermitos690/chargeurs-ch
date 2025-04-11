@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingCart, Loader2 } from 'lucide-react';
+import { ShoppingCart, Loader2, Check } from 'lucide-react';
 import { addToCart } from '@/services/cart';
 import { toast } from 'sonner';
 
@@ -22,6 +22,7 @@ interface AccessoryCardProps {
 
 const AccessoryCard: React.FC<AccessoryCardProps> = ({ item }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = async () => {
     setIsLoading(true);
@@ -35,6 +36,8 @@ const AccessoryCard: React.FC<AccessoryCardProps> = ({ item }) => {
       }
       
       await addToCart(item.id.toString(), 1, price);
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000); // Réinitialiser après 2 secondes
       toast.success(`${item.name} ajouté au panier`);
     } catch (error) {
       console.error('Erreur lors de l\'ajout au panier:', error);
@@ -77,14 +80,17 @@ const AccessoryCard: React.FC<AccessoryCardProps> = ({ item }) => {
         <Button 
           className="w-full flex items-center gap-2"
           onClick={handleAddToCart}
-          disabled={isLoading}
+          disabled={isLoading || isAdded}
+          variant={isAdded ? "success" : "default"}
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isAdded ? (
+            <Check className="h-4 w-4" />
           ) : (
             <ShoppingCart className="h-4 w-4" />
           )}
-          Ajouter au panier
+          {isAdded ? 'Ajouté' : 'Ajouter au panier'}
         </Button>
       </CardFooter>
     </Card>
