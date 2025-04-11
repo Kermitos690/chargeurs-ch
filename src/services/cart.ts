@@ -1,5 +1,7 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { accessories } from '@/data/accessories';
 
 // Helper pour générer un ID de session pour les utilisateurs non connectés
 const getOrCreateSessionId = (): string => {
@@ -9,6 +11,28 @@ const getOrCreateSessionId = (): string => {
     localStorage.setItem('cart_session_id', sessionId);
   }
   return sessionId;
+};
+
+// Structure pour stocker le panier localement
+interface LocalCartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  name: string;
+  imageUrl?: string;
+  type: 'accessory'; // Pour permettre d'autres types plus tard comme 'product'
+}
+
+// Récupérer le panier local
+const getLocalCart = (): LocalCartItem[] => {
+  const cart = localStorage.getItem('local_cart');
+  return cart ? JSON.parse(cart) : [];
+};
+
+// Sauvegarder le panier local
+const saveLocalCart = (cart: LocalCartItem[]) => {
+  localStorage.setItem('local_cart', JSON.stringify(cart));
 };
 
 // Initialiser un panier
@@ -60,6 +84,39 @@ export const addToCart = async (
   userId?: string
 ) => {
   try {
+    // Vérifier si c'est un accessoire (données locales)
+    const accessory = accessories.find(acc => acc.id.toString() === productId);
+    
+    if (accessory) {
+      // Si c'est un accessoire, on l'ajoute au panier local
+      const localCart = getLocalCart();
+      const existingItemIndex = localCart.findIndex(item => 
+        item.productId === productId && item.type === 'accessory'
+      );
+      
+      if (existingItemIndex >= 0) {
+        // Mettre à jour la quantité si l'article existe déjà
+        localCart[existingItemIndex].quantity += quantity;
+      } else {
+        // Ajouter un nouvel article
+        const priceValue = parseFloat(accessory.price.replace(' CHF', '').trim());
+        localCart.push({
+          id: crypto.randomUUID(),
+          productId: productId,
+          quantity,
+          price: priceValue,
+          name: accessory.name,
+          imageUrl: accessory.image,
+          type: 'accessory'
+        });
+      }
+      
+      saveLocalCart(localCart);
+      toast.success(`${accessory.name} ajouté au panier`);
+      return true;
+    }
+    
+    // Sinon, c'est un produit de Supabase
     const cartId = await initializeCart(userId);
     if (!cartId) throw new Error('Erreur lors de l\'initialisation du panier');
 
@@ -109,108 +166,140 @@ export const addToCart = async (
   }
 };
 
-// Récupérer le contenu du panier - version améliorée
+// Récupérer le contenu du panier - version améliorée avec support local
 export const getCartItems = async (userId?: string) => {
   try {
-    const sessionId = getOrCreateSessionId();
-    console.log('Session ID:', sessionId); // Log pour débogage
-    
-    // Construire la requête de manière sécurisée
-    let cartQuery = supabase.from('carts').select('id');
-    
-    if (userId) {
-      cartQuery = cartQuery.eq('user_id', userId);
-      console.log('Recherche du panier pour l\'utilisateur:', userId);
-    } else {
-      cartQuery = cartQuery.eq('session_id', sessionId);
-      console.log('Recherche du panier pour la session:', sessionId);
-    }
-    
-    // D'abord, trouver l'ID du panier
-    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
-
-    if (cartError) {
-      console.error('Erreur lors de la récupération du panier:', cartError);
-      throw cartError;
-    }
-    
-    if (!cart) {
-      console.log('Aucun panier trouvé, création d\'un nouveau panier...');
-      const cartId = await initializeCart(userId);
-      if (!cartId) {
-        console.error('Échec de la création d\'un nouveau panier');
-        return [];
+    // Récupérer d'abord les éléments locaux
+    const localCart = getLocalCart();
+    const localCartItems = localCart.map(item => {
+      if (item.type === 'accessory') {
+        const accessory = accessories.find(acc => acc.id.toString() === item.productId);
+        return {
+          id: item.id,
+          quantity: item.quantity,
+          product: {
+            id: item.productId,
+            name: accessory?.name || item.name,
+            slug: `accessory-${item.productId}`,
+            imageUrl: accessory?.image || item.imageUrl,
+            price: item.price,
+          },
+          variant: null,
+        };
       }
-      return []; // Panier vide pour un nouveau panier
-    }
+      return null;
+    }).filter(Boolean);
+    
+    // Essayer de récupérer les éléments de la base de données
+    try {
+      const sessionId = getOrCreateSessionId();
+      console.log('Session ID:', sessionId);
+      
+      // Construire la requête de manière sécurisée
+      let cartQuery = supabase.from('carts').select('id');
+      
+      if (userId) {
+        cartQuery = cartQuery.eq('user_id', userId);
+        console.log('Recherche du panier pour l\'utilisateur:', userId);
+      } else {
+        cartQuery = cartQuery.eq('session_id', sessionId);
+        console.log('Recherche du panier pour la session:', sessionId);
+      }
+      
+      // D'abord, trouver l'ID du panier
+      const { data: cart, error: cartError } = await cartQuery.maybeSingle();
 
-    console.log('Panier trouvé avec ID:', cart.id);
-
-    // Ensuite, récupérer les articles du panier avec les détails des produits
-    const { data: cartItems, error: itemsError } = await supabase
-      .from('cart_items')
-      .select(`
-        id,
-        quantity,
-        price_at_add,
-        product_id,
-        variant_id,
-        products (
-          id,
-          name,
-          slug,
-          image_url,
-          price,
-          sale_price
-        ),
-        product_variants (
-          id,
-          name,
-          image_url,
-          price,
-          attributes
-        )
-      `)
-      .eq('cart_id', cart.id);
-
-    if (itemsError) {
-      console.error('Erreur lors de la récupération des articles:', itemsError);
-      throw itemsError;
-    }
-
-    console.log('Articles du panier récupérés:', cartItems.length);
-
-    // Transformation des données avec vérification
-    return cartItems.map(item => {
-      // Vérifier que les relations products existent
-      if (!item.products) {
-        console.warn(`Article ${item.id} sans produit associé (product_id: ${item.product_id})`);
-        return null;
+      if (cartError) {
+        console.error('Erreur lors de la récupération du panier:', cartError);
+        // Si erreur avec Supabase, retourner au moins les éléments locaux
+        return localCartItems;
+      }
+      
+      if (!cart) {
+        console.log('Aucun panier trouvé, uniquement les éléments locaux sont disponibles');
+        return localCartItems;
       }
 
-      return {
-        id: item.id,
-        quantity: item.quantity,
-        priceAtAdd: item.price_at_add,
-        product: {
-          id: item.products.id,
-          name: item.products.name,
-          slug: item.products.slug,
-          imageUrl: item.products.image_url,
-          price: item.products.sale_price || item.products.price,
-          regularPrice: item.products.price,
-        },
-        variant: item.product_variants ? {
-          id: item.product_variants.id,
-          name: item.product_variants.name,
-          imageUrl: item.product_variants.image_url,
-          price: item.product_variants.price,
-          attributes: item.product_variants.attributes,
-        } : null,
-      };
-    }).filter(item => item !== null); // Filtrer les articles sans produit associé
+      console.log('Panier trouvé avec ID:', cart.id);
+
+      // Ensuite, récupérer les articles du panier
+      const { data: dbItems, error: itemsError } = await supabase
+        .from('cart_items')
+        .select(`
+          id,
+          quantity,
+          price_at_add,
+          product_id,
+          variant_id
+        `)
+        .eq('cart_id', cart.id);
+
+      if (itemsError) {
+        console.error('Erreur lors de la récupération des articles:', itemsError);
+        return localCartItems; // Retourner seulement les éléments locaux en cas d'erreur
+      }
+
+      // Pour chaque élément, récupérer les détails du produit séparément
+      const dbCartItems = await Promise.all(dbItems.map(async (item) => {
+        try {
+          const { data: product, error: productError } = await supabase
+            .from('products')
+            .select('id, name, slug, image_url, price, sale_price')
+            .eq('id', item.product_id)
+            .maybeSingle();
+          
+          if (productError || !product) {
+            console.error(`Erreur ou produit ${item.product_id} non trouvé:`, productError);
+            return null;
+          }
+
+          // Optionnel: récupérer les détails de la variante si nécessaire
+          let variant = null;
+          if (item.variant_id) {
+            const { data: variantData, error: variantError } = await supabase
+              .from('product_variants')
+              .select('id, name, image_url, price, attributes')
+              .eq('id', item.variant_id)
+              .maybeSingle();
+            
+            if (!variantError && variantData) {
+              variant = {
+                id: variantData.id,
+                name: variantData.name,
+                imageUrl: variantData.image_url,
+                price: variantData.price,
+                attributes: variantData.attributes,
+              };
+            }
+          }
+
+          return {
+            id: item.id,
+            quantity: item.quantity,
+            product: {
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              imageUrl: product.image_url,
+              price: product.sale_price || product.price,
+              regularPrice: product.price,
+            },
+            variant: variant,
+          };
+        } catch (error) {
+          console.error(`Erreur lors de la récupération des détails pour l'article ${item.id}:`, error);
+          return null;
+        }
+      }));
+
+      // Combiner les éléments locaux et de la base de données
+      return [...localCartItems, ...dbCartItems.filter(Boolean)];
+    } catch (error) {
+      console.error('Erreur avec Supabase, utilisation des données locales uniquement:', error);
+      return localCartItems;
+    }
   } catch (error) {
-    console.error('Erreur lors de la récupération du panier:', error);
+    console.error('Erreur critique lors de la récupération du panier:', error);
     toast.error('Impossible de récupérer le contenu du panier');
     return [];
   }
@@ -219,6 +308,24 @@ export const getCartItems = async (userId?: string) => {
 // Mettre à jour la quantité d'un article
 export const updateCartItemQuantity = async (itemId: string, quantity: number) => {
   try {
+    // Vérifier d'abord si c'est un élément du panier local
+    const localCart = getLocalCart();
+    const localItemIndex = localCart.findIndex(item => item.id === itemId);
+    
+    if (localItemIndex >= 0) {
+      if (quantity <= 0) {
+        // Supprimer l'article si la quantité est 0 ou moins
+        localCart.splice(localItemIndex, 1);
+      } else {
+        // Mettre à jour la quantité
+        localCart[localItemIndex].quantity = quantity;
+      }
+      saveLocalCart(localCart);
+      toast.success('Panier mis à jour');
+      return true;
+    }
+    
+    // Sinon, c'est un élément de Supabase
     if (quantity <= 0) {
       // Si la quantité est 0 ou moins, supprimer l'article
       return removeCartItem(itemId);
@@ -243,6 +350,18 @@ export const updateCartItemQuantity = async (itemId: string, quantity: number) =
 // Supprimer un article du panier
 export const removeCartItem = async (itemId: string) => {
   try {
+    // Vérifier d'abord si c'est un élément du panier local
+    const localCart = getLocalCart();
+    const localItemIndex = localCart.findIndex(item => item.id === itemId);
+    
+    if (localItemIndex >= 0) {
+      localCart.splice(localItemIndex, 1);
+      saveLocalCart(localCart);
+      toast.success('Article supprimé du panier');
+      return true;
+    }
+    
+    // Sinon, c'est un élément de Supabase
     const { error } = await supabase
       .from('cart_items')
       .delete()
@@ -262,30 +381,39 @@ export const removeCartItem = async (itemId: string) => {
 // Vider le panier
 export const clearCart = async (userId?: string) => {
   try {
-    const sessionId = getOrCreateSessionId();
+    // Vider le panier local
+    saveLocalCart([]);
     
-    // Construire la requête de manière sécurisée
-    let cartQuery = supabase.from('carts').select('id');
-    
-    if (userId) {
-      cartQuery = cartQuery.eq('user_id', userId);
-    } else {
-      cartQuery = cartQuery.eq('session_id', sessionId);
+    // Essayer de vider aussi le panier Supabase si possible
+    try {
+      const sessionId = getOrCreateSessionId();
+      
+      // Construire la requête de manière sécurisée
+      let cartQuery = supabase.from('carts').select('id');
+      
+      if (userId) {
+        cartQuery = cartQuery.eq('user_id', userId);
+      } else {
+        cartQuery = cartQuery.eq('session_id', sessionId);
+      }
+      
+      // Trouver l'ID du panier
+      const { data: cart, error: cartError } = await cartQuery.maybeSingle();
+
+      if (cartError) throw cartError;
+      if (!cart) return true;
+
+      // Supprimer tous les articles du panier
+      const { error: deleteError } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('cart_id', cart.id);
+
+      if (deleteError) throw deleteError;
+    } catch (error) {
+      console.error('Erreur lors du vidage du panier Supabase:', error);
+      // Continuer même si le panier Supabase n'a pas pu être vidé
     }
-    
-    // Trouver l'ID du panier
-    const { data: cart, error: cartError } = await cartQuery.maybeSingle();
-
-    if (cartError) throw cartError;
-    if (!cart) return true;
-
-    // Supprimer tous les articles du panier
-    const { error: deleteError } = await supabase
-      .from('cart_items')
-      .delete()
-      .eq('cart_id', cart.id);
-
-    if (deleteError) throw deleteError;
     
     toast.success('Panier vidé');
     return true;

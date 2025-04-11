@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,6 +40,7 @@ import ProductDetail from "./pages/shop/ProductDetail";
 import Cart from "./pages/shop/Cart";
 import CheckoutSuccess from "./pages/shop/CheckoutSuccess";
 import CheckoutCancel from "./pages/shop/CheckoutCancel";
+import AllProducts from './pages/shop/AllProducts';
 
 // Services
 import ServicesInstallation from "./pages/services/Installation";
