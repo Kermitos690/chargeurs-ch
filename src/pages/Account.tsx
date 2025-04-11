@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,7 +10,16 @@ import { Loader2, FileText, CreditCard, Clock, User, Package, BadgeCheck } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Subscription, User as UserType } from '@/types/api';
+
+interface Subscription {
+  id?: string;
+  name: string;
+  description?: string;
+  price: number;
+  duration: 'monthly' | 'yearly';
+  features: string[];
+  priceId?: string;
+}
 
 const Account = () => {
   const { user, loading, userData } = useAuth();
@@ -18,7 +28,7 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [userProfileData, setUserProfileData] = useState<UserType | null>(null);
+  const [userProfileData, setUserProfileData] = useState<any | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -42,15 +52,37 @@ const Account = () => {
           
           setUserProfileData(profileData);
           
-          // Si l'utilisateur a un abonnement, récupérer les détails
+          // Si l'utilisateur a un abonnement, simuler les détails d'abonnement
+          // Remarque: ceci est temporaire jusqu'à ce qu'une table d'abonnements soit créée
           if (profileData.subscription_type) {
-            const { data: subscriptionData, error: subscriptionError } = await supabase
-              .from('subscriptions')
-              .select('*')
-              .eq('id', profileData.subscription_type)
-              .single();
+            // Créer un mock de données d'abonnement basé sur le type
+            let subscriptionData: Subscription;
             
-            if (subscriptionError) throw subscriptionError;
+            switch(profileData.subscription_type) {
+              case 'premium':
+                subscriptionData = {
+                  name: 'Premium',
+                  price: 9.99,
+                  duration: 'monthly',
+                  features: ['Locations illimitées', 'Support prioritaire', 'Réductions sur les produits']
+                };
+                break;
+              case 'business':
+                subscriptionData = {
+                  name: 'Business',
+                  price: 19.99,
+                  duration: 'monthly',
+                  features: ['Accès pour 5 utilisateurs', 'Support dédié', 'API access']
+                };
+                break;
+              default:
+                subscriptionData = {
+                  name: 'Basic',
+                  price: 0,
+                  duration: 'monthly',
+                  features: ['3 locations par mois', 'Support standard']
+                };
+            }
             
             setUserSubscription(subscriptionData);
           }

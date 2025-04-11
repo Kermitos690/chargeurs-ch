@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserRentals, getStations } from '@/services/api';
@@ -22,11 +23,24 @@ import {
 import { Loader2 } from 'lucide-react';
 import RentalTimerCard from '@/components/rentals/RentalTimerCard';
 
+interface Rental {
+  id: string;
+  powerBankId: string;
+  startTime: string;
+  startStationId?: string;
+  endStationId?: string;
+  endTime?: string;
+  status: string;
+  maxAmount?: number;
+  finalAmount?: number;
+  cost?: number;
+}
+
 const Rentals = () => {
   const userId = "user123";
   const navigate = useNavigate();
   const [isReturnDialogOpen, setIsReturnDialogOpen] = useState(false);
-  const [selectedRental, setSelectedRental] = useState(null);
+  const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: rentalsData, isLoading: rentalsLoading, error: rentalsError, refetch } = useQuery({
@@ -72,7 +86,7 @@ const Rentals = () => {
     return Math.ceil(diffInMs / (1000 * 60 * 60));
   };
 
-  const handleReturnPowerBank = (rental) => {
+  const handleReturnPowerBank = (rental: Rental) => {
     setSelectedRental(rental);
     setIsReturnDialogOpen(true);
   };

@@ -1,17 +1,19 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Battery, Map, CreditCard, Clock } from 'lucide-react';
 import { formatDate, formatTime, formatDuration } from '@/utils/dateUtils';
-import { calculateRentalFees } from '@/services/qrPayment';
+import { calculateRentalFees, formatCurrency } from '@/services/qrPayment';
 
 interface RentalTimerCardProps {
   rental: {
     id: string;
     powerBankId: string;
     startTime: string;
-    startStationId: string;
+    startStationId?: string;
     status: string;
+    maxAmount?: number;
   };
   onReturn: () => void;
 }
@@ -28,7 +30,7 @@ const RentalTimerCard: React.FC<RentalTimerCardProps> = ({ rental, onReturn }) =
     return () => clearInterval(timer);
   }, []);
   
-  const formatDuration = (startTime: string) => {
+  const formatRentalDuration = (startTime: string) => {
     const start = new Date(startTime);
     const diffInMs = currentTime.getTime() - start.getTime();
     
@@ -40,7 +42,7 @@ const RentalTimerCard: React.FC<RentalTimerCardProps> = ({ rental, onReturn }) =
   };
   
   const getRentalInfo = () => {
-    return calculateRentalFees(rental.startTime, 2);
+    return calculateRentalFees(rental.startTime);
   };
   
   const { totalAmount, breakdown } = getRentalInfo();
@@ -63,7 +65,7 @@ const RentalTimerCard: React.FC<RentalTimerCardProps> = ({ rental, onReturn }) =
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Durée</p>
               <div className="text-3xl font-bold font-mono">
-                {formatDuration(rental.startTime)}
+                {formatRentalDuration(rental.startTime)}
               </div>
             </div>
           </div>

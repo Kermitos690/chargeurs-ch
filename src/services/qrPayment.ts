@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Format des prix
@@ -44,36 +43,54 @@ export const calculateRentalFees = (startTime: string, endTime?: string) => {
     Math.ceil(durationHours / 24) * dailyCap
   );
   
-  return { durationHours, totalAmount };
+  // Generate a breakdown text for display
+  const breakdown = `
+- Première heure: ${formatCurrency(initialCost)}
+- ${durationHours > 1 ? `${durationHours - 1} heure(s) supplémentaire(s) à ${formatCurrency(hourlyRate)}/h: ${formatCurrency((durationHours - 1) * hourlyRate)}` : 'Pas d\'heures supplémentaires'}
+- Plafond journalier: ${formatCurrency(dailyCap)} par jour
+- Total calculé: ${formatCurrency(totalAmount)}
+  `.trim();
+  
+  return { durationHours, totalAmount, breakdown };
 };
 
-export const createQrPayment = async (amount: number, description: string, testMode = false) => {
+// Rename these functions to match the imports in QRPaymentDialog
+export const createQRPaymentSession = async ({ amount, description, expiresIn = 120, metadata = {} }) => {
   try {
     const { data, error } = await supabase.functions.invoke('create-qr-payment', {
-      body: { amount, description, testMode }
+      body: { amount, description, expiresIn, metadata }
     });
 
     if (error) throw error;
     
-    return { success: true, data };
+    return { 
+      success: true, 
+      qrCodeUrl: data.qrCodeUrl,
+      sessionId: data.sessionId,
+      testMode: data.testMode
+    };
   } catch (error: any) {
-    console.error('Erreur lors de la création du paiement QR:', error);
+    console.error('Erreur lors de la création de la session QR:', error);
     return { 
       success: false, 
-      error: error.message || 'Une erreur est survenue lors de la création du paiement QR' 
+      error: error.message || 'Une erreur est survenue lors de la création de la session QR' 
     };
   }
 };
 
-export const getPaymentStatus = async (paymentId: string) => {
+export const checkQRPaymentStatus = async (sessionId: string) => {
   try {
     const { data, error } = await supabase.functions.invoke('check-payment-status', {
-      body: { paymentId }
+      body: { paymentId: sessionId }
     });
 
     if (error) throw error;
     
-    return { success: true, data };
+    return { 
+      success: true, 
+      status: data.status,
+      paymentDetails: data.paymentDetails
+    };
   } catch (error: any) {
     console.error('Erreur lors de la vérification du statut de paiement:', error);
     return { 
@@ -83,20 +100,25 @@ export const getPaymentStatus = async (paymentId: string) => {
   }
 };
 
-export const cancelQrPayment = async (paymentId: string) => {
+export const cancelQRPaymentSession = async (sessionId: string) => {
   try {
     const { data, error } = await supabase.functions.invoke('cancel-qr-payment', {
-      body: { paymentId }
+      body: { paymentId: sessionId }
     });
 
     if (error) throw error;
     
     return { success: true, data };
   } catch (error: any) {
-    console.error('Erreur lors de l\'annulation du paiement QR:', error);
+    console.error('Erreur lors de l\'annulation de la session QR:', error);
     return { 
       success: false, 
-      error: error.message || 'Une erreur est survenue lors de l\'annulation du paiement' 
+      error: error.message || 'Une erreur est survenue lors de l\'annulation de la session' 
     };
   }
 };
+
+// Keep the old function names as aliases for backward compatibility
+export const createQrPayment = createQRPaymentSession;
+export const getPaymentStatus = checkQRPaymentStatus;
+export const cancelQrPayment = cancelQRPaymentSession;
