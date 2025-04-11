@@ -50,7 +50,8 @@ const AdminPowerBanks = () => {
       // Convertir les données au format attendu
       const typedData = data.map((item: any) => ({
         id: item.id,
-        serialNumber: item.code || 'N/A',
+        code: item.code || 'N/A',
+        serialNumber: item.code || 'N/A', // Utiliser code comme serialNumber
         batteryLevel: item.battery_level || 0,
         capacity: item.capacity || 0,
         status: item.status || 'maintenance',
@@ -147,7 +148,8 @@ const AdminPowerBanks = () => {
   };
 
   const filteredPowerBanks = powerBanks.filter(pb => 
-    pb.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+    pb.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    pb.code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

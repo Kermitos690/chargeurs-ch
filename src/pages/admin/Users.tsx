@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Table, 
@@ -26,6 +25,7 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
+  // Modification de la méthode formatant les données
   const fetchUsers = async () => {
     setLoading(true);
     

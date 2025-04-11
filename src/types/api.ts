@@ -10,6 +10,7 @@ export interface User {
   createdAt?: string | Date;
   photoURL?: string;
   displayName?: string;
+  subscriptionType?: string;
 }
 
 export interface Subscription {
@@ -41,6 +42,9 @@ export interface PowerBank {
   batteryLevel?: number;
   code: string;
   status?: string;
+  capacity?: number;
+  serialNumber?: string;
+  lastUpdated?: string;
 }
 
 export interface Station {
@@ -51,4 +55,49 @@ export interface Station {
   latitude?: number;
   longitude?: number;
   status?: string;
+  availablePowerBanks?: number;
+  totalSlots?: number;
+  description?: string;
+  imageUrl?: string;
+  distance?: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export interface Payment {
+  id: string;
+  userId: string;
+  amount: number;
+  status: string;
+  paymentMethod?: string;
+  paymentIntentId?: string;
+  createdAt: string | Date;
+}
+
+export interface AvailableTimeSlot {
+  id: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
+
+export interface Appointment {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  establishmentName: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  status: string;
+  notes?: string;
+  type: "video" | "phone";
+  createdAt: Date;
 }
