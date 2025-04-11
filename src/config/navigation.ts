@@ -1,4 +1,5 @@
-import { MainNavItem } from "@/types"
+
+import { MainNavItem, NavItem } from "@/types"
 
 interface DocsConfig {
   mainNav: MainNavItem[]
@@ -15,7 +16,7 @@ export const docsConfig: DocsConfig = {
       href: "/produits",
     },
     {
-      name: "Boutique",
+      title: "Boutique",
       href: "/boutique",
     },
     {
@@ -36,3 +37,34 @@ export const docsConfig: DocsConfig = {
     },
   ],
 }
+
+// Export the main navigation items from the config
+export const mainNavItems: NavItem[] = docsConfig.mainNav.map(item => ({
+  title: item.title,
+  href: item.href,
+  name: item.name,
+}));
+
+// Export product navigation items
+export const productNavItems: NavItem[] = [
+  {
+    title: "Tous les produits",
+    href: "/boutique",
+  },
+  {
+    title: "Bornes résidentielles",
+    href: "/produits/residentiels",
+  },
+  {
+    title: "Solutions entreprises",
+    href: "/produits/entreprises",
+  },
+  {
+    title: "Infrastructures publiques",
+    href: "/produits/publiques",
+  },
+  {
+    title: "Accessoires",
+    href: "/produits/accessoires",
+  }
+];

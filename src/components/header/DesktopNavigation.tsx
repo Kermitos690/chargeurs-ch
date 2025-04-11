@@ -11,11 +11,7 @@ import {
   navigationMenuTriggerStyle 
 } from "@/components/ui/navigation-menu";
 import { cn } from '@/lib/utils';
-
-type NavItem = {
-  path: string;
-  label: string;
-};
+import { NavItem } from '@/types';
 
 interface DesktopNavigationProps {
   navItems: NavItem[];
@@ -28,13 +24,13 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ navItems, product
       <NavigationMenu className="mx-auto">
         <NavigationMenuList>
           {navItems.map((item) => (
-            <NavigationMenuItem key={item.path}>
+            <NavigationMenuItem key={item.href}>
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
                 asChild
               >
-                <NavLink to={item.path}>
-                  {item.label}
+                <NavLink to={item.href || ""}>
+                  {item.title}
                 </NavLink>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -45,10 +41,10 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ navItems, product
             <NavigationMenuContent>
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {productItems.map((item) => (
-                  <li key={item.path}>
+                  <li key={item.href}>
                     <NavigationMenuLink asChild>
                       <NavLink
-                        to={item.path}
+                        to={item.href || ""}
                         className={({ isActive }) => 
                           cn(
                             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
@@ -56,7 +52,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ navItems, product
                           )
                         }
                       >
-                        <div className="text-sm font-medium leading-none">{item.label}</div>
+                        <div className="text-sm font-medium leading-none">{item.title}</div>
                       </NavLink>
                     </NavigationMenuLink>
                   </li>

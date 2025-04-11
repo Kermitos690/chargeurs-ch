@@ -1,6 +1,6 @@
 
 import { Home, Info, Phone, ShoppingCart } from 'lucide-react';
-import { type NavItem } from '@/config/navigation';
+import { NavItem } from '@/types';
 
 export const getMainNavItems = () => {
   return [
@@ -29,7 +29,8 @@ export const getMainNavItems = () => {
 
 export const getProductNavItems = (productItems: NavItem[]) => {
   return productItems.map(item => ({
-    ...item,
+    path: item.href,
+    label: item.title,
     icon: ShoppingCart
   }));
 };
