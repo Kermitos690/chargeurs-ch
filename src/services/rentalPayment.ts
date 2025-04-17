@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface StartRentalParams {
+interface RentalPreAuthParams {
   powerBankId: string;
   stationId: string;
   maxAmount: number;
@@ -14,22 +14,23 @@ interface CompleteRentalParams {
   finalAmount: number;
 }
 
-export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount }: StartRentalParams) => {
+// Fonction pour démarrer une location avec pré-autorisation
+export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount }: RentalPreAuthParams) => {
   try {
+    // Vérification de la session utilisateur
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error('Vous devez être connecté pour louer une powerbank');
-      return { success: false, error: 'Non authentifié' };
+      return { success: false, error: 'Vous devez être connecté pour louer une powerbank' };
     }
     
-    // Appel à la fonction edge pour créer la pré-autorisation
-    const { data, error } = await supabase.functions.invoke('create-rental-payment', {
+    // Création d'une pré-autorisation avec Stripe
+    const { data, error } = await supabase.functions.invoke('create-rental-preauth', {
       body: {
-        userId: user.id,
         powerBankId,
         stationId,
-        maxAmount
+        maxAmount,
+        currency: 'chf'
       }
     });
     
@@ -38,70 +39,111 @@ export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount
       return { success: false, error: error.message };
     }
     
+    if (!data?.clientSecret) {
+      return { success: false, error: 'Impossible de créer la pré-autorisation' };
+    }
+    
+    // Création d'un enregistrement de location dans la base de données
+    const { data: rentalData, error: rentalError } = await supabase
+      .from('rentals')
+      .insert({
+        user_id: user.id,
+        power_bank_id: powerBankId,
+        start_station_id: stationId,
+        max_amount: maxAmount,
+        status: 'pending',
+        stripe_setup_intent_id: data.setupIntentId
+      })
+      .select('id')
+      .single();
+    
+    if (rentalError) {
+      console.error('Erreur lors de l\'enregistrement de la location:', rentalError);
+      return { success: false, error: 'Erreur lors de l\'enregistrement de la location' };
+    }
+    
     return { 
       success: true, 
-      setupIntentId: data.setupIntentId,
       clientSecret: data.clientSecret,
-      rentalId: data.rentalId,
-      rentalRef: data.rentalRef
+      rentalId: rentalData.id
     };
   } catch (error) {
     console.error('Erreur lors du démarrage de la location:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Une erreur est survenue lors de la préparation de la location' };
   }
 };
 
+// Fonction pour compléter une location (retour de la powerbank)
 export const completeRental = async ({ rentalId, endStationId, finalAmount }: CompleteRentalParams) => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    // Récupération des informations de la location
+    const { data: rental, error: rentalError } = await supabase
+      .from('rentals')
+      .select('*')
+      .eq('id', rentalId)
+      .single();
     
-    if (!user) {
-      toast.error('Vous devez être connecté pour finaliser une location');
-      return { success: false, error: 'Non authentifié' };
+    if (rentalError || !rental) {
+      throw new Error('Location introuvable');
     }
     
-    // Appel à la fonction edge pour finaliser le paiement
-    const { data, error } = await supabase.functions.invoke('update-rental-payment', {
+    if (rental.status !== 'active') {
+      throw new Error('La location n\'est pas active');
+    }
+    
+    // Capture du paiement final avec Stripe
+    const { data, error } = await supabase.functions.invoke('capture-rental-payment', {
       body: {
         rentalId,
-        endStationId,
+        paymentMethodId: rental.payment_method_id,
         finalAmount
       }
     });
     
     if (error) {
-      console.error('Erreur lors de la finalisation du paiement:', error);
+      console.error('Erreur lors de la capture du paiement:', error);
       return { success: false, error: error.message };
     }
     
-    if (data.alreadyProcessed) {
-      toast.info('Cette location a déjà été finalisée');
-      return { success: true, alreadyProcessed: true };
+    // Mise à jour de la location dans la base de données
+    const { error: updateError } = await supabase
+      .from('rentals')
+      .update({
+        status: 'completed',
+        end_station_id: endStationId,
+        end_time: new Date().toISOString(),
+        final_amount: finalAmount
+      })
+      .eq('id', rentalId);
+    
+    if (updateError) {
+      console.error('Erreur lors de la mise à jour de la location:', updateError);
+      return { success: false, error: 'Erreur lors de la mise à jour de la location' };
     }
     
-    toast.success('Location terminée avec succès');
-    return { 
-      success: true, 
-      paymentIntentId: data.paymentIntentId,
-      amount: data.amount,
-      rental: data.rental
-    };
+    return { success: true };
   } catch (error) {
-    console.error('Erreur lors de la finalisation de la location:', error);
+    console.error('Erreur lors de la complétion de la location:', error);
     return { success: false, error: error.message };
   }
 };
 
-// Fonction pour calculer le coût estimé d'une location en cours
-export const calculateRentalCost = (startTime: string, hourlyRate: number = 2) => {
-  const start = new Date(startTime);
-  const now = new Date();
-  const diffInMs = now.getTime() - start.getTime();
-  const hours = Math.ceil(diffInMs / (1000 * 60 * 60)); // Arrondi à l'heure supérieure
-  return hours * hourlyRate;
-};
-
-// Fonction utilitaire pour formater les montants
-export const formatCurrency = (amount: number) => {
-  return amount.toFixed(2) + ' CHF';
+// Fonction pour vérifier l'état d'une location
+export const checkRentalStatus = async (rentalId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('rentals')
+      .select('*')
+      .eq('id', rentalId)
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true, rental: data };
+  } catch (error) {
+    console.error('Erreur lors de la vérification de la location:', error);
+    return { success: false, error: error.message };
+  }
 };

@@ -2,100 +2,214 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { BatteryCharging, Heart, Shield, Leaf, Award, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const About = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow pt-24 pb-16">
-        <section className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-16">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">À Propos de Chargeurs.ch</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Nous révolutionnons la façon dont les gens restent connectés en Suisse grâce à notre réseau de bornes de location de powerbanks.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Notre Mission</h2>
-              <p className="text-muted-foreground mb-6">
-                Chez Chargeurs.ch, notre mission est simple : éliminer l'anxiété liée à la batterie. Nous croyons que personne ne devrait jamais être à court d'énergie lorsqu'il est en déplacement.
-              </p>
-              <p className="text-muted-foreground mb-6">
-                Nous avons créé un réseau de bornes de location de powerbanks dans toute la Suisse, permettant à nos utilisateurs d'emprunter une batterie portable lorsqu'ils en ont besoin et de la retourner lorsqu'ils ont terminé.
-              </p>
-              <p className="text-muted-foreground">
-                Notre objectif est de construire l'infrastructure de recharge la plus accessible et la plus pratique pour la Suisse, en nous assurant que vous restez connecté, productif et prêt à affronter votre journée.
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="bg-green-50 py-20">
+          <div className="container px-4 mx-auto">
+            <div className="max-w-3xl mx-auto text-center">
+              <h1 className="text-4xl font-bold tracking-tight mb-6">Notre Histoire</h1>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Découvrez comment Chargeurs.ch est devenu le leader suisse des solutions de recharge mobile.
+                Notre mission est de vous garder connecté, partout et à tout moment.
               </p>
             </div>
-            <div className="glass-panel rounded-xl overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-                alt="Personne utilisant une powerbank" 
-                className="w-full h-full object-cover"
-              />
-            </div>
           </div>
+        </section>
 
-          <div className="mb-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">Notre Histoire</h2>
-            <div className="relative border-l-2 border-primary pl-8 pb-8 ml-4">
-              <div className="mb-10">
-                <div className="absolute -left-4 mt-1.5 w-6 h-6 rounded-full bg-primary"></div>
-                <h3 className="text-xl font-semibold mb-2">2021</h3>
-                <p className="text-muted-foreground">Fondation de Chargeurs.ch avec une vision d'un réseau de recharge partagé pour la Suisse.</p>
-              </div>
-              <div className="mb-10">
-                <div className="absolute -left-4 mt-1.5 w-6 h-6 rounded-full bg-primary"></div>
-                <h3 className="text-xl font-semibold mb-2">2022</h3>
-                <p className="text-muted-foreground">Lancement de nos premières bornes de location dans les principales villes suisses.</p>
-              </div>
-              <div className="mb-10">
-                <div className="absolute -left-4 mt-1.5 w-6 h-6 rounded-full bg-primary"></div>
-                <h3 className="text-xl font-semibold mb-2">2023</h3>
-                <p className="text-muted-foreground">Expansion dans plus de 50 emplacements à travers la Suisse et lancement de notre application mobile.</p>
-              </div>
+        {/* Notre Mission */}
+        <section className="py-16">
+          <div className="container px-4 mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <div className="absolute -left-4 mt-1.5 w-6 h-6 rounded-full bg-primary"></div>
-                <h3 className="text-xl font-semibold mb-2">2024</h3>
-                <p className="text-muted-foreground">Poursuite de notre croissance avec plus de 100 bornes et introduction de notre programme d'abonnement premium.</p>
+                <h2 className="text-3xl font-bold mb-6">Notre Mission</h2>
+                <p className="text-muted-foreground mb-4">
+                  Chez Chargeurs.ch, nous croyons en un monde où personne ne devrait jamais se retrouver 
+                  sans batterie. Notre mission est de fournir des solutions de recharge accessibles, 
+                  durables et fiables à tous les Suisses.
+                </p>
+                <p className="text-muted-foreground mb-6">
+                  Nous nous engageons à réduire l'anxiété liée à la batterie et à permettre à chacun 
+                  de rester connecté sans interruption, peu importe où ils se trouvent.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <BatteryCharging className="h-5 w-5 text-green-600" />
+                    <span>Toujours chargé</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-green-600" />
+                    <span>Service client d'excellence</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    <span>Fiabilité et sécurité</span>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
+                  alt="Notre équipe en action" 
+                  className="w-full h-auto"
+                />
               </div>
             </div>
           </div>
+        </section>
 
-          <div className="bg-accent p-8 rounded-xl mb-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">Notre Équipe</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                { name: 'Sophie Dubois', role: 'Fondatrice & CEO', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop' },
-                { name: 'Marc Keller', role: 'Directeur Technique', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop' },
-                { name: 'Lucie Martin', role: 'Responsable Marketing', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop' },
-              ].map((member, index) => (
-                <div key={index} className="bg-card p-6 rounded-lg shadow-sm border border-border text-center">
-                  <div className="mb-4 mx-auto rounded-full overflow-hidden w-24 h-24">
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-full h-full object-cover" 
-                    />
+        {/* Nos Valeurs */}
+        <section className="bg-muted py-16">
+          <div className="container px-4 mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">Nos Valeurs</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-green-100 p-3 rounded-full mb-4">
+                      <Leaf className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Durabilité</h3>
+                    <p className="text-muted-foreground">
+                      Nos powerbanks sont conçues pour durer et être réutilisées, réduisant ainsi les déchets électroniques.
+                      Nous utilisons également des matériaux recyclés dans nos emballages.
+                    </p>
                   </div>
-                  <h3 className="font-semibold text-lg">{member.name}</h3>
-                  <p className="text-muted-foreground">{member.role}</p>
-                </div>
-              ))}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-green-100 p-3 rounded-full mb-4">
+                      <Award className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Excellence</h3>
+                    <p className="text-muted-foreground">
+                      Nous nous efforçons d'offrir une qualité irréprochable dans tous nos produits et services.
+                      La satisfaction client est notre priorité absolue.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-green-100 p-3 rounded-full mb-4">
+                      <Users className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Communauté</h3>
+                    <p className="text-muted-foreground">
+                      Nous croyons au pouvoir de la communauté et nous travaillons en étroite collaboration
+                      avec les entreprises locales et les municipalités pour étendre notre réseau.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-          
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-6">Rejoignez-nous</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Nous sommes toujours à la recherche de talents passionnés pour nous aider à développer notre réseau et améliorer notre service.
+        </section>
+
+        {/* Notre Histoire */}
+        <section className="py-16">
+          <div className="container px-4 mx-auto">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold text-center mb-12">Notre Histoire</h2>
+              
+              <div className="space-y-12">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-24 text-center">
+                    <div className="bg-primary text-white font-bold rounded py-1">2018</div>
+                    <div className="h-full border-r-2 border-primary mx-auto w-0 mt-2"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Les débuts</h3>
+                    <p className="text-muted-foreground">
+                      Fondée par trois ingénieurs passionnés, Chargeurs.ch est née de la frustration de toujours manquer de batterie
+                      lors de sorties ou de voyages. La première station a été installée à Lausanne.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-24 text-center">
+                    <div className="bg-primary text-white font-bold rounded py-1">2020</div>
+                    <div className="h-full border-r-2 border-primary mx-auto w-0 mt-2"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Expansion nationale</h3>
+                    <p className="text-muted-foreground">
+                      Après un succès initial, nous avons étendu notre réseau à Genève, Zurich et Berne,
+                      avec plus de 100 stations de recharge dans toute la Suisse.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-24 text-center">
+                    <div className="bg-primary text-white font-bold rounded py-1">2022</div>
+                    <div className="h-full border-r-2 border-primary mx-auto w-0 mt-2"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Innovation technologique</h3>
+                    <p className="text-muted-foreground">
+                      Lancement de notre application mobile pour localiser les stations et introduction
+                      de powerbanks de nouvelle génération avec une capacité accrue et une charge rapide.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-24 text-center">
+                    <div className="bg-primary text-white font-bold rounded py-1">2024</div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Aujourd'hui</h3>
+                    <p className="text-muted-foreground">
+                      Avec plus de 500 stations et 50 000 utilisateurs réguliers, Chargeurs.ch est devenu
+                      le leader incontesté des solutions de recharge mobile en Suisse, avec des projets d'expansion européenne.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-primary text-white py-16">
+          <div className="container px-4 mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6">Rejoignez l'aventure</h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              Découvrez nos services et commencez à utiliser notre réseau de powerbanks dès aujourd'hui.
+              Restez chargé, restez connecté !
             </p>
-            <Button size="lg" className="rounded-full">
-              Voir nos offres d'emploi
-            </Button>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button 
+                onClick={() => navigate('/location')} 
+                variant="secondary" 
+                size="lg"
+              >
+                Louer une powerbank
+              </Button>
+              <Button 
+                onClick={() => navigate('/contact')} 
+                variant="outline" 
+                className="bg-transparent text-white hover:bg-white hover:text-primary"
+                size="lg"
+              >
+                Contactez-nous
+              </Button>
+            </div>
           </div>
         </section>
       </main>
