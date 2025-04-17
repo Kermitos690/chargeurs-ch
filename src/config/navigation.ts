@@ -12,20 +12,20 @@ export const docsConfig: DocsConfig = {
       href: "/",
     },
     {
-      title: "Produits",
-      href: "/produits",
+      title: "Powerbanks",
+      href: "/powerbanks",
     },
     {
-      title: "Boutique",
-      href: "/boutique",
+      title: "Location",
+      href: "/location",
     },
     {
-      title: "Accessoires",
-      href: "/accessoires",
+      title: "Stations",
+      href: "/stations",
     },
     {
-      title: "Blog",
-      href: "/blog",
+      title: "Abonnements",
+      href: "/subscriptions",
     },
     {
       title: "À propos",
@@ -45,8 +45,8 @@ export const mainNavItems = [
     label: "Accueil"
   },
   {
-    path: "/produits",
-    label: "Produits"
+    path: "/powerbanks",
+    label: "Powerbanks"
   },
   {
     path: "/a-propos",
@@ -60,23 +60,23 @@ export const mainNavItems = [
 
 export const productNavItems = [
   {
-    path: "/produits/residentiels",
-    label: "Résidentiels"
+    path: "/location/journalier",
+    label: "Location journalière"
   },
   {
-    path: "/produits/entreprises",
-    label: "Entreprises"
+    path: "/location/hebdomadaire",
+    label: "Location hebdomadaire"
   },
   {
-    path: "/produits/publiques",
-    label: "Publiques"
+    path: "/location/mensuelle",
+    label: "Location mensuelle"
   },
   {
-    path: "/boutique",
-    label: "Boutique"
+    path: "/stations",
+    label: "Stations"
   },
   {
-    path: "/produits/accessoires",
-    label: "Accessoires"
+    path: "/abonnements",
+    label: "Abonnements"
   }
 ]

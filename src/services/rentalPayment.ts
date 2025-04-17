@@ -35,7 +35,6 @@ export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount
     
     if (error) {
       console.error('Erreur lors de la création de la pré-autorisation:', error);
-      toast.error('Impossible de démarrer la location. Veuillez réessayer.');
       return { success: false, error: error.message };
     }
     
@@ -48,7 +47,6 @@ export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount
     };
   } catch (error) {
     console.error('Erreur lors du démarrage de la location:', error);
-    toast.error('Une erreur est survenue lors du démarrage de la location');
     return { success: false, error: error.message };
   }
 };
@@ -73,7 +71,6 @@ export const completeRental = async ({ rentalId, endStationId, finalAmount }: Co
     
     if (error) {
       console.error('Erreur lors de la finalisation du paiement:', error);
-      toast.error('Impossible de finaliser la location. Veuillez contacter le support.');
       return { success: false, error: error.message };
     }
     
@@ -91,7 +88,6 @@ export const completeRental = async ({ rentalId, endStationId, finalAmount }: Co
     };
   } catch (error) {
     console.error('Erreur lors de la finalisation de la location:', error);
-    toast.error('Une erreur est survenue lors de la finalisation de la location');
     return { success: false, error: error.message };
   }
 };

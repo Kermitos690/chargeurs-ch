@@ -1,5 +1,5 @@
 
-import { Home, Info, Phone, ShoppingCart } from 'lucide-react';
+import { Home, Info, Phone, ShoppingCart, Battery, BatteryCharging } from 'lucide-react';
 import { NavItem } from '@/types';
 
 export const getMainNavItems = () => {
@@ -12,7 +12,7 @@ export const getMainNavItems = () => {
     {
       path: '/features',
       label: 'Fonctionnalités',
-      icon: Info
+      icon: BatteryCharging
     },
     {
       path: '/about',
@@ -30,6 +30,6 @@ export const getMainNavItems = () => {
 export const getProductNavItems = (productItems: NavItem[]) => {
   return productItems.map(item => ({
     ...item,
-    icon: ShoppingCart
+    icon: Battery
   }));
 };

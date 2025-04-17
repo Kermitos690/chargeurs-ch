@@ -18,7 +18,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import QRPaymentDialog from '@/components/qr/QRPaymentDialog';
 
-// Remplacer par votre clé publique Stripe
 const stripePromise = loadStripe('pk_test_yourStripePublicKey');
 
 const MAX_RENTAL_AMOUNT = 30; // Montant maximum préautorisé en CHF
@@ -166,13 +165,14 @@ const RentPowerBank: React.FC<RentPowerBankProps> = ({ stationId, availablePower
           clientSecret: result.clientSecret,
           rentalId: result.rentalId
         });
+        toast.success('Préparation de votre location réussie');
       } else {
-        toast.error('Erreur lors de la préparation de la location');
+        toast.error(result.error || 'Une erreur est survenue lors de la préparation de la location');
         setIsDialogOpen(false);
       }
     } catch (error) {
       console.error('Erreur:', error);
-      toast.error('Une erreur est survenue');
+      toast.error('Une erreur est survenue lors de la communication avec le serveur');
       setIsDialogOpen(false);
     } finally {
       setIsLoading(false);

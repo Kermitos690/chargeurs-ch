@@ -20,6 +20,10 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import NewPassword from "./pages/auth/NewPassword"; 
+import LocationPage from "./pages/location";
+import JournalierPage from "./pages/location/journalier";
+import HebdomadairePage from "./pages/location/hebdomadaire";
+import MensuellePage from "./pages/location/mensuelle";
 
 // Routes d'administration
 import AdminLogin from "./pages/admin/Login";
