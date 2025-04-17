@@ -50,7 +50,7 @@ export const startRentalWithPreAuth = async ({ powerBankId, stationId, maxAmount
         user_id: user.id,
         powerbank_id: powerBankId,
         start_station_id: stationId,
-        cost: maxAmount, // Using cost instead of max_amount
+        cost: maxAmount, // Using cost field
         status: 'pending',
         stripe_setup_intent_id: data.setupIntentId
       })
@@ -95,8 +95,7 @@ export const completeRental = async ({ rentalId, endStationId, finalAmount }: Co
     const { data, error } = await supabase.functions.invoke('capture-rental-payment', {
       body: {
         rentalId,
-        // We don't have payment_method_id in the rentals table
-        // Replace with a suitable alternative or remove if not needed
+        // Remove payment_method_id as it doesn't exist
         finalAmount
       }
     });
@@ -113,7 +112,7 @@ export const completeRental = async ({ rentalId, endStationId, finalAmount }: Co
         status: 'completed',
         end_station_id: endStationId,
         end_time: new Date().toISOString(),
-        cost: finalAmount // Use cost field instead of final_amount
+        cost: finalAmount // Use cost field
       })
       .eq('id', rentalId);
     

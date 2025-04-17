@@ -21,8 +21,8 @@ export const getUserRentals = async (userId: string) => {
       endStationId: rental.end_station_id,
       endTime: rental.end_time,
       status: rental.status,
-      maxAmount: rental.cost, // Utiliser cost au lieu de max_amount
-      finalAmount: rental.cost, // Utiliser cost au lieu de final_amount
+      maxAmount: rental.cost, // Utiliser cost pour le champ maxAmount
+      finalAmount: rental.cost, // Utiliser cost pour le champ finalAmount
       cost: rental.cost
     }));
     
