@@ -92,6 +92,24 @@ export const cancelQRPaymentSession = async (sessionId: string) => {
   }
 };
 
+// Fonction de calcul des frais de location
+export const calculateRentalFees = (startTime: string, hourlyRate: number = 2) => {
+  const start = new Date(startTime);
+  const now = new Date();
+  const diffInMs = now.getTime() - start.getTime();
+  
+  // Calcul des heures de location (arrondi à l'heure supérieure)
+  const hours = Math.ceil(diffInMs / (1000 * 60 * 60));
+  const totalAmount = hours * hourlyRate;
+  
+  // Calcul détaillé pour affichage
+  let breakdown = `Base horaire: ${hourlyRate.toFixed(2)} CHF/heure\n`;
+  breakdown += `Durée: ${hours} heure(s)\n`;
+  breakdown += `Total: ${totalAmount.toFixed(2)} CHF`;
+  
+  return { totalAmount, breakdown, hours };
+};
+
 // Fonction utilitaire pour formater les montants
 export const formatCurrency = (amount: number) => {
   return amount.toFixed(2) + ' CHF';
