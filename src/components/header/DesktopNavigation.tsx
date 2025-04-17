@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -11,11 +10,7 @@ import {
   navigationMenuTriggerStyle 
 } from "@/components/ui/navigation-menu";
 import { cn } from '@/lib/utils';
-
-type NavItem = {
-  path: string;
-  label: string;
-};
+import { NavItem } from '@/types';
 
 interface DesktopNavigationProps {
   navItems: NavItem[];

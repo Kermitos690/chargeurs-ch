@@ -1,3 +1,4 @@
+
 import { MainNavItem } from "@/types"
 
 interface DocsConfig {
@@ -15,7 +16,7 @@ export const docsConfig: DocsConfig = {
       href: "/produits",
     },
     {
-      name: "Boutique",
+      title: "Boutique",
       href: "/boutique",
     },
     {
@@ -36,3 +37,46 @@ export const docsConfig: DocsConfig = {
     },
   ],
 }
+
+// Add these exports that match the imports in Header.tsx
+export const mainNavItems = [
+  {
+    path: "/",
+    label: "Accueil"
+  },
+  {
+    path: "/produits",
+    label: "Produits"
+  },
+  {
+    path: "/a-propos",
+    label: "À propos"
+  },
+  {
+    path: "/contact",
+    label: "Contact"
+  }
+]
+
+export const productNavItems = [
+  {
+    path: "/produits/residentiels",
+    label: "Résidentiels"
+  },
+  {
+    path: "/produits/entreprises",
+    label: "Entreprises"
+  },
+  {
+    path: "/produits/publiques",
+    label: "Publiques"
+  },
+  {
+    path: "/boutique",
+    label: "Boutique"
+  },
+  {
+    path: "/produits/accessoires",
+    label: "Accessoires"
+  }
+]

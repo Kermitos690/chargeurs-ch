@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Drawer, 
@@ -13,7 +12,7 @@ import UserSection from './mobile/UserSection';
 import AuthSection from './mobile/AuthSection';
 import MenuFooter from './mobile/MenuFooter';
 import { getMainNavItems, getProductNavItems } from './mobile/NavItems';
-import { type NavItem } from '@/config/navigation';
+import { NavItem } from '@/types';
 
 interface MobileNavigationProps {
   isMenuOpen: boolean;
