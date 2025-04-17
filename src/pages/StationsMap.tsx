@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStations } from '@/services/api';
@@ -27,17 +26,17 @@ const StationsMap = () => {
   const [useLocationFilter, setUseLocationFilter] = useState<boolean>(false);
   const [stationsWithDistance, setStationsWithDistance] = useState<Array<Station & {distance: number | null}>>([]);
   
-  // Utilisation du hook de géolocalisation
   const { latitude, longitude, error: geoError, isLoading: geoLoading } = useGeolocation();
   const userLocation = latitude && longitude ? { latitude, longitude } : null;
   
   const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
-    initialData: () => ({
+    initialData: {
       success: true,
-      data: mockStations
-    }),
+      data: mockStations,
+      error: undefined
+    },
     staleTime: 60000,
     gcTime: 300000,
     retry: 3,
@@ -50,7 +49,6 @@ const StationsMap = () => {
     }
   });
 
-  // Handle errors outside of query options too
   useEffect(() => {
     if (error) {
       toast.error("Impossible de charger les stations. Veuillez réessayer plus tard.");
@@ -63,7 +61,6 @@ const StationsMap = () => {
 
   const stations = apiData?.data || [];
 
-  // Calcul des distances entre l'utilisateur et les stations
   useEffect(() => {
     if (stations.length > 0) {
       const stationsWithDistanceData = stations.map(station => {
@@ -86,7 +83,6 @@ const StationsMap = () => {
     console.log("Recherche effectuée:", searchQuery);
   }, [searchQuery]);
 
-  // Filtrer les stations en fonction de la recherche
   useEffect(() => {
     if (stations.length > 0) {
       let filtered = stations.filter(station => 
@@ -94,7 +90,6 @@ const StationsMap = () => {
         station.location.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-      // Si le filtre de localisation est activé et que l'utilisateur a une position
       if (useLocationFilter && userLocation) {
         filtered = filtered
           .map(station => {
@@ -106,7 +101,7 @@ const StationsMap = () => {
             );
             return { ...station, distance };
           })
-          .filter(station => station.distance !== null && station.distance <= 5) // Stations dans un rayon de 5km
+          .filter(station => station.distance !== null && station.distance <= 5)
           .sort((a, b) => {
             if (a.distance === null) return 1;
             if (b.distance === null) return -1;

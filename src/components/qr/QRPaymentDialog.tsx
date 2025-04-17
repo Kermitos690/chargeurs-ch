@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
@@ -42,7 +41,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
   const countdownInterval = useRef<number | null>(null);
   const [isTestMode, setIsTestMode] = useState(false);
 
-  // Créer la session QR code au chargement du composant
   useEffect(() => {
     if (isOpen) {
       createQRSession();
@@ -76,7 +74,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
         setSessionId(result.sessionId);
         setIsTestMode(result.testMode || false);
         
-        // Commencer à vérifier le statut du paiement toutes les 3 secondes
         if (checkInterval.current) {
           window.clearInterval(checkInterval.current);
         }
@@ -87,7 +84,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
           }
         }, 3000);
         
-        // Configurer le compte à rebours
         const expiry = Math.floor(Date.now() / 1000) + 300; // 5 minutes
         setExpiresAt(expiry);
         setCountdown(300);
@@ -128,7 +124,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
           setPaymentStatus('success');
           toast.success('Paiement confirmé !');
           
-          // Arrêter les intervalles
           if (checkInterval.current) {
             window.clearInterval(checkInterval.current);
           }
@@ -136,7 +131,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
             window.clearInterval(countdownInterval.current);
           }
           
-          // Attendre un peu avant de fermer pour que l'utilisateur voie le succès
           setTimeout(() => {
             onSuccess();
           }, 2000);
@@ -155,7 +149,6 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
   };
 
   const handleClose = () => {
-    // Nettoyer les intervalles
     if (checkInterval.current) {
       window.clearInterval(checkInterval.current);
     }
@@ -215,7 +208,7 @@ const QRPaymentDialog: React.FC<QRPaymentDialogProps> = ({
               </div>
               
               {isTestMode && (
-                <Alert variant="info" className="mt-4">
+                <Alert variant="default" className="mt-4">
                   <AlertDescription className="text-sm">
                     Mode test activé. Utilisez la page de test Stripe pour simuler un paiement.
                   </AlertDescription>

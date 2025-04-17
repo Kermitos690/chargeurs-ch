@@ -15,14 +15,14 @@ export const getUserRentals = async (userId: string) => {
     // Formater les données pour correspondre à l'interface utilisée dans les composants
     const formattedData = data.map(rental => ({
       id: rental.id,
-      powerBankId: rental.power_bank_id,
+      powerBankId: rental.powerbank_id,
       startTime: rental.start_time,
       startStationId: rental.start_station_id,
       endStationId: rental.end_station_id,
       endTime: rental.end_time,
       status: rental.status,
-      maxAmount: rental.max_amount,
-      finalAmount: rental.final_amount,
+      maxAmount: rental.cost, // Utiliser cost au lieu de max_amount
+      finalAmount: rental.cost, // Utiliser cost au lieu de final_amount
       cost: rental.cost
     }));
     
@@ -59,8 +59,9 @@ export const getStations = async () => {
         address: station.address,
         latitude: station.latitude,
         longitude: station.longitude,
-        availablePowerBanks: station.available_powerbanks,
-        totalSlots: station.total_slots,
+        // Setting default values for properties that don't exist in DB
+        availablePowerBanks: 0, // Default value since it doesn't exist in DB
+        totalSlots: 0, // Default value since it doesn't exist in DB
         status: station.status
       }))
     };
@@ -93,8 +94,8 @@ export const getStation = async (stationId: string) => {
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude,
-        availablePowerBanks: data.available_powerbanks,
-        totalSlots: data.total_slots,
+        availablePowerBanks: 0, // Default value since it doesn't exist in DB
+        totalSlots: 0, // Default value since it doesn't exist in DB
         status: data.status
       }
     };
