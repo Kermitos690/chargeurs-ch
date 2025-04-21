@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -81,27 +82,44 @@ const Register = () => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Vérification plus détaillée de l'email existant
-      const { data: existingUsers, error: checkError } = await supabase
+      // Étape 1: Vérifier si l'email existe déjà dans les profiles
+      const { data: existingProfiles, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id, email')
         .eq('email', email)
         .limit(1);
       
-      if (checkError) {
-        console.error("Erreur lors de la vérification de l'email:", checkError);
+      if (profileCheckError) {
+        console.error("Erreur lors de la vérification du profil:", profileCheckError);
         setErrorMessage("Une erreur technique est survenue. Veuillez réessayer.");
         setIsLoading(false);
         return;
       }
       
-      if (existingUsers && existingUsers.length > 0) {
+      if (existingProfiles && existingProfiles.length > 0) {
+        console.log("Email déjà utilisé dans profiles:", email);
         setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
         setIsLoading(false);
         return;
       }
       
-      // Créer un utilisateur avec Supabase Auth
+      // Étape 2: Vérifier si cet email existe déjà dans auth (double vérification)
+      const { data: authData, error: authError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false
+        }
+      });
+      
+      // Si pas d'erreur mais OTP envoyé, cela signifie que l'utilisateur existe déjà
+      if (!authError && authData) {
+        console.log("L'email existe déjà dans auth:", email);
+        setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Étape 3: Seulement maintenant, créer l'utilisateur avec Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -114,22 +132,25 @@ const Register = () => {
       });
       
       if (error) {
-        console.error("Erreur Supabase lors de l'inscription détaillée:", {
+        console.error("Erreur Supabase lors de l'inscription:", {
           message: error.message,
           code: error.code,
           details: error
         });
         
-        // Gestion plus granulaire des erreurs
-        const errorMessage = error.message.toLowerCase();
+        // Analyse de l'erreur pour donner un message approprié
+        const errorMsg = error.message.toLowerCase();
         
         if (
-          errorMessage.includes('already registered') || 
-          errorMessage.includes('email already exists')
+          errorMsg.includes('already registered') || 
+          errorMsg.includes('email already exists') ||
+          errorMsg.includes('user already registered')
         ) {
           setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
-        } else if (errorMessage.includes('network')) {
+        } else if (errorMsg.includes('network')) {
           setErrorMessage("Problème de connexion réseau. Veuillez vérifier votre connexion.");
+        } else if (errorMsg.includes('database') || errorMsg.includes('db error')) {
+          setErrorMessage("Erreur de base de données. Veuillez réessayer dans quelques instants.");
         } else {
           setErrorMessage("Une erreur technique est survenue. Veuillez réessayer.");
         }
@@ -138,23 +159,34 @@ const Register = () => {
         return;
       }
       
-      console.log("Compte créé avec succès, id:", data.user?.id);
-      
-      // Récupérer le user.id pour les étapes futures
-      if (data.user) {      
+      if (data && data.user) {
+        console.log("Compte créé avec succès, id:", data.user.id);
+        
+        // Attendre un peu pour permettre aux triggers de terminer leur travail
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         toast({
           title: "Compte créé avec succès",
           description: "Bienvenue sur chargeurs.ch !",
         });
         
         navigate('/stations');
+      } else {
+        setErrorMessage("Échec de création du compte. Veuillez réessayer.");
       }
       
     } catch (error: any) {
       console.error("Erreur finale lors de l'inscription:", error);
       
-      // Ajout de journalisation plus détaillée
-      setErrorMessage(error.message || "Une erreur inattendue est survenue");
+      // Vérifier s'il s'agit d'une erreur de clé dupliquée
+      if (error.message && (
+        error.message.includes('duplicate key') || 
+        error.message.includes('user_details_pkey')
+      )) {
+        setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+      } else {
+        setErrorMessage("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");
+      }
     } finally {
       setIsLoading(false);
     }
