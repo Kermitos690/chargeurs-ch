@@ -3,7 +3,6 @@ import { getCartItems, clearCart } from './cart';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-// Créer une session de checkout Stripe
 export const createCheckoutSession = async (successUrl?: string, cancelUrl?: string) => {
   try {
     // Récupérer les articles du panier
@@ -22,16 +21,20 @@ export const createCheckoutSession = async (successUrl?: string, cancelUrl?: str
       quantity: item.quantity,
     }));
 
+    const defaultSuccessUrl = `${window.location.origin}/shop/checkout-success`;
+    const defaultCancelUrl = `${window.location.origin}/shop/checkout-cancel`;
+
     // Appeler l'API Stripe via la fonction Edge de Supabase
     const { data, error } = await supabase.functions.invoke('create-checkout', {
       body: { 
         items,
-        successUrl,
-        cancelUrl
+        successUrl: successUrl || defaultSuccessUrl,
+        cancelUrl: cancelUrl || defaultCancelUrl
       }
     });
 
     if (error) {
+      console.error('Erreur lors de la création de la session:', error);
       throw new Error(error.message);
     }
 

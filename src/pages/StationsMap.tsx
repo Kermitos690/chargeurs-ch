@@ -9,16 +9,17 @@ import StationSearch from '@/components/stations/StationSearch';
 import StationsList from '@/components/stations/StationsList';
 
 const StationsMap = () => {
-  const { position } = useGeolocation();
+  const { latitude, longitude, error: geoError } = useGeolocation();
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const userPosition = latitude && longitude ? { latitude, longitude } : null;
 
-  // Use correct initialData format, ensuring it includes both success and data properties
   const { data, isLoading, error } = useQuery({
     queryKey: ['stations'],
     queryFn: getStations,
     initialData: {
       success: true,
-      data: []
+      data: [],
+      error: null
     }
   });
 
@@ -56,23 +57,23 @@ const StationsMap = () => {
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-4">Stations de recharge</h1>
           <StationSearch 
-            stations={stations}
+            stationsList={stations}
             onSelect={(id) => setSelectedStationId(id)}
           />
           <StationsList 
-            stations={stations} 
+            stationsList={stations} 
             selectedStationId={selectedStationId}
             onSelect={(id) => setSelectedStationId(id)}
-            userPosition={position}
+            userPosition={userPosition}
           />
         </div>
       </div>
       <div className="w-full md:w-2/3 h-1/2 md:h-full">
         <LeafletMap 
           stations={stations}
-          selectedStationId={selectedStationId}
+          selectedStation={selectedStationId}
           onMarkerClick={(id) => setSelectedStationId(id)}
-          userPosition={position}
+          userPosition={userPosition}
         />
       </div>
     </div>

@@ -12,20 +12,8 @@ export const docsConfig: DocsConfig = {
       href: "/",
     },
     {
-      title: "Powerbanks",
-      href: "/powerbanks",
-    },
-    {
-      title: "Location",
-      href: "/location",
-    },
-    {
       title: "Stations",
       href: "/stations",
-    },
-    {
-      title: "Abonnements",
-      href: "/subscriptions",
     },
     {
       title: "À propos",
@@ -38,15 +26,14 @@ export const docsConfig: DocsConfig = {
   ],
 }
 
-// Add these exports that match the imports in Header.tsx
 export const mainNavItems = [
   {
     path: "/",
     label: "Accueil"
   },
   {
-    path: "/powerbanks",
-    label: "Powerbanks"
+    path: "/stations",
+    label: "Stations"
   },
   {
     path: "/a-propos",
@@ -60,6 +47,14 @@ export const mainNavItems = [
 
 export const productNavItems = [
   {
+    path: "/produits",
+    label: "Tous les produits"
+  },
+  {
+    path: "/produits/accessoires",
+    label: "Accessoires"
+  },
+  {
     path: "/location/journalier",
     label: "Location journalière"
   },
@@ -70,10 +65,6 @@ export const productNavItems = [
   {
     path: "/location/mensuelle",
     label: "Location mensuelle"
-  },
-  {
-    path: "/stations",
-    label: "Stations"
   },
   {
     path: "/abonnements",
