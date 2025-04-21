@@ -49,6 +49,8 @@ const Register = () => {
         return "Les mots de passe ne correspondent pas";
       case 'terms-not-accepted':
         return "Vous devez accepter les conditions d'utilisation";
+      case 'duplicate-key':
+        return "Cette adresse email est déjà utilisée par un autre compte";
       default:
         return "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
     }
@@ -80,6 +82,23 @@ const Register = () => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
+      // Vérifier d'abord si l'email existe déjà
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .limit(1);
+      
+      if (checkError) {
+        console.error("Erreur lors de la vérification de l'email:", checkError);
+      }
+      
+      if (existingUsers && existingUsers.length > 0) {
+        setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+        setIsLoading(false);
+        return;
+      }
+      
       // Créer un utilisateur avec Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -94,7 +113,16 @@ const Register = () => {
       
       if (error) {
         console.error("Erreur Supabase lors de l'inscription:", error);
-        throw error;
+        
+        // Gestion des erreurs spécifiques
+        if (error.message.includes('already registered')) {
+          setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+        } else {
+          throw error;
+        }
+        
+        setIsLoading(false);
+        return;
       }
       
       console.log("Compte créé avec succès, id:", data.user?.id);
@@ -118,8 +146,10 @@ const Register = () => {
         } else {
           setErrorMessage("Erreur de base de données. Veuillez réessayer plus tard.");
         }
+      } else if (error.message && error.message.includes('User already registered')) {
+        setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
       } else {
-        setErrorMessage(getErrorMessage(error.code));
+        setErrorMessage(getErrorMessage(error.code || 'unknown'));
       }
     } finally {
       setIsLoading(false);
