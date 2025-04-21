@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -82,15 +81,18 @@ const Register = () => {
     try {
       console.log("Tentative de création de compte pour:", email);
       
-      // Vérifier d'abord si l'email existe déjà
+      // Vérification plus détaillée de l'email existant
       const { data: existingUsers, error: checkError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, email')
         .eq('email', email)
         .limit(1);
       
       if (checkError) {
         console.error("Erreur lors de la vérification de l'email:", checkError);
+        setErrorMessage("Une erreur technique est survenue. Veuillez réessayer.");
+        setIsLoading(false);
+        return;
       }
       
       if (existingUsers && existingUsers.length > 0) {
@@ -112,13 +114,24 @@ const Register = () => {
       });
       
       if (error) {
-        console.error("Erreur Supabase lors de l'inscription:", error);
+        console.error("Erreur Supabase lors de l'inscription détaillée:", {
+          message: error.message,
+          code: error.code,
+          details: error
+        });
         
-        // Gestion des erreurs spécifiques
-        if (error.message.includes('already registered')) {
+        // Gestion plus granulaire des erreurs
+        const errorMessage = error.message.toLowerCase();
+        
+        if (
+          errorMessage.includes('already registered') || 
+          errorMessage.includes('email already exists')
+        ) {
           setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+        } else if (errorMessage.includes('network')) {
+          setErrorMessage("Problème de connexion réseau. Veuillez vérifier votre connexion.");
         } else {
-          throw error;
+          setErrorMessage("Une erreur technique est survenue. Veuillez réessayer.");
         }
         
         setIsLoading(false);
@@ -136,21 +149,12 @@ const Register = () => {
         
         navigate('/stations');
       }
-    } catch (error: any) {
-      console.error("Erreur détaillée lors de l'inscription:", error);
       
-      // Traitement spécifique pour les erreurs Supabase
-      if (error.code === 'unexpected_failure') {
-        if (error.message && error.message.includes('duplicate key')) {
-          setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
-        } else {
-          setErrorMessage("Erreur de base de données. Veuillez réessayer plus tard.");
-        }
-      } else if (error.message && error.message.includes('User already registered')) {
-        setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
-      } else {
-        setErrorMessage(getErrorMessage(error.code || 'unknown'));
-      }
+    } catch (error: any) {
+      console.error("Erreur finale lors de l'inscription:", error);
+      
+      // Ajout de journalisation plus détaillée
+      setErrorMessage(error.message || "Une erreur inattendue est survenue");
     } finally {
       setIsLoading(false);
     }
