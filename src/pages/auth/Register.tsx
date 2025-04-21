@@ -92,7 +92,10 @@ const Register = () => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur Supabase lors de l'inscription:", error);
+        throw error;
+      }
       
       console.log("Compte créé avec succès, id:", data.user?.id);
       
@@ -107,7 +110,17 @@ const Register = () => {
       }
     } catch (error: any) {
       console.error("Erreur détaillée lors de l'inscription:", error);
-      setErrorMessage(getErrorMessage(error.code));
+      
+      // Traitement spécifique pour les erreurs Supabase
+      if (error.code === 'unexpected_failure') {
+        if (error.message && error.message.includes('duplicate key')) {
+          setErrorMessage("Cette adresse email est déjà utilisée par un autre compte");
+        } else {
+          setErrorMessage("Erreur de base de données. Veuillez réessayer plus tard.");
+        }
+      } else {
+        setErrorMessage(getErrorMessage(error.code));
+      }
     } finally {
       setIsLoading(false);
     }
