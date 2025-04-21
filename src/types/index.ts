@@ -1,3 +1,6 @@
+
+import { Station } from "./api";
+
 export interface NavItem {
   path: string;
   label: string;

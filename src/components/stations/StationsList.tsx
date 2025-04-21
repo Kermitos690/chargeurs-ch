@@ -3,47 +3,40 @@ import React from 'react';
 import { Station } from '@/types/api';
 import { MapPin, BatteryMedium, AlertCircle, Navigation } from 'lucide-react';
 import { formatDistance } from '@/utils/geo';
-
-interface StationsListProps {
-  isLoading: boolean;
-  error: unknown;
-  filteredStations: Station[];
-  selectedStation: string | null;
-  setSelectedStation: (id: string) => void;
-  userLocation: {latitude: number | null, longitude: number | null} | null;
-  stationsWithDistance: Array<Station & {distance: number | null}>;
-}
+import { StationsListProps } from '@/types';
 
 const StationsList: React.FC<StationsListProps> = ({
-  isLoading,
-  error,
-  filteredStations,
-  selectedStation,
-  setSelectedStation,
-  stationsWithDistance
+  stationsList,
+  selectedStationId,
+  onSelect,
+  userPosition
 }) => {
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-        <p className="mt-2">Chargement des bornes...</p>
-      </div>
-    );
-  }
+  // Calculer la distance pour chaque station si la position utilisateur est disponible
+  const stationsWithDistance = stationsList.map(station => {
+    let distance = null;
+    
+    if (userPosition?.latitude && userPosition?.longitude && station.latitude && station.longitude) {
+      // Calcul de la distance en utilisant la formule de Haversine
+      const R = 6371; // Rayon de la Terre en km
+      const lat1 = userPosition.latitude * Math.PI / 180;
+      const lat2 = station.latitude * Math.PI / 180;
+      const dLat = (station.latitude - userPosition.latitude) * Math.PI / 180;
+      const dLon = (station.longitude - userPosition.longitude) * Math.PI / 180;
+      
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      distance = R * c;
+    }
+    
+    return { ...station, distance };
+  });
 
-  if (error) {
-    return (
-      <div className="p-8 text-center text-destructive">
-        <AlertCircle className="h-10 w-10 mx-auto mb-2" />
-        <p>Une erreur est survenue lors du chargement des bornes.</p>
-      </div>
-    );
-  }
-
-  if (stationsWithDistance.length === 0) {
+  if (stationsList.length === 0) {
     return (
       <div className="p-8 text-center text-muted-foreground">
-        Aucune borne ne correspond à votre recherche.
+        Aucune borne disponible.
       </div>
     );
   }
@@ -62,9 +55,9 @@ const StationsList: React.FC<StationsListProps> = ({
         <div 
           key={station.id}
           className={`p-4 border-b cursor-pointer hover:bg-muted/50 transition-colors ${
-            selectedStation === station.id ? 'bg-primary/10' : ''
+            selectedStationId === station.id ? 'bg-primary/10' : ''
           }`}
-          onClick={() => setSelectedStation(station.id)}
+          onClick={() => onSelect(station.id)}
         >
           <div className="flex justify-between mb-2">
             <h3 className="font-medium">{station.name}</h3>
@@ -80,13 +73,13 @@ const StationsList: React.FC<StationsListProps> = ({
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
             <MapPin size={14} />
-            {station.location}
+            {station.location || station.address || 'Adresse non disponible'}
           </p>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <BatteryMedium size={16} />
               <span>
-                <span className="font-medium">{station.availablePowerBanks}</span>/{station.totalSlots} powerbanks
+                <span className="font-medium">{station.availablePowerBanks || 0}</span>/{station.totalSlots || 0} powerbanks
               </span>
             </div>
             {station.distance !== null && (

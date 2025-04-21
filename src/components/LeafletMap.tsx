@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Station } from '@/types/api';
+import { LeafletMapProps } from '@/types';
 
 // Fix for default marker icons in Leaflet with React
 // (Leaflet's default markers use files from the leaflet/dist/images folder)
@@ -44,20 +45,11 @@ const userIcon = new Icon({
   shadowSize: [41, 41]
 });
 
-interface LeafletMapProps {
-  stations: Station[];
-  selectedStation: string | null;
-  onStationSelect: (stationId: string) => void;
-  height?: string;
-  userLocation?: {latitude: number | null, longitude: number | null} | null;
-}
-
 const LeafletMap: React.FC<LeafletMapProps> = ({
   stations,
   selectedStation,
-  onStationSelect,
-  height = '100%',
-  userLocation
+  onMarkerClick,
+  userPosition
 }) => {
   useEffect(() => {
     // Ensure the CSS for Leaflet is loaded
@@ -77,15 +69,15 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
   const defaultCenter: LatLngExpression = [46.519962, 6.633597];
   
   // Use user location if available
-  const center = userLocation && userLocation.latitude && userLocation.longitude 
-    ? [userLocation.latitude, userLocation.longitude] as LatLngExpression
+  const center = userPosition && userPosition.latitude && userPosition.longitude 
+    ? [userPosition.latitude, userPosition.longitude] as LatLngExpression
     : defaultCenter;
 
   return (
-    <div style={{ width: '100%', height: height }}>
+    <div style={{ width: '100%', height: '100%' }}>
       <MapContainer 
         center={center} 
-        zoom={userLocation?.latitude ? 15 : 14} 
+        zoom={userPosition?.latitude ? 15 : 14} 
         style={{ width: '100%', height: '100%' }}
         className="z-0"
       >
@@ -94,10 +86,10 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        {userLocation && userLocation.latitude && userLocation.longitude && (
+        {userPosition && userPosition.latitude && userPosition.longitude && (
           <>
             <Marker
-              position={[userLocation.latitude, userLocation.longitude]}
+              position={[userPosition.latitude, userPosition.longitude]}
               icon={userIcon}
             >
               <Popup>
@@ -107,7 +99,7 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
               </Popup>
             </Marker>
             <Circle 
-              center={[userLocation.latitude, userLocation.longitude]}
+              center={[userPosition.latitude, userPosition.longitude]}
               radius={300}
               fillColor="blue"
               fillOpacity={0.1}
@@ -120,16 +112,16 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
         {stations.map((station) => (
           <Marker
             key={station.id}
-            position={[station.latitude, station.longitude]}
+            position={[station.latitude || 0, station.longitude || 0]}
             icon={selectedStation === station.id ? selectedStationIcon : stationIcon}
             eventHandlers={{
-              click: () => onStationSelect(station.id)
+              click: () => onMarkerClick(station.id)
             }}
           >
             <Popup>
               <div>
                 <h3 className="font-semibold">{station.name}</h3>
-                <p>{station.location}</p>
+                <p>{station.location || station.address || 'Adresse non disponible'}</p>
                 <p>
                   <span className={`inline-block px-2 py-0.5 rounded text-xs ${
                     station.status === 'online' 
@@ -142,7 +134,7 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
                   </span>
                 </p>
                 <p className="mt-1">
-                  <span className="font-medium">{station.availablePowerBanks}</span>/{station.totalSlots} powerbanks disponibles
+                  <span className="font-medium">{station.availablePowerBanks || 0}</span>/{station.totalSlots || 0} powerbanks disponibles
                 </p>
               </div>
             </Popup>
