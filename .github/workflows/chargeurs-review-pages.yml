@@ -1,11 +1,7 @@
 name: Chargeurs.ch Review Pages
 
+# Emergency cost control: manual execution only.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/chargeurs-review-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -14,7 +10,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: chargeurs-review-pages
+  group: chargeurs-review-pages-manual
   cancel-in-progress: true
 
 jobs:
