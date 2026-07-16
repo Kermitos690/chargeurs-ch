@@ -1,6 +1,11 @@
 name: Chargeurs.ch Review Pages
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/chargeurs-review-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -20,23 +25,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout static review branch
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
-          ref: github-review-preview
-      - name: Verify static review boundaries
+          ref: gh-pages
+      - name: Verify static review
         shell: bash
         run: |
           set -euo pipefail
-          test -f preview/index.html
-          ! grep -Eiq '(sk_live_|sk_test_|service_role|CHARGENOW_APP_SECRET|SUPABASE_SERVICE_ROLE)' preview/index.html
-          grep -F 'aucune opération réelle' preview/index.html
+          test -f index.html
+          test -f .nojekyll
+          ! grep -Eiq '(sk_live_|sk_test_|service_role|CHARGENOW_APP_SECRET|SUPABASE_SERVICE_ROLE)' index.html
+          grep -F 'aucune opération réelle' index.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: preview
+          path: .
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
